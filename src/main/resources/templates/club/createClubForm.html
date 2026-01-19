@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>모임 생성</title>
+</head>
+<body>
+<h1>새로운 모임 만들기</h1>
+
+<form th:action="@{/club/create}" th:object="${clubDTO}" method="post">
+
+    <div>
+        <label>모임 이름:</label>
+        <input type="text" th:field="*{name}" placeholder="모임명을 입력하세요" required>
+    </div>
+
+    <div>
+        <label>관심사 카테고리:</label>
+        <select th:field="*{topicId}">
+            <option value="1">운동</option>
+            <option value="2">스터디</option>
+            <option value="3">친목</option>
+        </select>
+    </div>
+
+    <div>
+        <label>활동 지역:</label>
+        <select th:field="*{cityId}">
+            <option value="1">서울</option>
+            <option value="2">구미</option>
+            <option value="3">부산</option>
+        </select>
+    </div>
+
+    <div>
+        <label>최대 인원:</label>
+        <input type="number" th:field="*{maxMember}" min="2" max="100" value="10">
+    </div>
+
+    <div>
+        <label>모임 소개:</label>
+        <textarea th:field="*{description}" rows="5" placeholder="모임을 소개해 주세요"></textarea>
+    </div>
+
+    <div>
+        <label>가입 질문:</label>
+        <input type="text" th:field="*{joinQuestion}" placeholder="가입 신청자에게 물어볼 질문">
+    </div>
+
+    <button type="submit">모임 개설하기</button>
+    <a th:href="@{/}">취소</a>
+</form>
+</body>
+</html>

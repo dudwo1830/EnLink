@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>모임 상세 정보</title>
+</head>
+<body>
+<h1>모임 상세 정보</h1>
+<hr>
+<div>
+    <p><strong>모임 번호:</strong> <span th:text="${club.clubId}"></span></p>
+    <p><strong>모임 이름:</strong> <span th:text="${club.name}"></span></p>
+    <p><strong>소개:</strong> <span th:text="${club.description}"></span></p>
+    <p><strong>최대 인원:</strong> <span th:text="${club.maxMember}"></span>명</p>
+    <p><strong>개설일:</strong> <span th:text="${#temporals.format(club.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+</div>
+<hr>
+
+<div style="margin-bottom: 20px;">
+    <a th:href="@{|/club/modify/${club.clubId}|}">
+        <button type="button" style="background-color: #ffc107;">수정하기(테스트)</button>
+    </a>
+
+    <form th:action="@{|/club/delete/${club.clubId}|}" method="post" style="display: inline;"
+          onsubmit="return confirm('정말로 이 모임을 삭제하시겠습니까? (1주일 유예 기간이 적용됩니다)');">
+        <button type="submit" style="background-color: #dc3545; color: white;">삭제하기(테스트)</button>
+    </form>
+</div>
+
+<a th:href="@{/club/list}">목록으로 돌아가기</a>
+<button type="button">가입 신청하기</button>
+
+</body>
+</html>

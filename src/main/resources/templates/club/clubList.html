@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>클럽 목록</title>
+</head>
+<body>
+<h1>현재 개설된 모임</h1>
+<table border="1">
+    <thead>
+    <tr>
+        <th>번호</th>
+        <th>모임명</th>
+        <th>정원</th>
+        <th>상태</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="club : ${clubs}">
+        <td th:text="${club.clubId}">1</td>
+        <td>
+            <a th:href="@{|/club/detail/${club.clubId}|}" th:text="${club.name}">모임이름</a>
+        </td>
+        <td th:text="|${club.maxMember}명|">10명</td>
+        <td th:text="${club.status}">ACTIVE</td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<a th:href="@{/club/create}">새 모임 만들기</a>
+</body>
+</html>

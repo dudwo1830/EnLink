@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,5 +7,8 @@
   </head>
   <body>
     <h1>HELLO ENLINK</h1>
+
+    <a th:href="@{/club/create}">모임 생성</a>
+    <a th:href="@{/club/list}">모임 리스트</a>
   </body>
 </html>
