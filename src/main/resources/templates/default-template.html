@@ -1,15 +1,15 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
-  <head th:replace="~{fragments/head :: head('HOME', ~{::link}, ~{::script})}">
+  <head th:replace="~{fragments/head :: head('TITLE', ~{::link}, ~{::script})}">
+    <!--/* link 태그와 script가 없을 경우 에러가 발생함 */-->
+    <!--/* link, script를 별도로 사용하지 않을 경우 이걸 남겨둘 것 */-->
     <link rel="stylesheet" href="#" th:if="${false}" />
     <script src="#" th:if="${false}"></script>
   </head>
   <body>
     <div class="grid-container">
       <header th:replace="~{fragments/header :: header}"></header>
-      <main class="main">
-        <h1>HELLO ENLINK</h1>
-      </main>
+      <main class="main"></main>
       <footer th:replace="~{fragments/footer :: footer}"></footer>
     </div>
   </body>
