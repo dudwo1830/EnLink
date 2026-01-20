@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>게시글 상세보기</title>
+</head>
+<body>
+<h1>게시글 상세 내용</h1>
+<hr>
+<div>
+    <p><strong>제목:</strong> <span id="title">로딩 중...</span></p>
+    <p><strong>작성자:</strong> <span id="memberId"></span></p>
+    <p><strong>작성일:</strong> <span id="createdAt"></span></p>
+    <div style="border: 1px solid #ccc; padding: 20px; min-height: 200px;">
+        <p id="content"></p>
+    </div>
+</div>
+<br>
+<button onclick="location.href='/post/list'">목록으로</button>
+<button type="button" onclick="deletePost()" style="background-color: red; color: white;">삭제하기</button>
+
+<script th:inline="javascript">
+    // 타임리프를 통해 컨트롤러에서 넘겨받은 postId를 자바스크립트 변수로 사용
+    /* 주석을 활용한 타임리프 인라인 문법 */
+    const postId = /*[[${postId}]]*/ 0;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchDetail();
+    });
+
+    function fetchDetail() {
+        // 이전에 만든 API 컨트롤러의 @GetMapping("/{postId}")를 호출합니다.
+        fetch(`/api/posts/${postId}`)
+            .then(response => response.json())
+            .then(post => {
+                document.getElementById('title').innerText = post.title;
+                document.getElementById('memberId').innerText = post.memberId;
+                document.getElementById('createdAt').innerText = post.createdAt.replace('T', ' ');
+                document.getElementById('content').innerText = post.content;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('데이터를 가져오는 데 실패했습니다.');
+            });
+    }
+
+    function deletePost() {
+        if (!confirm('정말로 이 글을 삭제하시겠습니까?')) return;
+
+        fetch(`/api/posts/${postId}`, {
+            method: 'DELETE' // HTTP 메서드를 DELETE로 설정
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('삭제되었습니다.');
+                location.href = '/post/list'; // 삭제 후 목록으로 이동
+            } else {
+                alert('삭제 실패!');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
+</body>
+</html>

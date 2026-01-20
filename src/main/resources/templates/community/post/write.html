@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>글쓰기</title>
+</head>
+<body>
+<h1>게시글 작성</h1>
+<form id="writeForm">
+    <input type="text" id="title" placeholder="제목을 입력하세요" required><br>
+    <textarea id="content" placeholder="내용을 입력하세요" required></textarea><br>
+    <input type="hidden" id="clubId" value="1">
+    <input type="hidden" id="memberId" value="user01">
+    <button type="button" onclick="savePost()">등록</button>
+</form>
+
+<script>
+    function savePost() {
+        const data = {
+            clubId: document.getElementById('clubId').value,
+            memberId: document.getElementById('memberId').value,
+            title: document.getElementById('title').value,
+            content: document.getElementById('content').value
+        };
+
+        fetch('/api/posts', {   // 1. 요청 주소
+            method: 'POST',     // 2. HTTP 메서드 (저장하니까 POST)
+            headers: { 'Content-Type': 'application/json' },    // 3. 보낼 데이터의 형식
+            body: JSON.stringify(data)  // 4. 실제 데이터 (문자열로 변환)
+        })
+        .then(response => {
+            if(response.ok) {   // 서버 응답이 200번대(성공)인지 확인
+                alert('글이 성공적으로 등록되었습니다!');
+                location.href = '/post/list'; // 등록 후 목록으로 이동
+            } else {
+                alert('등록 실패!');
+            }
+        });
+    }
+</script>
+</body>
+</html>
