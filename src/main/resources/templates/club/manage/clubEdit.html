@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>모임 정보 수정</title>
+</head>
+<body>
+<h1>모임 정보 수정</h1>
+
+<form th:action="@{/club/{clubId}/manage/edit(clubId=${clubDTO.clubId})}"
+      th:object="${clubDTO}"
+      method="post"
+      enctype="multipart/form-data">
+
+    <!-- 모임 ID (hidden) -->
+    <input type="hidden" th:field="*{clubId}"/>
+
+    <!-- 기존 이미지 경로 유지용 -->
+    <input type="hidden" th:field="*{imageUrl}"/>
+
+    <!-- 모임 이름 -->
+    <div>
+        <label>모임 이름:</label>
+        <input type="text" th:field="*{name}" required>
+    </div>
+
+    <!-- 현재 모임 이미지 -->
+    <div>
+        <label>현재 모임 이미지</label><br>
+
+        <img th:src="${clubDTO.imageUrl != null ? clubDTO.imageUrl : '/images/default_club.jpg'}"
+             alt="모임 이미지"
+             width="200"
+             onerror="this.src='/images/default_club.jpg'">
+    </div>
+
+    <!-- 이미지 변경 -->
+    <div>
+        <label>모임 이미지 변경</label>
+        <input type="file" th:field="*{uploadFile}" accept="image/*">
+        <p style="color: gray; font-size: 0.8em;">
+            * 이미지를 선택하지 않으면 기존 이미지가 유지됩니다.
+        </p>
+    </div>
+
+    <!-- 카테고리 -->
+    <div>
+        <label>관심사 카테고리:</label>
+        <select th:field="*{topicId}">
+            <option value="1">운동</option>
+            <option value="2">스터디</option>
+            <option value="3">친목</option>
+        </select>
+    </div>
+
+    <!-- 지역 -->
+    <div>
+        <label>상세 지역 (구/군)</label>
+        <select th:field="*{cityId}">
+            <option value="">-- 상세 지역 선택 --</option>
+            <option value="2">강남구</option>
+        </select>
+    </div>
+
+    <!-- 최대 인원 -->
+    <div>
+        <label>최대 인원:</label>
+        <input type="number" th:field="*{maxMember}" min="2" max="100">
+    </div>
+
+    <!-- 소개 -->
+    <div>
+        <label>모임 소개:</label>
+        <textarea th:field="*{description}" rows="5"></textarea>
+    </div>
+
+    <!-- 가입 질문 -->
+    <div>
+        <label>가입 질문:</label>
+        <input type="text" th:field="*{joinQuestion}">
+    </div>
+
+    <button type="submit">수정 완료</button>
+    <a th:href="@{/club/{id}(id=${clubDTO.clubId})}">취소</a>
+
+</form>
+
+</body>
+</html>

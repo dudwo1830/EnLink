@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>EnLink - 모임 목록</title>
+</head>
+<body>
+
+<div class="container">
+    <h1>EnLink 모임 목록</h1>
+    <p th:text="|접속자: ${loginMemberId != null ? loginMemberId : '게스트'}|">접속자 정보</p>
+    <hr>
+
+    <div th:if="${#lists.isEmpty(clubs)}">개설된 모임이 없습니다.</div>
+
+    <a th:each="club : ${clubs}" th:href="@{/club/{id}(id=${club.clubId})}"
+       style="display: flex; text-decoration: none; color: inherit; border-bottom: 1px solid #eee; padding: 15px; margin-bottom: 10px;">
+
+        <div style="margin-right: 20px;">
+            <img th:src="${club.imageUrl}" alt="모임 이미지"
+                 width="100" height="100" style="border-radius: 12px; object-fit: cover;">
+        </div>
+
+        <div style="flex: 1;">
+            <h3 th:text="${club.name}" style="margin: 0 0 5px 0;">모임 이름</h3>
+
+            <p th:text="${club.description}" style="color: #666; font-size: 0.9em; margin-bottom: 10px;">모임 설명...</p>
+
+            <div style="font-size: 0.85em; color: #888;">
+                <span th:text="${club.topicId == 2 ? '스터디' : '주제'}">주제명</span> ·
+                <span th:text="${club.cityId == 2 ? '강남구' : '지역명'}">지역명</span> ·
+                <span>멤버 1 / <span th:text="${club.maxMember}">10</span></span>
+            </div>
+        </div>
+    </a>
+</div>
+
+<hr>
+
+    <a th:href="@{/club/create}">새 모임 만들기</a>
+
+
+</body>
+</html>
