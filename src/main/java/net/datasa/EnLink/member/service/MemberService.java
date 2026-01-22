@@ -1,5 +1,6 @@
 package net.datasa.EnLink.member.service;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -15,12 +16,13 @@ import net.datasa.EnLink.member.repository.MemberRepository;
 @Service
 @RequiredArgsConstructor
 public class MemberService {
+	private final BCryptPasswordEncoder passwordEncoder;
 	private final MemberRepository memberRepository;
 
 	public void create(MemberCreateRequest request) {
 		MemberEntity entity = MemberEntity.builder()
 				.memberId(request.getMemberId())
-				.password(request.getPassword())
+				.password(passwordEncoder.encode(request.getPassword()))
 				.name(request.getName())
 				.email(request.getEmail())
 				.birth(request.getBirth())
@@ -31,10 +33,7 @@ public class MemberService {
 
 	public void update(MemberUpdateRequest request, String memberId) {
 		MemberEntity entity = memberRepository.findById(memberId).orElse(null);
-		entity.setPassword(request.getPassword());
-		entity.setName(request.getName());
-		entity.setEmail(request.getEmail());
-		entity.setBirth(request.getBirth());
+		entity.updateProfile(request.getName(), request.getEmail(), request.getBirth());
 	}
 
 	public MemberDetailResponse read(String memberId) {
@@ -49,6 +48,6 @@ public class MemberService {
 
 	public void delete(String memberId) {
 		MemberEntity entity = memberRepository.findById(memberId).orElse(null);
-		entity.setStatus(MemberStatus.INACTIVE);
+		entity.updateStatus(MemberStatus.INACTIVE);
 	}
 }

@@ -23,7 +23,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Entity
 @Table(name = "members")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -61,4 +60,14 @@ public class MemberEntity {
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
+
+	public void updateProfile(String name, String email, LocalDate birth) {
+		this.name = name;
+		this.email = email;
+		this.birth = birth;
+	}
+
+	public void updateStatus(MemberStatus status) {
+		this.status = status;
+	}
 }
