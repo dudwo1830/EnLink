@@ -30,4 +30,11 @@ public class PostViewController {
 		model.addAttribute("postId", postId);
 		return "community/post/detail";
 	}
+	
+	// 게시글 수정
+	@GetMapping("edit/{postId}")
+	public String editForm(@PathVariable(name = "postId") Integer postId, Model model) {
+		model.addAttribute("postId", postId);
+		return "community/post/edit";
+	}
 }
