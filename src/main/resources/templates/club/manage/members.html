@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>멤버 관리</title>
+</head>
+<body>
+<div th:fragment="content">
+    <h3>멤버 관리</h3>
+
+    <table>
+        <tr>
+            <th>닉네임</th>
+            <th>권한</th>
+            <th>관리</th>
+        </tr>
+
+        <tr th:each="m : ${members}">
+            <td th:text="${m.nickname}"></td>
+            <td th:text="${m.role}"></td>
+            <td>
+                <select>
+                    <option>일반</option>
+                    <option>운영진</option>
+                </select>
+                <button>변경</button>
+                <button class="danger">강퇴</button>
+            </td>
+        </tr>
+    </table>
+</div>
+
+</body>
+</html>

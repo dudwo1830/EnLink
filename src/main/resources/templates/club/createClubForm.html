@@ -7,11 +7,17 @@
 <body>
 <h1>새로운 모임 만들기</h1>
 
-<form th:action="@{/club/create}" th:object="${clubDTO}" method="post">
+<form th:action="@{/club/create}" th:object="${clubDTO}" method="post" enctype="multipart/form-data">
 
     <div>
         <label>모임 이름:</label>
         <input type="text" th:field="*{name}" placeholder="모임명을 입력하세요" required>
+    </div>
+
+    <div>
+        <label>모임 이미지 업로드</label>
+        <input type="file" th:field="*{uploadFile}" accept="image/*">
+        <p style="color: gray; font-size: 0.8em;">* 이미지를 선택하지 않으면 기본 이미지가 등록됩니다.</p>
     </div>
 
     <div>
@@ -23,12 +29,11 @@
         </select>
     </div>
 
-    <div>
-        <label>활동 지역:</label>
-        <select th:field="*{cityId}">
-            <option value="1">서울</option>
-            <option value="2">구미</option>
-            <option value="3">부산</option>
+    <div class="form-group">
+        <label>상세 지역 (구/군)</label>
+        <select th:field="*{cityId}" id="citySelect" class="form-control">
+            <option value="">-- 상세 지역 선택 --</option>
+            <option value="2">강남구</option>
         </select>
     </div>
 

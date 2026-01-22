@@ -10,8 +10,8 @@ import java.util.List;
 public interface ClubMemberHistoryRepository extends JpaRepository<ClubMemberHistoryEntity, Integer> {
 	
 	// 특정 모임에서 발생한 모든 이력 최신순 조회
-	List<ClubMemberHistoryEntity> findByClubIdOrderByCreatedAtDesc(Integer clubId);
+	List<ClubMemberHistoryEntity> findByClubClubIdOrderByCreatedAtDesc(Integer clubId);
 	
 	// 특정 유저(대상자)에 대한 이력 조회
-	List<ClubMemberHistoryEntity> findByTargetMemberId(String targetMemberId);
+	List<ClubMemberHistoryEntity> findByTargetMemberMemberId(String memberId);
 }

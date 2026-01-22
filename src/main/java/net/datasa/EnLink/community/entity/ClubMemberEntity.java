@@ -1,42 +1,57 @@
 package net.datasa.EnLink.community.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import lombok.NoArgsConstructor;
+import net.datasa.EnLink.member.entity.MemberEntity;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "club_members", uniqueConstraints = {
-		@UniqueConstraint(columnNames = {"club_id", "member_id"})
-})
 @Data
+@Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "club_members")
 public class ClubMemberEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "cm_id")
 	private Integer cmId;
 	
-	@Column(name = "club_id", nullable = false)
-	private Integer clubId;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "club_id")
+	private ClubEntity club;
 	
-	@Column(name = "member_id", nullable = false, length = 20)
-	private String memberId;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "member_id")
+	private MemberEntity member;
 	
-	@Column(name = "role", columnDefinition = "ENUM('MEMBER', 'MANAGER', 'OWNER')")
-	// @Enumerated(EnumType.STRING) <-- 에러가 나면 이 줄은 삭제하거나 주석 처리하세요!
+	@Column(name = "role", columnDefinition = "ENUM('OWNER', 'MANAGER', 'MEMBER')")
 	private String role;
 	
-	@Column(nullable = false)
-	private String status = "PENDING"; // PENDING, ACTIVE, BANNED, EXIT
+	@Column(name = "status")
+	private String status; // PENDING, ACTIVE, BANNED, EXIT, REJECTED
 	
+	@Column(name = "joined_at")
 	private LocalDateTime joinedAt;
 	
-	@CreationTimestamp
-	@Column(nullable = false, updatable = false)
+	@Column(name = "applied_at", updatable = false)
 	private LocalDateTime appliedAt;
 	
-	@UpdateTimestamp
-	@Column(nullable = false)
+	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
+	
+	@PrePersist
+	protected void onCreate() {
+		this.appliedAt = LocalDateTime.now();
+		this.updatedAt = LocalDateTime.now();
+	}
+	
+	@PreUpdate
+	protected void onUpdate() {
+		this.updatedAt = LocalDateTime.now();
+	}
 }

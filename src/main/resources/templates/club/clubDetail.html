@@ -6,29 +6,85 @@
 </head>
 <body>
 <h1>모임 상세 정보</h1>
+
+<nav class="club-tabs">
+    <a th:href="@{/club/{id}(id=${club.clubId})}">홈</a>
+    <a th:href="@{/club/{id}/board(id=${club.clubId})}">게시판</a>
+    <a th:href="@{/club/{id}/album(id=${club.clubId})}">사진첩</a>
+    <a th:href="@{/club/{id}/chat(id=${club.clubId})}">채팅</a>
+    <a th:href="@{/club/{id}/manage/requests(id=${club.clubId})}">모임관리</a>
+</nav>
+
 <hr>
-<div>
-    <p><strong>모임 번호:</strong> <span th:text="${club.clubId}"></span></p>
+
+<section class="club-info">
+    <img th:src="${club.imageUrl}" alt="모임 이미지">
     <p><strong>모임 이름:</strong> <span th:text="${club.name}"></span></p>
     <p><strong>소개:</strong> <span th:text="${club.description}"></span></p>
     <p><strong>최대 인원:</strong> <span th:text="${club.maxMember}"></span>명</p>
-    <p><strong>개설일:</strong> <span th:text="${#temporals.format(club.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
-</div>
+</section>
+
 <hr>
 
-<div style="margin-bottom: 20px;">
-    <a th:href="@{|/club/modify/${club.clubId}|}">
-        <button type="button" style="background-color: #ffc107;">수정하기(테스트)</button>
-    </a>
+<div class="join-section">
+    <div th:if="${applyStatus == 'PENDING'}">
+        <button type="button" disabled>가입 대기 중</button>
+        <form th:action="@{|/club/${club.clubId}/apply/cancel|}" method="post" style="display: inline;">
+            <button type="submit" onclick="return confirm('신청을 취소하시겠습니까?')">신청 취소</button>
+        </form>
+    </div>
 
-    <form th:action="@{|/club/delete/${club.clubId}|}" method="post" style="display: inline;"
-          onsubmit="return confirm('정말로 이 모임을 삭제하시겠습니까? (1주일 유예 기간이 적용됩니다)');">
-        <button type="submit" style="background-color: #dc3545; color: white;">삭제하기(테스트)</button>
-    </form>
+    <div th:if="${applyStatus == null}">
+        <button type="button" onclick="openApplyModal()">가입 신청하기</button>
+    </div>
+
+    <div th:if="${applyStatus == 'ACTIVE'}">
+        <form th:action="@{|/club/${club.clubId}/leave|}" method="post" style="display: inline;">
+            <button type="submit" onclick="return confirm('정말로 이 모임에서 탈퇴하시겠습니까?')"
+                    style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                모임 탈퇴
+            </button>
+        </form>
+    </div>
 </div>
 
+<div id="applyModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h3>모임 가입 신청</h3>
+        <p><strong>가입 질문:</strong></p>
+        <p th:text="${club.joinQuestion}"></p>
+
+        <form th:action="@{|/club/${club.clubId}/apply|}" method="post">
+            <label for="answer">답변 입력:</label>
+            <input type="text" id="answer" name="answer" placeholder="답변을 입력해주세요." required>
+
+            <div class="modal-buttons">
+                <button type="button" onclick="closeApplyModal()">취소</button>
+                <button type="submit">가입 신청 완료</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<br>
 <a th:href="@{/club/list}">목록으로 돌아가기</a>
-<button type="button">가입 신청하기</button>
+
+<script th:inline="javascript">
+    function openApplyModal() {
+        document.getElementById('applyModal').style.display = 'block';
+    }
+
+    function closeApplyModal() {
+        document.getElementById('applyModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('applyModal');
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
 
 </body>
 </html>

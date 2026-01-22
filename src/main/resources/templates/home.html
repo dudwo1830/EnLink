@@ -6,9 +6,17 @@
     <title>Document</title>
   </head>
   <body>
-    <h1>HELLO ENLINK</h1>
+  <h1>HELLO ENLINK</h1>
 
-    <a th:href="@{/club/create}">모임 생성</a>
-    <a th:href="@{/club/list}">모임 리스트</a>
+  <nav>
+      <a th:href="@{/club/create}">모임 생성</a> |
+      <a th:href="@{/club/list}">모임 리스트</a>
+  </nav>
+
+  <div class="admin-box">
+      <h3>[관리자 전용]</h3>
+      <a th:href="@{/admin/club/list}" style="color: red; font-weight: bold;">전체 모임 관리 (Admin)</a>
+  </div>
+
   </body>
 </html>

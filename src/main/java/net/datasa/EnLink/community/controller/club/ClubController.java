@@ -2,7 +2,6 @@ package net.datasa.EnLink.community.controller.club;
 
 import lombok.RequiredArgsConstructor;
 import net.datasa.EnLink.community.dto.ClubDTO;
-import net.datasa.EnLink.community.entity.ClubEntity;
 import net.datasa.EnLink.community.service.ClubService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,55 +17,85 @@ public class ClubController {
 	final ClubService clubService;
 	
 	@GetMapping("/create")
-	public String createClubForm(Model model){
+	public String createForm(Model model){
 		model.addAttribute("clubDTO", new ClubDTO());
 		return "club/createClubForm";
 	}
 	
 	@PostMapping("/create")
-	public String createClub(@ModelAttribute("clubDTO") ClubDTO clubDTO) {
-		// 1. 데이터 확인용 로그 (개발 단계에서 아주 중요!)
-		System.out.println("전송된 모임 데이터: " + clubDTO);
+	public String create(@ModelAttribute("clubDTO") ClubDTO clubDTO) {
 		
-		// 2. 현재 로그인한 사용자 ID 가져오기
-		// (아직 로그인 기능 전이라면 임시로 배경호 님의 ID를 사용하세요)
+		// 1. 시큐리티 대신 임시로 DB에 존재하는 아이디를 넣습니다.
+		// (영재님이 만든 members 테이블에 "bgh_leader"라는 ID가 있다고 가정)
 		String loginId = "bgh_leader";
 		
-		// 3. 서비스 호출하여 저장 로직 실행
-		// (DTO를 서비스로 넘겨서 처리합니다)
+		System.out.println("임시 로그인 유저: " + loginId + "가 모임을 생성합니다.");
+		
+		// 2. 서비스 호출 (기존과 동일)
 		clubService.createClub(clubDTO, loginId);
 		
-		// 4. 완료 후 목록 화면으로 이동 (새로고침 중복 방지를 위해 redirect 사용)
 		return "redirect:/club/list";
 	}
 	
 	@GetMapping("/list")
 	public String list(Model model) {
-		List<ClubEntity> clubs = clubService.getAllClubs();
+		List<ClubDTO> clubs = clubService.getClubList();
 		model.addAttribute("clubs", clubs);
 		return "club/clubList"; // templates/club/clubList.html
 	}
 	
-	// 모임 상세 정보 조회
-	@GetMapping("/detail/{id}")
+	/**
+	 * 클럽 상세조회
+	 * */
+	
+	@GetMapping("{id}")
 	public String detail(@PathVariable("id") Integer id, Model model) {
-		ClubEntity club = clubService.getClubById(id);
+		ClubDTO club = clubService.getClubDetail(id);
+		String loginId = "bgh_guest"; // 현재 로그인한 유저 ID (가정)
+		
+		// 이 유저의 해당 모임 신청 상태를 가져옵니다 (PENDING, ACCEPTED 등)
+		String applyStatus = clubService.getApplicationStatus(id, loginId);
+		
 		model.addAttribute("club", club);
-		return "club/clubDetail"; // templates/club/clubDetail.html
+		model.addAttribute("applyStatus", applyStatus);
+		return "club/clubDetail";
 	}
 	
-	// 수정 폼 띄우기
-	@GetMapping("/modify/{id}")
-	public String modifyForm(@PathVariable("id") Integer id, Model model) {
-		ClubEntity club = clubService.getClubById(id);
-		model.addAttribute("clubDTO", club); // 기존 데이터를 DTO나 Entity에 담아 전달
-		return "club/modifyClubForm";
+	/**
+	 * 클럽가입신청
+	 * */
+	
+	@PostMapping("/{clubId}/apply")
+	public String apply(@PathVariable("clubId") Integer clubId, @RequestParam("answer") String answer) {
+		String loginId = "bgh_guest"; // 테스트용
+		clubService.applyToClub(clubId, loginId, answer);
+		return "redirect:/club/" + clubId;
 	}
 	
-	// 수정 처리
-	@PostMapping("/modify/{id}")
-	public String modify(@PathVariable("id") Integer id, @ModelAttribute("clubDTO") ClubDTO clubDTO) {
-		clubService.updateClub(id, clubDTO);
-		return "redirect:/club/detail/" + id;
+	/**
+	 * 클럽가입신청 취소
+	 * */
+	
+	@PostMapping("/{clubId}/apply/cancel")
+	public String cancelApply(@PathVariable("clubId") Integer clubId) {
+		String loginId = "bgh_guest";
+		clubService.cancelApplication(clubId, loginId); // 이 서비스 메서드도 만들어야 합니다.
+		return "redirect:/club/" + clubId;
 	}
+	
+	/**
+	 * 회원탈퇴(회원 스스로)
+	 * */
+	
+	
+	@PostMapping("/{clubId}/leave")
+	public String leave(@PathVariable("clubId") Integer clubId) {
+		String loginId = "bgh_guest"; // 현재는 테스트용 아이디
+		
+		clubService.leaveClub(clubId, loginId);
+		
+		// 탈퇴 후에는 다시 상세 페이지로 이동 (그러면 '가입 신청하기' 버튼이 뜨겠죠?)
+		return "redirect:/club/" + clubId;
+	}
+	
 }

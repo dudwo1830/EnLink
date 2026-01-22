@@ -1,13 +1,19 @@
 package net.datasa.EnLink.community.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "clubs")
 @Data
 public class ClubEntity {
@@ -24,14 +30,16 @@ public class ClubEntity {
 	
 	private String description;
 	
-	@Column(nullable = false)
-	private String imageUrl = "default_image_url";
+	@Builder.Default // 1. 빌더를 사용할 때도 이 기본값을 쓰겠다고 명시 (추가)
+	@Column(nullable = false) // 2. DB 컬럼 설정 (기존 유지)
+	private String imageUrl = "/images/default_club.jpg"; // 3. 실제 이미지 경로로 수정
 	
 	@Column(nullable = false)
 	private Integer maxMember = 10;
 	
 	private String joinQuestion;
 	
+	@Builder.Default
 	@Column(nullable = false)
 	private String status = "ACTIVE";
 	
