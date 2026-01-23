@@ -9,6 +9,7 @@ import net.datasa.EnLink.member.dto.request.MemberCreateRequest;
 import net.datasa.EnLink.member.dto.request.MemberUpdateRequest;
 import net.datasa.EnLink.member.dto.response.MemberDetailResponse;
 import net.datasa.EnLink.member.entity.MemberEntity;
+import net.datasa.EnLink.member.entity.MemberRole;
 import net.datasa.EnLink.member.entity.MemberStatus;
 import net.datasa.EnLink.member.repository.MemberRepository;
 
@@ -27,6 +28,7 @@ public class MemberService {
 				.email(request.getEmail())
 				.birth(request.getBirth())
 				.status(MemberStatus.ACTIVE)
+				.role(MemberRole.USER)
 				.build();
 		memberRepository.save(entity);
 	}

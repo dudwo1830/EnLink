@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -61,6 +60,9 @@ public class MemberEntity {
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
 
+	@Column(name = "role", length = 20, nullable = false)
+	private MemberRole role;
+
 	public void updateProfile(String name, String email, LocalDate birth) {
 		this.name = name;
 		this.email = email;
@@ -69,5 +71,9 @@ public class MemberEntity {
 
 	public void updateStatus(MemberStatus status) {
 		this.status = status;
+	}
+
+	public void updateRole(MemberRole role) {
+		this.role = role;
 	}
 }
