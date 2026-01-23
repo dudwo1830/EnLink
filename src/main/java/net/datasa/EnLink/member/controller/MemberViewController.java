@@ -23,7 +23,7 @@ public class MemberViewController {
 	 * 
 	 * @return
 	 */
-	@GetMapping("")
+	@GetMapping("/signup")
 	public String signup() {
 		return TEMPLATE_PATH + "signup";
 	}
