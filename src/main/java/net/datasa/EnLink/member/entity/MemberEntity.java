@@ -60,6 +60,7 @@ public class MemberEntity {
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
 
+	@Enumerated(EnumType.STRING)
 	@Column(name = "role", length = 20, nullable = false)
 	private MemberRole role;
 
