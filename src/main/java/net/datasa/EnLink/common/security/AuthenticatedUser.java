@@ -1,4 +1,4 @@
-package net.datasa.EnLink.common.interceptor;
+package net.datasa.EnLink.common.security;
 
 import java.util.Collection;
 import java.util.Collections;

@@ -1,4 +1,4 @@
-package net.datasa.EnLink.common.interceptor;
+package net.datasa.EnLink.common.security;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

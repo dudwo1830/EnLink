@@ -2,6 +2,7 @@ package net.datasa.EnLink.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -10,6 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
 	@Bean
@@ -20,15 +22,13 @@ public class SecurityConfig {
 
 	// 인증 없이 접근 가능한 URL
 	private static final String[] PUBLIC_URLS = {
-			// 메인 페이지
-			"/"
-			// 에러 페이지
-			, "/error"
+			// 공통 페이지
+			"/", "/error", "/.well-known/**"
 			// 정적 리소스
 			, "/images/**", "/css/**", "/js/**"
 			// 사용자 정의
 			// 회원
-			, "members/signup"
+			, "members/signup", "api/members"
 	};
 
 	/**
@@ -49,7 +49,7 @@ public class SecurityConfig {
 						.authenticated())
 				.httpBasic(AbstractHttpConfigurer::disable)
 				.formLogin(form -> form
-						.loginPage("/login")
+						.loginPage("/auth/login")
 						.usernameParameter("memberId")
 						.passwordParameter("password")
 						.loginProcessingUrl("/auth/login")
