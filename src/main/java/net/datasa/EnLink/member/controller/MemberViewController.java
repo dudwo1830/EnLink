@@ -1,5 +1,6 @@
 package net.datasa.EnLink.member.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,11 +25,20 @@ public class MemberViewController {
 	 * @return
 	 */
 	@GetMapping("/signup")
+	@PreAuthorize("isAnonymous()")
 	public String signup() {
 		return TEMPLATE_PATH + "signup";
 	}
 
+	/**
+	 * 마이페이지
+	 * 
+	 * @param memberId
+	 * @param model
+	 * @return
+	 */
 	@GetMapping("{memberId}")
+	@PreAuthorize("#memberId == authentication.name")
 	public String read(@PathVariable String memberId, Model model) {
 		MemberDetailResponse response = memberService.read(memberId);
 		model.addAttribute("member", response);

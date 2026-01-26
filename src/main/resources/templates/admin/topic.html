@@ -1,0 +1,17 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/head :: head('TITLE', ~{::link}, ~{::script})}">
+    <link rel="stylesheet" href="#" th:if="${false}" />
+    <script src="#" th:if="${false}"></script>
+  </head>
+  <body>
+    <div class="grid-container">
+      <header th:replace="~{fragments/header :: header}"></header>
+      <aside th:replace="~{fragments/aside :: aside}"></aside>
+      <main class="main">
+        <h1>Only ADMIN</h1>
+      </main>
+      <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+  </body>
+</html>
