@@ -70,6 +70,10 @@ public class MemberEntity {
 		this.birth = birth;
 	}
 
+	public void updatePassword(String password) {
+		this.password = password;
+	}
+
 	public void updateStatus(MemberStatus status) {
 		this.status = status;
 	}

@@ -1,6 +1,8 @@
-package net.datasa.EnLink.member.dto.request;
+package net.datasa.EnLink.member.dto.response;
 
 import java.time.LocalDate;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,11 +15,11 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MemberUpdateRequest {
+public class MemberUpdateResponse {
+	private String memberId;
 	private String name;
 	private String password;
-	private String newPassword;
-	private String rePassword;
 	private String email;
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate birth;
 }

@@ -7,10 +7,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import lombok.RequiredArgsConstructor;
 import net.datasa.EnLink.member.dto.response.MemberDetailResponse;
+import net.datasa.EnLink.member.dto.response.MemberUpdateResponse;
 import net.datasa.EnLink.member.service.MemberService;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("members")
@@ -24,10 +26,16 @@ public class MemberViewController {
 	 * 
 	 * @return
 	 */
-	@GetMapping("/signup")
-	@PreAuthorize("isAnonymous()")
+	@GetMapping("signup")
 	public String signup() {
 		return TEMPLATE_PATH + "signup";
+	}
+
+	@GetMapping("{memberId}/edit")
+	public String edit(@PathVariable String memberId, Model model) {
+		MemberUpdateResponse response = memberService.edit(memberId);
+		model.addAttribute("member", response);
+		return TEMPLATE_PATH + "edit";
 	}
 
 	/**
@@ -38,7 +46,6 @@ public class MemberViewController {
 	 * @return
 	 */
 	@GetMapping("{memberId}")
-	@PreAuthorize("#memberId == authentication.name")
 	public String read(@PathVariable String memberId, Model model) {
 		MemberDetailResponse response = memberService.read(memberId);
 		model.addAttribute("member", response);
