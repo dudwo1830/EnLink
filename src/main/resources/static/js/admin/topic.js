@@ -1,4 +1,4 @@
-const API_BASE = '/topics';
+const API_BASE = '/api/topics';
 const editButtons = document.querySelectorAll('button.editBtn');
 const addButton = document.querySelector('#addBtn');
 

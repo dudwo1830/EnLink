@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
-@RequestMapping("topics")
+@RequestMapping("api/topics")
 @RequiredArgsConstructor
 public class TopicRestController {
 	private final TopicService topicService;
