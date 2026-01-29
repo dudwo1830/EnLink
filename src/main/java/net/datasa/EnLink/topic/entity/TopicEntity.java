@@ -15,7 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.datasa.EnLink.membertopic.entity.MemberTopicInterest;
+import net.datasa.EnLink.membertopic.entity.MemberTopicEntity;
 
 @Builder
 @Getter
@@ -32,6 +32,9 @@ public class TopicEntity {
 
 	@Column(nullable = false, length = 20)
 	private String name;
+
+	@OneToMany(mappedBy = "topic", cascade = CascadeType.ALL, orphanRemoval = true)
+	private final List<MemberTopicEntity> memberInterests = new ArrayList<>();
 
 	public void updateName(String name) {
 		this.name = name;

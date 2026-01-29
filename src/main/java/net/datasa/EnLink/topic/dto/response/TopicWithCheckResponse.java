@@ -1,4 +1,4 @@
-package net.datasa.EnLink.topic.dto;
+package net.datasa.EnLink.topic.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TopicDTO {
+public class TopicWithCheckResponse {
 	private int topicId;
 	private String name;
+	private boolean checked;
 }

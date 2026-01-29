@@ -8,40 +8,48 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import net.datasa.EnLink.topic.dto.TopicDTO;
+import net.datasa.EnLink.topic.dto.request.TopicCreateRequest;
+import net.datasa.EnLink.topic.dto.request.TopicUpdateRequest;
+import net.datasa.EnLink.topic.dto.response.TopicWithCheckResponse;
+import net.datasa.EnLink.topic.dto.response.TopicDetailResponse;
 import net.datasa.EnLink.topic.entity.TopicEntity;
 import net.datasa.EnLink.topic.repository.TopicRepository;
 
 @Transactional
 @Service
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
 public class TopicService {
 	private final TopicRepository topicRepository;
 
-	public void create(TopicDTO request) {
+	@PreAuthorize("hasRole('ADMIN')")
+	public void create(TopicCreateRequest request) {
 		TopicEntity entity = TopicEntity.builder()
 				.name(request.getName())
 				.build();
 		topicRepository.save(entity);
 	}
 
-	public void update(int topicId, TopicDTO request) {
+	@PreAuthorize("hasRole('ADMIN')")
+	public void update(int topicId, TopicUpdateRequest request) {
 		TopicEntity entity = topicRepository.findById(topicId).orElse(null);
 		entity.updateName(request.getName());
 	}
 
-	public List<TopicDTO> getListAll() {
+	public List<TopicDetailResponse> getListAll() {
 		List<TopicEntity> entities = topicRepository.findAll();
-		List<TopicDTO> topics = new ArrayList<>();
+		List<TopicDetailResponse> topics = new ArrayList<>();
 		for (TopicEntity entity : entities) {
 			topics.add(
-					TopicDTO.builder()
+					TopicDetailResponse.builder()
 							.topicId(entity.getTopicId())
 							.name(entity.getName())
 							.build());
 		}
 		return topics;
+	}
+
+	public List<TopicWithCheckResponse> getCheckListAll(String memberId) {
+		return topicRepository.findAllWithCheck(memberId);
 	}
 
 }

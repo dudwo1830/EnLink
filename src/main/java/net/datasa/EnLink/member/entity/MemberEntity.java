@@ -1,18 +1,23 @@
 package net.datasa.EnLink.member.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.datasa.EnLink.membertopic.entity.MemberTopicEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
@@ -81,4 +86,7 @@ public class MemberEntity {
 	public void updateRole(MemberRole role) {
 		this.role = role;
 	}
+
+	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+	private final List<MemberTopicEntity> topicInterests = new ArrayList<>();
 }

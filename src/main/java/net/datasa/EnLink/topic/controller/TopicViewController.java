@@ -8,7 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import lombok.RequiredArgsConstructor;
-import net.datasa.EnLink.topic.dto.TopicDTO;
+import net.datasa.EnLink.topic.dto.response.TopicDetailResponse;
 import net.datasa.EnLink.topic.service.TopicService;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -28,7 +28,7 @@ public class TopicViewController {
 	 */
 	@GetMapping("")
 	public String list(Model model) {
-		List<TopicDTO> topics = topicService.getListAll();
+		List<TopicDetailResponse> topics = topicService.getListAll();
 		model.addAttribute("topics", topics);
 		return TEMPLATE_PATH + "list";
 	}
