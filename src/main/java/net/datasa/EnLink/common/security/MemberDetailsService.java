@@ -11,7 +11,7 @@ import net.datasa.EnLink.member.repository.MemberRepository;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticatedUserDetailsService implements UserDetailsService {
+public class MemberDetailsService implements UserDetailsService {
 
 	private final MemberRepository memberRepository;
 
@@ -19,7 +19,7 @@ public class AuthenticatedUserDetailsService implements UserDetailsService {
 	public UserDetails loadUserByUsername(String memberId) throws UsernameNotFoundException {
 		MemberEntity entity = memberRepository.findById(memberId).orElse(null);
 
-		return AuthenticatedUser.builder()
+		return MemberDetails.builder()
 				.memberId(entity.getMemberId())
 				.password(entity.getPassword())
 				.role(entity.getRole())

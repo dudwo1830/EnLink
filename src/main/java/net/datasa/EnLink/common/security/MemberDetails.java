@@ -16,8 +16,7 @@ import net.datasa.EnLink.member.entity.MemberStatus;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthenticatedUser implements UserDetails {
-
+public class MemberDetails implements UserDetails {
 	private String memberId;
 	private String password;
 	private MemberRole role;
@@ -36,6 +35,10 @@ public class AuthenticatedUser implements UserDetails {
 
 	@Override
 	public String getUsername() {
+		return this.memberId;
+	}
+
+	public String getMemberId() {
 		return this.memberId;
 	}
 

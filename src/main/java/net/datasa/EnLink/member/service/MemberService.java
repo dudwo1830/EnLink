@@ -37,7 +37,7 @@ public class MemberService {
 		memberRepository.save(entity);
 	}
 
-	@PreAuthorize("#memberId == authentication.name")
+	@PreAuthorize("#memberId == principal.memberId")
 	public boolean update(MemberUpdateRequest request, String memberId) {
 		MemberEntity entity = memberRepository.findById(memberId).orElse(null);
 		// 기존 비밀번호 확인
@@ -73,7 +73,7 @@ public class MemberService {
 		entity.updateStatus(MemberStatus.INACTIVE);
 	}
 
-	@PreAuthorize("#memberId == authentication.name")
+	@PreAuthorize("#memberId == principal.memberId")
 	public MemberUpdateResponse edit(String memberId) {
 		MemberEntity entity = memberRepository.findById(memberId).orElse(null);
 		return MemberUpdateResponse.builder()
