@@ -1,16 +1,28 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
-  <head th:replace="~{fragments/head :: head('TITLE', ~{::link}, ~{::script})}">
+  <head th:replace="~{fragments/head :: head('Interest', ~{::link}, ~{::script})}">
     <!--/* link 태그와 script가 없을 경우 에러가 발생함 */-->
     <!--/* link, script를 별도로 사용하지 않을 경우 이걸 남겨둘 것 */-->
     <link rel="stylesheet" href="#" th:if="${false}" />
     <script src="#" th:if="${false}"></script>
+    <script th:src="@{/js/member/memberCommon.js}" defer></script>
+    <script th:src="@{/js/member/interest.js}" defer></script>
   </head>
   <body>
     <div class="grid-container">
       <header th:replace="~{fragments/header :: header}"></header>
       <aside th:replace="~{fragments/aside :: aside}"></aside>
-      <main class="main"></main>
+      <main class="main">
+        <h1>관심사 설정</h1>
+        <div class="topic-container">
+          <h3>관심 주제</h3>
+          <div id="topicTarget"></div>
+        </div>
+        <div class="city-container">
+          <h3>관심 지역</h3>
+          <div></div>
+        </div>
+      </main>
       <footer th:replace="~{fragments/footer :: footer}"></footer>
     </div>
   </body>

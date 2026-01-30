@@ -14,10 +14,11 @@ body {
   box-shadow: 1px 1px 1px 8px rgba(0, 0, 0, 0.1);
   display: grid;
   grid-template-rows: 60px 1fr 80px;
+  grid-template-columns: 100px 1fr;
   grid-template-areas:
-    'header'
-    'main'
-    'footer';
+    'header header'
+    'aside main'
+    'footer footer';
 }
 .header {
   grid-area: header;
@@ -33,4 +34,13 @@ body {
   grid-area: footer;
   background-color: #333;
   color: rgb(160, 160, 160);
+}
+
+.aside {
+  grid-area: aside;
+  background-color: #838383;
+}
+.nav {
+  background-color: #545454;
+  color: white;
 }
