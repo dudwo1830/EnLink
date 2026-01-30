@@ -4,42 +4,56 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/head :: head('TITLE', ~{::link}, ~{::script})}">
+    <link rel="stylesheet" href="#" th:if="${false}" />
     <script th:src="@{/js/member/memberCommon.js}" defer></script>
     <script th:src="@{/js/member/signup.js}" defer></script>
   </head>
   <body>
-    <form id="signupForm">
-      <!-- 회원 아이디 -->
-      <div>
-        <label for="memberId">아이디</label><br />
-        <input type="text" id="memberId" name="memberId" maxlength="20" required />
-      </div>
-      <br />
-      <!-- 이름 -->
-      <div>
-        <label for="name">이름</label><br />
-        <input type="text" id="name" name="name" maxlength="20" required />
-      </div>
-      <br />
-      <!-- 비밀번호 -->
-      <div>
-        <label for="password">비밀번호</label><br />
-        <input type="password" id="password" name="password" maxlength="100" required />
-      </div>
-      <br />
-      <!-- 이메일 -->
-      <div>
-        <label for="email">이메일</label><br />
-        <input type="email" id="email" name="email" maxlength="50" required />
-      </div>
-      <br />
-      <!-- 생년월일 -->
-      <div>
-        <label for="birth">생년월일</label><br />
-        <input type="date" id="birth" name="birth" required />
-      </div>
-      <br />
-      <button type="submit">회원 가입</button>
-    </form>
+    <div class="grid-container">
+      <header th:replace="~{fragments/header :: header}"></header>
+      <aside th:replace="~{fragments/aside :: aside}"></aside>
+      <main class="main">
+        <form id="signupForm">
+          <!-- 회원 아이디 -->
+          <div>
+            <label for="memberId">아이디</label><br />
+            <input type="text" id="memberId" name="memberId" maxlength="20" required />
+          </div>
+          <br />
+          <!-- 비밀번호 -->
+          <div>
+            <label for="password">비밀번호</label><br />
+            <input type="password" id="password" name="password" maxlength="100" required />
+          </div>
+          <div>
+            <label for="password">비밀번호 재확인</label><br />
+            <input type="password" id="re_password" name="re_password" maxlength="100" required />
+          </div>
+          <br />
+          <!-- 이름 -->
+          <div>
+            <label for="name">이름</label><br />
+            <input type="text" id="name" name="name" maxlength="20" required />
+          </div>
+          <br />
+          <!-- 이메일 -->
+          <div>
+            <label for="email">이메일</label><br />
+            <input type="email" id="email" name="email" maxlength="50" required />
+          </div>
+          <br />
+          <!-- 생년월일 -->
+          <div>
+            <label for="birth">생년월일</label><br />
+            <input type="date" id="birth" name="birth" required />
+          </div>
+          <br />
+          <button type="submit">회원 가입</button>
+        </form>
+      </main>
+      <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
   </body>
 </html>

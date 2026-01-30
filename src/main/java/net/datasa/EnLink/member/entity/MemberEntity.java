@@ -1,19 +1,23 @@
 package net.datasa.EnLink.member.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import net.datasa.EnLink.membertopic.entity.MemberTopicEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
@@ -23,7 +27,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Entity
 @Table(name = "members")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -61,4 +64,29 @@ public class MemberEntity {
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "role", length = 20, nullable = false)
+	private MemberRole role;
+
+	public void updateProfile(String name, String email, LocalDate birth) {
+		this.name = name;
+		this.email = email;
+		this.birth = birth;
+	}
+
+	public void updatePassword(String password) {
+		this.password = password;
+	}
+
+	public void updateStatus(MemberStatus status) {
+		this.status = status;
+	}
+
+	public void updateRole(MemberRole role) {
+		this.role = role;
+	}
+
+	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+	private final List<MemberTopicEntity> topicInterests = new ArrayList<>();
 }
