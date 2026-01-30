@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 public class MemberService {
 	private final BCryptPasswordEncoder passwordEncoder;
 	private final MemberRepository memberRepository;
-
+	
 	public void create(MemberCreateRequest request) {
 		MemberEntity entity = MemberEntity.builder()
 				.memberId(request.getMemberId())
@@ -85,3 +85,27 @@ public class MemberService {
 				.build();
 	}
 }
+
+//	public void update(MemberUpdateRequest request, String memberId) {
+//		MemberEntity entity = memberRepository.findById(memberId).orElse(null);
+//		entity.setPassword(request.getPassword());
+//		entity.setName(request.getName());
+//		entity.setEmail(request.getEmail());
+//		entity.setBirth(request.getBirth());
+//	}
+//
+//	public MemberDetailResponse read(String memberId) {
+//		MemberEntity entity = memberRepository.findById(memberId).orElse(null);
+//		return MemberDetailResponse.builder()
+//				.memberId(entity.getMemberId())
+//				.name(entity.getName())
+//				.email(entity.getEmail())
+//				.birth(entity.getBirth())
+//				.build();
+//	}
+//
+//	public void delete(String memberId) {
+//		MemberEntity entity = memberRepository.findById(memberId).orElse(null);
+//		entity.setStatus(MemberStatus.INACTIVE);
+//	}
+//}

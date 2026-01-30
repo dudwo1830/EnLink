@@ -1,89 +1,100 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <title>모임 정보 수정</title>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('모임 정보 수정', ~{::link}, ~{::script})}">
+    <link rel="stylesheet" th:href="@{/css/manage.css}">
+    <script></script>
 </head>
 <body>
-<h1>모임 정보 수정</h1>
+<div class="grid-container">
+    <header th:replace="~{fragments/header :: header}" class="header"></header>
 
-<form th:action="@{/club/{clubId}/manage/edit(clubId=${clubDTO.clubId})}"
-      th:object="${clubDTO}"
-      method="post"
-      enctype="multipart/form-data">
+    <main class="main">
+        <div class="manage-main-container">
+            <aside th:replace="~{fragments/manageSidebar :: sidebar('edit')}"></aside>
 
-    <!-- 모임 ID (hidden) -->
-    <input type="hidden" th:field="*{clubId}"/>
+            <section class="manage-content-area">
+                <h1>모임 정보 수정</h1>
 
-    <!-- 기존 이미지 경로 유지용 -->
-    <input type="hidden" th:field="*{imageUrl}"/>
+                <form th:action="@{/club/{clubId}/manage/edit(clubId=${clubDTO.clubId})}"
+                      th:object="${clubDTO}"
+                      method="post"
+                      enctype="multipart/form-data"
+                      class="edit-form">
 
-    <!-- 모임 이름 -->
-    <div>
-        <label>모임 이름:</label>
-        <input type="text" th:field="*{name}" required>
-    </div>
+                    <input type="hidden" th:field="*{clubId}"/>
+                    <input type="hidden" th:field="*{imageUrl}"/>
 
-    <!-- 현재 모임 이미지 -->
-    <div>
-        <label>현재 모임 이미지</label><br>
+                    <div class="form-group">
+                        <label>모임 이름:</label>
+                        <input type="text" th:field="*{name}" required>
+                    </div>
 
-        <img th:src="${clubDTO.imageUrl != null ? clubDTO.imageUrl : '/images/default_club.jpg'}"
-             alt="모임 이미지"
-             width="200"
-             onerror="this.src='/images/default_club.jpg'">
-    </div>
+                    <div class="form-group">
+                        <label>현재 모임 이미지:</label>
+                        <div class="image-preview">
+                            <img th:src="${clubDTO.imageUrl != null ? clubDTO.imageUrl : '/images/default_club.jpg'}"
+                                 alt="모임 이미지"
+                                 width="200"
+                                 style="border-radius: 8px; object-fit: cover;"
+                                 onerror="this.src='/images/default_club.jpg'">
+                        </div>
+                    </div>
 
-    <!-- 이미지 변경 -->
-    <div>
-        <label>모임 이미지 변경</label>
-        <input type="file" th:field="*{uploadFile}" accept="image/*">
-        <p style="color: gray; font-size: 0.8em;">
-            * 이미지를 선택하지 않으면 기존 이미지가 유지됩니다.
-        </p>
-    </div>
+                    <div class="form-group">
+                        <label>모임 이미지 변경:</label>
+                        <input type="file" th:field="*{uploadFile}" accept="image/*">
+                        <p class="help-text" style="font-size: 0.85rem; color: #666;">
+                            * 이미지를 선택하지 않으면 기존 이미지가 유지됩니다.
+                        </p>
+                    </div>
 
-    <!-- 카테고리 -->
-    <div>
-        <label>관심사 카테고리:</label>
-        <select th:field="*{topicId}">
-            <option value="1">운동</option>
-            <option value="2">스터디</option>
-            <option value="3">친목</option>
-        </select>
-    </div>
+                    <div class="form-group">
+                        <label>관심사 카테고리:</label>
+                        <select th:field="*{topicId}">
+                            <option value="1">운동</option>
+                            <option value="2">스터디</option>
+                            <option value="3">친목</option>
+                        </select>
+                    </div>
 
-    <!-- 지역 -->
-    <div>
-        <label>상세 지역 (구/군)</label>
-        <select th:field="*{cityId}">
-            <option value="">-- 상세 지역 선택 --</option>
-            <option value="2">강남구</option>
-        </select>
-    </div>
+                    <div class="form-group">
+                        <label>상세 지역 (구/군):</label>
+                        <select th:field="*{cityId}">
+                            <option value="">-- 상세 지역 선택 --</option>
+                            <option value="2">강남구</option>
+                        </select>
+                    </div>
 
-    <!-- 최대 인원 -->
-    <div>
-        <label>최대 인원:</label>
-        <input type="number" th:field="*{maxMember}" min="2" max="100">
-    </div>
+                    <div class="form-group">
+                        <label>최대 인원:</label>
+                        <input type="number" th:field="*{maxMember}" min="10" step="10">
+                        <p class="help-text" style="font-size: 0.85rem; color: #d9534f;">* 정원은 10명 단위로 설정 가능합니다.</p>
+                    </div>
 
-    <!-- 소개 -->
-    <div>
-        <label>모임 소개:</label>
-        <textarea th:field="*{description}" rows="5"></textarea>
-    </div>
+                    <div class="form-group">
+                        <label>모임 소개:</label>
+                        <textarea th:field="*{description}" rows="5" style="width: 100%;"></textarea>
+                    </div>
 
-    <!-- 가입 질문 -->
-    <div>
-        <label>가입 질문:</label>
-        <input type="text" th:field="*{joinQuestion}">
-    </div>
+                    <div class="form-group">
+                        <label>가입 질문:</label>
+                        <input type="text" th:field="*{joinQuestion}" placeholder="가입 시 신청자에게 묻고 싶은 질문을 입력하세요.">
+                    </div>
 
-    <button type="submit">수정 완료</button>
-    <a th:href="@{/club/{id}(id=${clubDTO.clubId})}">취소</a>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-submit">수정 완료</button>
+                        <a th:href="@{/club/{id}(id=${clubDTO.clubId})}" class="btn-cancel">취소</a>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </main>
 
-</form>
+    <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
+</div>
 
+<script th:inline="javascript">
+    /* 여기에 나중에 자바스크립트 로직을 추가할 수 있습니다 */
+</script>
 </body>
 </html>

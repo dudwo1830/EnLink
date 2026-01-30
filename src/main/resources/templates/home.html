@@ -10,6 +10,25 @@
       <aside th:replace="~{fragments/aside :: aside}"></aside>
       <main class="main">
         <h1>HELLO ENLINK</h1>
+          <nav class="member-navigation">
+              <h2>👤 회원 관련 메뉴 (팀원 작업 확인용)</h2>
+              <ul>
+                  <li><a th:href="@{/members/}">회원가입</a></li>
+                  <li><a th:href="@{/member/login}">로그인</a></li>
+              </ul>
+          </nav>
+
+          <hr>
+          <nav class="test-navigation">
+              <h2>🚀 커뮤니티 기능 테스트 메뉴</h2>
+              <ul>
+                  <li><a th:href="@{/club/list}">모임 목록 보기</a></li>
+
+                  <li><a th:href="@{/club/create}">새 모임 만들기</a></li>
+
+              </ul>
+          </nav>
+
       </main>
       <footer th:replace="~{fragments/footer :: footer}"></footer>
     </div>
