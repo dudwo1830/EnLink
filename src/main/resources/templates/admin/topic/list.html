@@ -1,0 +1,33 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/head :: head('TITLE', ~{::link}, ~{::script})}">
+    <link rel="stylesheet" href="#" th:if="${false}" />
+    <script th:src="@{js/admin/topic.js}" defer></script>
+  </head>
+  <body>
+    <div class="grid-container">
+      <header th:replace="~{fragments/header :: header}"></header>
+      <aside th:replace="~{fragments/aside :: aside}"></aside>
+      <main class="main">
+        <h1>주제 관리</h1>
+        <div>
+          <h3>사용중인 목록</h3>
+          <ul th:each="topic : ${topics}">
+            <li th:data-topic-id="${topic.topicId}">
+              <span><input type="text" th:value="${topic.name}" /></span>
+              <span><button type="button" class="editBtn">수정</button></span>
+            </li>
+          </ul>
+          <h3>주제 추가</h3>
+          <ul>
+            <li>
+              <span><input type="text" id="name" name="name" /></span>
+              <span><button type="button" id="addBtn">추가</button></span>
+            </li>
+          </ul>
+        </div>
+      </main>
+      <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+  </body>
+</html>
