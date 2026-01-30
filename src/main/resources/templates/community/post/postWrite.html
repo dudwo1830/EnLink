@@ -1,12 +1,16 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>글쓰기</title>
 </head>
 <body>
 <h1>게시글 작성</h1>
-<form id="writeForm" style="max-width: 800px;"> <label for="title">제목</label><br>
+<form id="writeForm" style="max-width: 800px;">
+    <input type="hidden" id="clubId" th:value="${clubId}">
+    <input type="hidden" id="memberId" th:value="${memberId}">
+    
+    <label for="title">제목</label><br>
     <input type="text" id="title" style="width: 100%; padding: 10px; box-sizing: border-box;" placeholder="제목을 입력하세요" required><br><br>
 
     <label for="content">내용</label><br>
@@ -19,8 +23,9 @@
     </div>
     <br>
 
-    <input type="hidden" id="clubId" value="1">
-    <input type="hidden" id="memberId" value="user01">
+    <label>
+    <input type="checkbox" id="isNotice"> 이 글을 공지사항으로 등록
+</label><br>
 
     <button type="button" onclick="savePost()" style="padding: 10px 20px;">등록</button>
     <button type="button" onclick="history.back()" style="padding: 10px 20px;">취소</button>
@@ -46,32 +51,62 @@
     }
 
     function savePost() {
+    // 1. HTML 요소 자체를 먼저 찾습니다.
+    const clubIdElement = document.getElementById('clubId');
+    const memberIdElement = document.getElementById('memberId');
+
+    // 2. 요소가 존재하는지 먼저 체크
+    if (!clubIdElement || !memberIdElement) {
+        console.error("clubId 또는 memberId 요소를 찾을 수 없습니다.");
+        return;
+    }
+
+    // 3. 값(value)을 변수에 담음
+    const clubId = clubIdElement.value;
+    const memberId = memberIdElement.value;
+    const title = document.getElementById('title').value;
+    const content = document.getElementById('content').value;
+    const isNotice = document.getElementById('isNotice').checked;
+
+    if (!title.trim() || !content.trim()) {
+        alert("제목과 내용을 입력해주세요.");
+        return;
+    }
+
+    // 4. 로그 확인 (변수명을 일치시켰습니다: clubId, memberId)
+    console.log("보내는 데이터:", { clubId, memberId, title, isNotice });
+
     // JSON 대신 FormData 사용 (이미지 업로드를 위해)
     const formData = new FormData();
-    formData.append('clubId', document.getElementById('clubId').value);
-    formData.append('memberId', document.getElementById('memberId').value);
-    formData.append('title', document.getElementById('title').value);
-    formData.append('content', document.getElementById('content').value);
-    // 나중에 input type="file" 추가 시 여기에 append 하면 됩니다.
+    formData.append('clubId', clubId);
+    formData.append('memberId', memberId);
+    formData.append('title', title);
+    formData.append('content', content);
+    formData.append('isNotice', isNotice ? "true" : "false");
+    // 나중에 input type="file" 추가 시 여기에 append 하면 됨
 
     // 파일 업로드 처리
         const fileInput = document.getElementById('imageFile');
-        if (fileInput.files[0]) {
+        if (fileInput && fileInput.files[0]) {
             formData.append('image', fileInput.files[0]); // DTO의 필드명인 'image'와 맞춰야 함
         }
 
     fetch('/api/posts', {
         method: 'POST',
         // FormData를 보낼 때는 headers의 Content-Type을 설정하지 않아야 브라우저가 자동으로 multipart/form-data 설정해줌.
-        body: formData 
+        body: formData
     })
     .then(response => {
         if(response.ok) {
             alert('글이 성공적으로 등록되었습니다!');
-            location.href = '/post/list';
+            location.href = '/community/post/list?clubId=' + clubId;
         } else {
-            alert('등록 실패!');
+            // 서버에서 보낸 에러 메시지가 있다면 출력
+            response.text().then(msg => alert('등록 실패: ' + msg));
         }
+    }).catch(error => {
+        console.error('Error:', error);
+        alert('서버 통신 중 오류가 발생했습니다.');
     });
 }
 </script>

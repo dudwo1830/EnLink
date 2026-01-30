@@ -15,6 +15,7 @@ import net.datasa.EnLink.member.entity.MemberEntity;
 import net.datasa.EnLink.member.entity.MemberRole;
 import net.datasa.EnLink.member.entity.MemberStatus;
 import net.datasa.EnLink.member.repository.MemberRepository;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Transactional
