@@ -7,15 +7,18 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-
+	
 	@Value("${file.upload.path}")
 	private String uploadPath;
-
+	
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		// 1. 브라우저가 찾는 주소(/galleryImg/...)와 일치시켜야 합니다.
+		// 1. 배경호 님의 모임(Club) 이미지 설정
+		registry.addResourceHandler("/images/**")
+				.addResourceLocations("file:///" + uploadPath);
+		
+		// 2. 팀원의 갤러리(Gallery) 이미지 설정 (기존 설정 유지)
 		registry.addResourceHandler("/galleryImg/**")
-				// 2. 실제 파일이 저장된 위치 (C:/enlink_storage/gallery/)
 				.addResourceLocations("file:///" + uploadPath + "gallery/");
 	}
 }

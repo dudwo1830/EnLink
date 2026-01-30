@@ -65,7 +65,7 @@ public class ClubViewController {
 		String loginId = "user10";
 		
 		ClubDTO club = clubService.getClubDetail(id);
-		List<ClubMemberDTO> members = clubService.getActiveMembers(id);
+		List<ClubMemberDTO> members = clubService.getActiveMembers(loginId);
 		
 		// 1. 여기서 이미 ACTIVE 여부를 체크해서 가져옵니다.
 		ClubMemberDTO loginMember = clubManageService.getMemberInfo(id, loginId);
