@@ -13,9 +13,9 @@ public class WebConfig implements WebMvcConfigurer {
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		// 브라우저에서 /images/** 로 요청이 오면
-		// 실제 컴퓨터의 uploadPath 폴더에서 파일을 찾아라!
-		registry.addResourceHandler("/images/**")
-				.addResourceLocations("file:///" + uploadPath);
+		// 1. 브라우저가 찾는 주소(/galleryImg/...)와 일치시켜야 합니다.
+		registry.addResourceHandler("/galleryImg/**")
+				// 2. 실제 파일이 저장된 위치 (C:/enlink_storage/gallery/)
+				.addResourceLocations("file:///" + uploadPath + "gallery/");
 	}
 }

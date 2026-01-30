@@ -1,7 +1,5 @@
 package net.datasa.EnLink.member.service;
 
-import org.springframework.stereotype.Service;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.datasa.EnLink.common.error.BusinessException;
@@ -10,6 +8,7 @@ import net.datasa.EnLink.member.dto.request.MemberCreateRequest;
 import net.datasa.EnLink.member.entity.MemberEntity;
 import net.datasa.EnLink.member.entity.MemberStatus;
 import net.datasa.EnLink.member.repository.MemberRepository;
+import org.springframework.stereotype.Service;
 
 @Transactional
 @Service
