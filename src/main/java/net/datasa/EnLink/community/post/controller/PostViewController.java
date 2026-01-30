@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 
 @Controller
-@RequestMapping("post")
+@RequestMapping("/club/{clubId}/post")
 public class PostViewController {
 	
 	// 게시글 목록

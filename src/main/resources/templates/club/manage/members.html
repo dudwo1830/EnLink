@@ -1,34 +1,70 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <title>멤버 관리</title>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('멤버 관리', ~{::link}, ~{::script})}">
+    <link rel="stylesheet" th:href="@{/css/manage.css}">
+    <script src="#" th:if="${false}"></script>
 </head>
 <body>
-<div th:fragment="content">
-    <h3>멤버 관리</h3>
+<div class="grid-container">
+    <header th:replace="~{fragments/header :: header}" class="header"></header>
 
-    <table>
-        <tr>
-            <th>닉네임</th>
-            <th>권한</th>
-            <th>관리</th>
-        </tr>
+    <main class="main">
+        <div class="manage-main-container">
+            <aside th:replace="~{fragments/manageSidebar :: sidebar('members')}"></aside>
 
-        <tr th:each="m : ${members}">
-            <td th:text="${m.nickname}"></td>
-            <td th:text="${m.role}"></td>
-            <td>
-                <select>
-                    <option>일반</option>
-                    <option>운영진</option>
-                </select>
-                <button>변경</button>
-                <button class="danger">강퇴</button>
-            </td>
-        </tr>
-    </table>
+            <section class="manage-content-area">
+                <h1>멤버 관리</h1>
+                <table class="manage-table">
+                    <tbody>
+                    <tr th:each="m : ${members}">
+                        <td class="col-name">
+                            <span th:text="${m.memberName}" style="font-weight: bold;">홍길동</span>
+                            <small th:text="|(${m.memberId})|" style="color: #888;"></small>
+                            <span th:if="${m.memberId == loginMember.memberId}" style="font-size: 0.7em; color: #2196f3;">[나]</span>
+                        </td>
+
+                        <td class="col-role">
+                <span th:switch="${m.role}">
+                    <span th:case="'OWNER'" style="color: #ff9800; font-weight: bold;">(모임장)</span>
+                    <span th:case="'MANAGER'" style="color: #2196f3;">(운영진)</span>
+                    <span th:case="'MEMBER'" style="color: #757575;">(멤버)</span>
+                </span>
+                        </td>
+
+                        <td class="col-date">
+                            <span th:text="${#temporals.format(m.joinedAt, 'yyyy.MM.dd')}">2024.01.23</span>
+                        </td>
+
+                        <td class="col-update">
+                            <form th:if="${loginMember.role == 'OWNER' and m.memberId != loginMember.memberId}"
+                                  th:action="@{|/club/${clubId}/manage/members/update-role|}" method="post" class="inline-form">
+                                <input type="hidden" name="memberId" th:value="${m.memberId}">
+                                <select name="newRole" class="manage-select">
+                                    <option value="MEMBER" th:selected="${m.role == 'MEMBER'}">멤버</option>
+                                    <option value="MANAGER" th:selected="${m.role == 'MANAGER'}">운영진</option>
+                                    <option value="OWNER" th:selected="${m.role == 'OWNER'}">모임장</option>
+                                </select>
+                                <button type="submit" class="btn-update">변경</button>
+                            </form>
+                            <span th:if="${loginMember.role != 'OWNER' or m.memberId == loginMember.memberId}" style="color: #ccc;">-</span>
+                        </td>
+
+                        <td class="col-kick">
+                            <form th:if="${m.memberId != loginMember.memberId and (loginMember.role == 'OWNER' or (loginMember.role == 'MANAGER' and m.role == 'MEMBER'))}"
+                                  th:action="@{|/club/${clubId}/manage/members/kick|}" method="post" class="inline-form">
+                                <input type="hidden" name="memberId" th:value="${m.memberId}">
+                                <button type="submit" class="btn-danger" onclick="return confirm('정말 이 멤버를 제명하시겠습니까?')">제명</button>
+                            </form>
+                            <span th:if="${m.memberId == loginMember.memberId or (loginMember.role == 'MANAGER' and m.role != 'MEMBER')}" style="color: #ccc;">-</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </section>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
 </div>
-
 </body>
 </html>
