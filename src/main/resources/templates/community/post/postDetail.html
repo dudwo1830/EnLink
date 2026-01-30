@@ -22,11 +22,11 @@
       </div>
     </div>
     <br />
-    <a th:href="@{/post/list}">
+    <a th:href="@{/community/post/list}">
       <button type="button">목록으로</button>
     </a>
 
-    <a th:href="@{/post/edit/{id}(id=${postId})}">
+    <a th:href="@{/community/post/edit/{id}(id=${postId})}">
       <button type="button">게시글 수정</button>
     </a>
 
@@ -244,7 +244,7 @@
           .then((response) => {
             if (response.ok) {
               alert('삭제되었습니다.');
-              location.href = '/post/list'; // 삭제 후 목록으로 이동
+              location.href = '/community/post/list'; // 삭제 후 목록으로 이동
             } else {
               alert('삭제 실패!');
             }

@@ -25,7 +25,7 @@
     <div style="margin-bottom: 10px; text-align: right">
       <button
         type="button"
-        onclick="location.href = '/post/write'"
+        th:onclick="|location.href='@{/community/post/write(clubId=${clubId})}'|"
         style="
           padding: 10px 20px;
           cursor: pointer;
@@ -41,7 +41,7 @@
 
     <div class="search-area" style="margin-bottom: 20px; text-align: center">
       <form
-        th:action="@{/post/list}"
+        th:action="@{/community/post/list}"
         method="get"
         style="display: inline-block"
       >
@@ -73,7 +73,7 @@
         <button type="submit" style="padding: 5px 15px">검색</button>
 
         <a
-          th:href="@{/post/list(clubId=${clubId})}"
+          th:href="@{/community/post/list(clubId=${clubId})}"
           style="
             text-decoration: none;
             font-size: 0.9em;
@@ -97,7 +97,8 @@
       </thead>
       <tbody id="post-list"></tbody>
     </table>
-    <div id="pagination" style="text-align: center; margin-top: 20px"></div>
+    <div id="pagination" style="text-align: center; margin-top: 20px;">
+    </div>
 
     <script>
       // 페이지 로드 시 실행
@@ -155,7 +156,7 @@
           const date = post.createdAt ? post.createdAt.split('T')[0] : '-';
           const row = `<tr>
             <td>${post.isNotice ? '📢' : post.postId}</td>
-            <td>${noticeTag}<a href="/post/detail/${post.postId}">${post.title}</a></td>
+            <td>${noticeTag}<a href="/community/post/detail/${post.postId}">${post.title}</a></td>
             <td>${post.memberId}</td>
             <td>${date}</td>
         </tr>`;
@@ -185,7 +186,7 @@
 
           btn.onclick = function () {
             // 클릭 시 해당 페이지로 이동 (URL 파라미터 변경)
-            location.href = `/post/list?clubId=${clubId}&searchType=${searchType}&searchKeyword=${searchKeyword}&page=${i}`;
+            location.href = `/community/post/list?clubId=${clubId}&searchType=${searchType}&searchKeyword=${searchKeyword}&page=${i}`;
           };
           paginationElement.appendChild(btn);
         }
