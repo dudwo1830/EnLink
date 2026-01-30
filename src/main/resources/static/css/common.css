@@ -36,9 +36,6 @@ body {
   color: rgb(160, 160, 160);
 }
 
-
-
-
 .aside {
   grid-area: aside;
   background-color: #838383;

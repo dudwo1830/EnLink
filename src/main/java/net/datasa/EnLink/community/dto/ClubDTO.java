@@ -25,8 +25,5 @@ public class ClubDTO {
 	
 	private java.time.LocalDateTime createdAt; // 생성 일시
 	private java.time.LocalDateTime deletedAt; // 삭제 요청 일시 (추가!)
-	private int currentMemberCount;
-	
-	private String role;           // 추가: OWNER, MANAGER, MEMBER 등 권한 정보
 	
 }
