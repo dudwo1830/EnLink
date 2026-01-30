@@ -10,6 +10,7 @@ import net.datasa.EnLink.community.entity.ClubMemberEntity;
 import net.datasa.EnLink.community.entity.ClubMemberHistoryEntity;
 import net.datasa.EnLink.community.repository.*;
 import net.datasa.EnLink.member.entity.MemberEntity;
+import net.datasa.EnLink.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

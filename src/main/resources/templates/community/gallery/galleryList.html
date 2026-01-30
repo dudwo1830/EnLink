@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>EnLink - 모임 사진첩</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* 갤러리 전용 커스텀 스타일 */
+      .gallery-img {
+        width: 100%;
+        height: 250px; /* 고정 높이 */
+        object-fit: cover; /* 사진 비율 유지하며 꽉 채움 */
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+      .gallery-img:hover {
+        transform: scale(1.02); /* 살짝 커지는 효과 */
+        opacity: 0.9;
+      }
+      .card {
+        overflow: hidden;
+        border: none;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <div class="container mt-5">
+      <div
+        class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom"
+      >
+        <h2 class="fw-bold">📸 모임 사진첩</h2>
+        <button
+          class="btn btn-primary px-4"
+          data-bs-toggle="modal"
+          data-bs-target="#uploadModal"
+        >
+          사진 올리기
+        </button>
+      </div>
+
+      <div
+        class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4"
+        id="galleryContainer"
+      ></div>
+
+      <div class="text-center mt-5 mb-5">
+        <button
+          id="moreBtn"
+          class="btn btn-outline-primary btn-lg px-5"
+          onclick="loadPhotos()"
+        >
+          더보기
+        </button>
+      </div>
+    </div>
+
+    <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content shadow">
+          <div class="modal-body p-0 text-center bg-dark">
+            <img
+              src=""
+              id="modalImg"
+              class="img-fluid"
+              style="max-height: 80vh"
+            />
+          </div>
+          <div class="modal-footer justify-content-between bg-white">
+            <div id="modalInfo" class="small text-muted text-start"></div>
+            <div>
+              <button
+                type="button"
+                class="btn btn-secondary btn-sm"
+                data-bs-dismiss="modal"
+              >
+                닫기
+              </button>
+              <button
+                type="button"
+                class="btn btn-danger btn-sm"
+                id="deleteBtn"
+                style="display: none"
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="uploadModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold">새 사진 업로드</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="imageFile" class="form-label text-muted small"
+                >이미지 파일을 선택해주세요.</label
+              >
+              <input
+                type="file"
+                id="imageFile"
+                class="form-control"
+                accept="image/*"
+              />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+              취소
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="uploadPhoto()"
+            >
+              업로드 시작
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script th:inline="javascript">
+      /* 타임리프로부터 넘겨받은 변수 설정 */
+      const clubId = /*[[${club.clubId}]]*/ 0; // Controller에서 Model에 담아준 club 객체 활용
+      let currentPage = 0;
+
+      $(document).ready(function () {
+        // 처음 페이지 로드 시 첫 번째 페이지 사진들 가져오기
+        loadPhotos();
+      });
+
+      // 1. 사진 목록 로드 (Ajax)
+      function loadPhotos() {
+        $.ajax({
+          url: `/api/gallery/${clubId}?page=${currentPage}`,
+          type: 'GET',
+          success: function (page) {
+            const photos = page.content;
+            let html = '';
+
+            if (photos.length === 0 && currentPage === 0) {
+              $('#galleryContainer').html(
+                '<div class="col-12 text-center py-5 text-muted">등록된 사진이 없습니다.</div>',
+              );
+              $('#moreBtn').hide();
+              return;
+            }
+
+            photos.forEach((photo) => {
+              html += `
+                  <div class="col">
+                      <div class="card h-100 shadow-sm">
+                          <img src="/galleryImg/${photo.imageUrl}" class="gallery-img"
+                                onclick="showDetail(${photo.photoId}, '${photo.imageUrl}', '${photo.memberId}', '${photo.createdAt}')">
+                      </div>
+                  </div>`;
+            });
+
+            $('#galleryContainer').append(html);
+
+            // 마지막 페이지면 '더보기' 버튼 제거
+            if (page.last) {
+              $('#moreBtn').hide();
+            } else {
+              currentPage++;
+            }
+          },
+          error: function () {
+            alert('사진을 불러오는 중 오류가 발생했습니다.');
+          },
+        });
+      }
+
+      // 2. 사진 업로드
+      function uploadPhoto() {
+        const fileInput = document.getElementById('imageFile');
+        if (!fileInput.files[0]) {
+          alert('파일을 선택해주세요.');
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('image', fileInput.files[0]);
+        formData.append('clubId', clubId);
+
+        $.ajax({
+          url: '/api/gallery/upload',
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function () {
+            alert('성공적으로 업로드되었습니다!');
+            location.reload(); // 새로고침해서 최신 사진 확인
+          },
+          error: function (err) {
+            alert('업로드 실패: ' + err.responseText);
+          },
+        });
+      }
+
+      // 3. 상세 보기 모달 띄우기
+      function showDetail(photoId, url, author, date) {
+        // 날짜 형식 예쁘게 변환 (T 분리)
+        const formattedDate = date.replace('T', ' ').split('.')[0];
+
+        $('#modalImg').attr('src', '/galleryImg/' + url);
+        $('#modalInfo').html(
+          `<strong>등록자:</strong> ${author}<br><strong>등록일:</strong> ${formattedDate}`,
+        );
+
+        // 삭제 버튼에 해당 사진의 ID를 저장하고 보이게 설정
+        $('#deleteBtn')
+          .show()
+          .off('click')
+          .on('click', function () {
+            deletePhoto(photoId);
+          });
+
+        // 상세 모달 오픈
+        const detailModal = new bootstrap.Modal(
+          document.getElementById('detailModal'),
+        );
+        detailModal.show();
+      }
+
+      // 4. 사진 삭제 (Ajax)
+      function deletePhoto(photoId) {
+        if (!confirm('정말 이 사진을 삭제하시겠습니까?')) return;
+
+        $.ajax({
+          url: `/api/gallery/${photoId}`,
+          type: 'DELETE',
+          success: function (response) {
+            alert(response);
+            location.reload(); // 성공 시 새로고침
+          },
+          error: function (err) {
+            alert('삭제 실패: ' + err.responseText);
+          },
+        });
+      }
+    </script>
+  </body>
+</html>

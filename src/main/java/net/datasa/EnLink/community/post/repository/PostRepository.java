@@ -1,17 +1,24 @@
 package net.datasa.EnLink.community.post.repository;
 
 import net.datasa.EnLink.community.post.entity.PostEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface PostRepository extends JpaRepository<PostEntity, Integer> {
 	
-	// 특정 모임(clubId)에 속한 게시글만 가져오는 기능 추가
-	List<PostEntity> findByClubId(Integer clubId);
+	// 1. 기본 목록 (페이징 적용)
+	Page<PostEntity> findByClub_ClubId(Integer clubId, Pageable pageable);
 	
-	// 작성자(memberId)가 쓴 글들만 가져오는 기능 추가
-	List<PostEntity> findByMemberId(String memberId);
+	// 2. 제목 + 내용 검색 (페이징 적용)
+	Page<PostEntity> findByClub_ClubIdAndTitleContainingOrClub_ClubIdAndContentContaining(
+			Integer clubId1, String title, Integer clubId2, String content, Pageable pageable);
+	
+	// 3. 제목만 검색 (페이징 적용)
+	Page<PostEntity> findByClub_ClubIdAndTitleContaining(Integer clubId, String title, Pageable pageable);
+	
+	// 4. 내용만 검색 (페이징 적용)
+	Page<PostEntity> findByClub_ClubIdAndContentContaining(Integer clubId, String content, Pageable pageable);
 }

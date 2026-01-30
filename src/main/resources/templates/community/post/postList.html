@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>게시글 목록</title>
+    <style>
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>모임 게시글 목록</h1>
+
+    <div style="margin-bottom: 10px; text-align: right">
+      <button
+        type="button"
+        th:onclick="|location.href='@{/community/post/write(clubId=${clubId})}'|"
+        style="
+          padding: 10px 20px;
+          cursor: pointer;
+          background-color: #4caf50;
+          color: white;
+          border: none;
+          border-radius: 4px;
+        "
+      >
+        게시글 작성하기
+      </button>
+    </div>
+
+    <div class="search-area" style="margin-bottom: 20px; text-align: center">
+      <form
+        th:action="@{/community/post/list}"
+        method="get"
+        style="display: inline-block"
+      >
+        <input type="hidden" name="clubId" th:value="${clubId}" />
+
+        <select name="searchType" id="searchType" style="padding: 5px">
+          <option
+            value="all"
+            th:selected="${searchType == 'all' or searchType == null}"
+          >
+            제목+내용
+          </option>
+          <option value="title" th:selected="${searchType == 'title'}">
+            제목
+          </option>
+          <option value="content" th:selected="${searchType == 'content'}">
+            내용
+          </option>
+        </select>
+
+        <input
+          type="text"
+          name="searchKeyword"
+          th:value="${searchKeyword}"
+          placeholder="검색어를 입력하세요"
+          style="padding: 5px; width: 250px"
+        />
+
+        <button type="submit" style="padding: 5px 15px">검색</button>
+
+        <a
+          th:href="@{/community/post/list(clubId=${clubId})}"
+          style="
+            text-decoration: none;
+            font-size: 0.9em;
+            color: gray;
+            margin-left: 10px;
+          "
+        >
+          초기화
+        </a>
+      </form>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>번호</th>
+          <th>제목</th>
+          <th>작성자</th>
+          <th>작성일</th>
+        </tr>
+      </thead>
+      <tbody id="post-list"></tbody>
+    </table>
+    <div id="pagination" style="text-align: center; margin-top: 20px;">
+    </div>
+
+    <script>
+      // 페이지 로드 시 실행
+      document.addEventListener('DOMContentLoaded', function () {
+        loadPage();
+      });
+
+      // 1. URL에서 파라미터(clubId, searchType, searchKeyword) 모두 추출
+      function loadPage() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const clubId = urlParams.get('clubId') || 1;
+        const searchType = urlParams.get('searchType') || 'all';
+        const searchKeyword = urlParams.get('searchKeyword') || '';
+        const page = urlParams.get('page') || 0; // 페이지 번호 읽기 (기본값 0)
+
+        // 2. 추출한 값으로 데이터 요청
+        fetchPosts(clubId, searchType, searchKeyword, page);
+      }
+
+      function fetchPosts(clubId, searchType, searchKeyword, page) {
+        // URL 생성 (API 주소에 searchType, searchKeyword, page를 모두 포함)
+        let fetchUrl = `/api/posts?clubId=${clubId}&searchType=${searchType}&page=${page}`;
+
+        if (searchKeyword) {
+          fetchUrl += `&searchKeyword=${encodeURIComponent(searchKeyword)}`;
+        }
+
+        // 반드시 위에서 만든 'fetchUrl' 변수를 사용
+        fetch(fetchUrl)
+          .then((response) => response.json())
+          .then((data) => {
+            // [중요] 이제 데이터는 data 자체가 아니라 data.content에 들어있습니다.
+            renderPostList(data.content);
+            // 페이지네이션 버튼 그리기
+            renderPagination(data, clubId, searchType, searchKeyword);
+          })
+          .catch((error) => console.error('Error:', error));
+      }
+
+      // 게시글 목록 렌더링
+      function renderPostList(posts) {
+        const listElement = document.getElementById('post-list');
+        listElement.innerHTML = '';
+
+        if (!posts || posts.length === 0) {
+          listElement.innerHTML =
+            '<tr><td colspan="4" style="text-align:center;">게시글이 없습니다.</td></tr>';
+          return;
+        }
+
+        posts.forEach((post) => {
+          const noticeTag = post.isNotice
+            ? '<b style="color:red;">[공지] </b>'
+            : '';
+          const date = post.createdAt ? post.createdAt.split('T')[0] : '-';
+          const row = `<tr>
+            <td>${post.isNotice ? '📢' : post.postId}</td>
+            <td>${noticeTag}<a href="/community/post/detail/${post.postId}">${post.title}</a></td>
+            <td>${post.memberId}</td>
+            <td>${date}</td>
+        </tr>`;
+          listElement.innerHTML += row;
+        });
+      }
+
+      // 페이지네이션 버튼 렌더링
+      function renderPagination(pageData, clubId, searchType, searchKeyword) {
+        const paginationElement = document.getElementById('pagination'); // HTML에 이 ID를 가진 div가 필요합니다.
+        paginationElement.innerHTML = '';
+
+        const totalPages = pageData.totalPages;
+        const currentPage = pageData.number;
+
+        for (let i = 0; i < totalPages; i++) {
+          const btn = document.createElement('button');
+          btn.innerText = i + 1;
+          btn.style.margin = '0 5px';
+          btn.style.padding = '5px 10px';
+
+          // 현재 페이지 버튼 강조
+          if (i === currentPage) {
+            btn.style.backgroundColor = '#007bff';
+            btn.style.color = 'white';
+          }
+
+          btn.onclick = function () {
+            // 클릭 시 해당 페이지로 이동 (URL 파라미터 변경)
+            location.href = `/community/post/list?clubId=${clubId}&searchType=${searchType}&searchKeyword=${searchKeyword}&page=${i}`;
+          };
+          paginationElement.appendChild(btn);
+        }
+      }
+    </script>
+  </body>
+</html>
