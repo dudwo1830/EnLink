@@ -294,7 +294,6 @@ public class ClubManageService {
 				.collect(Collectors.toList());
 	}
 	
-	
 	 /**
 	  * 모임장 권한으로 특정 멤버의 직급을 변경하며, 모임장 권한 위임 시 본인은 일반 멤버로 강등됩니다.
 	 */
