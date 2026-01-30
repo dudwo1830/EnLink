@@ -1,52 +1,40 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head('페이지 제목', ~{::link}, ~{::script})}">
-    <link rel="stylesheet" th:href="@{/css/manage.css}">
-
-    <script src="#" th:if="${false}"></script>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>모임 삭제</title>
 </head>
 <body>
-<div class="grid-container">
-    <header th:replace="~{fragments/header :: header}" class="header"></header>
+<div th:fragment="content">
+    <h3>모임 관리</h3>
 
-    <main class="main">
-        <div class="manage-main-container">
-            <aside th:replace="~{fragments/manageSidebar :: sidebar('delete')}"></aside>
+    <div th:if="${club.status == 'DELETED_PENDING'}" class="alert alert-info" style="border: 1px solid #bee5eb; padding: 20px; background-color: #d1ecf1;">
+        <p>⚠️ <strong>이 모임은 현재 삭제 대기 상태입니다.</strong></p>
+        <p>
+            복구 가능 기간이 지나면 모든 데이터가 영구 삭제됩니다. <br>
+            <strong>남은 시간: </strong> <span th:text="${club.remainingTime}" style="color: red; font-weight: bold;">7일 0시간 남음</span>
+        </p>
 
-            <section class="manage-content-area">
-                <h3>모임 삭제 관리</h3>
+        <form th:action="@{|/club/${club.clubId}/manage/restore|}" method="post">
+            <button type="submit" class="btn-restore" style="background-color: #17a2b8; color: white;">삭제 취소 (지금 복구하기)</button>
+        </form>
+    </div>
 
-                <div th:if="${club.status == 'DELETED_PENDING'}" class="alert-box pending-box">
-                    <p>⚠️ <strong>이 모임은 현재 삭제 대기 상태입니다.</strong></p>
-                    <p>
-                        복구 가능 기간이 지나면 모든 데이터가 영구 삭제됩니다. <br>
-                        <strong>남은 시간: </strong>
-                        <span th:text="${club.remainingTime}" class="time-limit">7일 0시간 남음</span>
-                    </p>
+    <div th:if="${club.status == 'ACTIVE'}" style="border: 1px solid #ffeeba; padding: 20px; background-color: #fff3cd;">
+        <p class="warning">모임을 삭제하면 7일 동안의 유예 기간 후 영구 삭제됩니다.</p>
 
-                    <form th:action="@{|/api/club/${club.clubId}/manage/restore|}" method="post">
-                        <button type="submit" class="btn-restore">삭제 취소 (지금 복구하기)</button>
-                    </form>
-                </div>
-
-                <div th:if="${club.status == 'ACTIVE'}" class="alert-box active-box">
-                    <p class="warning-text">모임을 삭제하면 7일 동안의 유예 기간 후 영구 삭제됩니다.</p>
-
-                    <form th:action="@{|/api/club/${club.clubId}/manage/delete|}" method="post" onsubmit="return confirmDelete();">
-                        <button type="submit" class="btn-danger">삭제 요청하기</button>
-                    </form>
-                </div>
-            </section>
-        </div>
-    </main>
-
-    <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
+        <form th:action="@{|/club/${club.clubId}/manage/delete|}" method="post" onsubmit="return confirmDelete();">
+            <button type="submit" class="danger" style="background-color: #dc3545; color: white;">삭제 요청하기</button>
+        </form>
+    </div>
 </div>
 
 <script th:inline="javascript">
     function confirmDelete() {
+        // 사용자에게 다시 한번 확인 메시지를 띄웁니다.
         return confirm("삭제 요청 시 일주일 동안 철회할 수 있으며, 일주일 후에 모든 내용은 자동 삭제됩니다. 진행하시겠습니까?");
     }
 </script>
+
 </body>
 </html>

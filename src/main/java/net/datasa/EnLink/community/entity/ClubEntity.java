@@ -9,8 +9,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Builder
@@ -52,7 +50,4 @@ public class ClubEntity {
 	private LocalDateTime updatedAt;
 	
 	private LocalDateTime deletedAt;
-	
-	@OneToMany(mappedBy = "club", cascade = CascadeType.ALL)
-	private List<ClubMemberEntity> members = new ArrayList<>();
 }

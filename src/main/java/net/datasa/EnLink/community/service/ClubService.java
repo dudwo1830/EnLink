@@ -1,17 +1,14 @@
 package net.datasa.EnLink.community.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import net.datasa.EnLink.community.dto.ClubDTO;
-import net.datasa.EnLink.community.dto.ClubMemberDTO;
+import net.datasa.EnLink.community.dto.ClubJoinRequestDTO;
 import net.datasa.EnLink.community.entity.ClubEntity;
 import net.datasa.EnLink.community.entity.ClubJoinAnswerEntity;
 import net.datasa.EnLink.community.entity.ClubMemberEntity;
 import net.datasa.EnLink.community.entity.ClubMemberHistoryEntity;
-import net.datasa.EnLink.community.repository.ClubAnswerRepository;
-import net.datasa.EnLink.community.repository.ClubMemberHistoryRepository;
-import net.datasa.EnLink.community.repository.ClubMemberRepository;
-import net.datasa.EnLink.community.repository.ClubRepository;
+import net.datasa.EnLink.community.repository.*;
 import net.datasa.EnLink.member.entity.MemberEntity;
 import net.datasa.EnLink.member.repository.MemberRepository;
 
@@ -26,12 +23,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional // G_001-1: 원자적 처리를 위한 트랜잭션 설정
@@ -42,9 +36,6 @@ public class ClubService {
 	private final ClubMemberHistoryRepository clubMemberHistoryRepository;
 	private final ClubAnswerRepository clubAnswerRepository;
 	private final MemberRepository memberRepository; // 영재님 임시 엔티티용
-	private final ClubManageService clubManageService;
-	
-	
 
 	@Value("${file.upload.path:src/main/resources/static/images/}") // 파일 저장 경로 설정
 	private String uploadPath;
@@ -83,9 +74,6 @@ public class ClubService {
 				throw new RuntimeException("이미지 저장 실패", e);
 			}
 		}
-		
-		// 4. 모임(Club) 저장
-		ClubEntity club = ClubEntity.builder()
 
 		// 4. 모임(Club) 생성 빌더 구성
 		ClubEntity.ClubEntityBuilder clubBuilder = ClubEntity.builder()
@@ -95,9 +83,6 @@ public class ClubService {
 				.topicId(clubDTO.getTopicId())
 				.cityId(clubDTO.getCityId())
 				.joinQuestion(clubDTO.getJoinQuestion())
-				.imageUrl(imageUrl)
-				.status("ACTIVE")
-				.build();
 				.imageUrl(imageUrl); // ⭐ 핵심
 
 		// [이미지 처리 로직 추가]
@@ -138,78 +123,30 @@ public class ClubService {
 
 	@Transactional(readOnly = true)
 	public List<ClubDTO> getClubList() {
-		// 1. 상태가 "ACTIVE"인 모임 엔티티 목록 조회
+		// 수정: 모든 모임이 아니라 상태가 "ACTIVE"인 것만 조회
 		List<ClubEntity> entities = clubRepository.findByStatus("ACTIVE");
-		
-		// 2. 각 엔티티를 DTO로 변환하면서 실시간 인원수를 카운트하여 세팅
 
 		// 이후 DTO 변환 로직은 동일
 		return entities.stream()
-				.map(entity -> {
-					ClubDTO dto = this.convertToDTO(entity);
-					
-					// [핵심] 해당 모임의 'ACTIVE' 상태인 멤버 수를 DB에서 직접 조회
-					int currentCount = clubMemberRepository.countByClub_ClubIdAndStatus(entity.getClubId(), "ACTIVE");
-					dto.setCurrentMemberCount(currentCount); // DTO에 인원수 저장
-					
-					return dto;
-				})
+				.map(this::convertToDTO)
 				.collect(Collectors.toList());
 	}
-	
-	
 
 	/**
-	 * 모임 상세 조회 (인원수 포함)
+	 * 모임 상세 조회
 	 */
 	@Transactional(readOnly = true)
-	public ClubDTO getClubDetail(Integer clubId) {
-		// 1. 모임 엔티티 조회
-		ClubEntity clubEntity = clubRepository.findById(clubId)
+	public ClubEntity getClubById(Integer clubId) {
+		return clubRepository.findById(clubId)
 				.orElseThrow(() -> new RuntimeException("존재하지 않는 모임입니다."));
-		
-		// 2. DTO로 변환
-		ClubDTO dto = convertToDTO(clubEntity);
-		
-		// 3. [핵심] 현재 'ACTIVE' 상태인 멤버 수를 카운트하여 DTO에 세팅
-		int currentCount = clubMemberRepository.countByClub_ClubIdAndStatus(clubId, "ACTIVE");
-		dto.setCurrentMemberCount(currentCount);
-		
-		return dto;
 	}
 
-	
 	/**
 	 * 모임 이름 중복 체크
 	 */
 	public boolean isNameDuplicate(String name) {
 		return clubRepository.existsByName(name);
 	}
-	
-	
-	/**
-	 * 클럽 가입 신청
-	 * */
-	public void applyToClub(Integer clubId, String memberId, String answerText) {
-		ClubEntity club = clubRepository.findById(clubId)
-				.orElseThrow(() -> new RuntimeException("존재하지 않는 모임입니다."));
-		MemberEntity member = memberRepository.findById(memberId)
-				.orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
-		
-		// 1. 기존 신청/가입 기록 확인
-		Optional<ClubMemberEntity> existingMember = clubMemberRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId);
-		
-		if (existingMember.isPresent()) {
-			ClubMemberEntity clubMember = existingMember.get();
-			String status = clubMember.getStatus();
-			
-			// 상태별 분기 처리
-			if ("ACTIVE".equals(status)) {
-				throw new RuntimeException("이미 가입된 멤버입니다.");
-			} else if ("PENDING".equals(status)) {
-				throw new RuntimeException("이미 가입 신청 중입니다.");
-			} else if ("BANNED".equals(status)) {
-				throw new RuntimeException("제명된 회원은 재가입이 불가능합니다.");
 
 	/**
 	 * 모임 수정하기
@@ -242,52 +179,8 @@ public class ClubService {
 			} catch (IOException e) {
 				throw new RuntimeException("이미지 수정 실패", e);
 			}
-			
-			// ⭐ EXIT(탈퇴) 상태일 경우: 기존 데이터를 PENDING으로 재활용
-			clubMember.setStatus("PENDING");
-			clubMember.setRole("MEMBER"); // 등급 초기화
-			// JPA의 Dirty Checking으로 인해 별도의 save 호출 없이도 트랜잭션 종료 시 업데이트됩니다.
-			
-		} else {
-			// 2. 기록이 전혀 없는 신규 신청일 경우: 새 객체 생성
-			ClubMemberEntity newMember = ClubMemberEntity.builder()
-					.club(club)
-					.member(member)
-					.role("MEMBER")
-					.status("PENDING")
-					.build();
-			clubMemberRepository.save(newMember);
 		}
-		
-		// 3. 가입 답변 저장 (기존 답변이 있을 수 있으므로 삭제 후 재저장하거나 업데이트 처리)
-		// 기존 답변 삭제 (재신청 시 새로운 답변으로 교체하기 위함)
-		clubAnswerRepository.deleteByClubIdAndMemberId(clubId, memberId);
-		
-		ClubJoinAnswerEntity answer = ClubJoinAnswerEntity.builder()
-				.clubId(clubId)
-				.memberId(memberId)
-				.answerText(answerText)
-				.build();
-		clubAnswerRepository.save(answer);
 	}
-	
-	/**
-	 * 클럽 가입 신청 취소
-	 * */
-	@Transactional
-	public void cancelApplication(Integer clubId, String memberId) {
-		// 1. 신청 내역이 있는지 확인
-		ClubMemberEntity member = clubMemberRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId)
-				.orElseThrow(() -> new RuntimeException("신청 정보를 찾을 수 없습니다."));
-		
-		// 2. 답변 삭제 (club_join_answers)
-		clubAnswerRepository.deleteByClubIdAndMemberId(clubId, memberId);
-		
-		// 3. 멤버 신청 삭제 (club_members)
-		clubMemberRepository.delete(member);
-	}
-	
-	
 
 	public void requestDeleteClub(Integer clubId) {
 		ClubEntity club = clubRepository.findById(clubId)
@@ -303,31 +196,10 @@ public class ClubService {
 	}
 
 	/**
-	 * 모임 탈퇴 처리
+	 * 모임 삭제 요청 (논리 삭제)
+	 * 실제 삭제는 ClubScheduler에서 일주일 뒤에 처리함
 	 */
 	@Transactional
-	public void leaveClub(Integer clubId, String memberId) {
-		ClubMemberEntity member = clubMemberRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId)
-				.orElseThrow(() -> new RuntimeException("가입 정보가 없습니다."));
-		
-		if ("OWNER".equals(member.getRole())) {
-			throw new RuntimeException("모임장은 탈퇴할 수 없습니다.");
-		}
-		
-		// 1. 삭제 대신 상태 변경 (나중에 쿨타임 체크를 위해)
-		member.setStatus("EXIT");
-		
-		member.setRole("MEMBER");
-		
-		// 2. 이력 남기기
-		clubManageService.leaveHistory(clubId, memberId, memberId, "EXIT", "자진 탈퇴");
-		
-		log.info("탈퇴 처리 완료 (상태: EXIT)");
-	}
-	
-	/**
-	 * entity -> DTO 변환
-	 * */
 	public void deleteClub(Integer clubId) {
 		// 1. 삭제할 모임 존재 여부 확인
 		ClubEntity club = clubRepository.findById(clubId)
@@ -447,27 +319,6 @@ public class ClubService {
 				.map(ClubMemberEntity::getStatus)
 				.orElse(null);
 	}
-	
-	
-	/**
-	 * 상세페이지 가입된 회원정보 출력
-	 * */
-	public List<ClubMemberDTO> getActiveMembers(Integer clubId) {
-		List<ClubMemberEntity> entities = clubMemberRepository.findByClub_ClubIdAndStatusOrderByRoleAsc(clubId, "ACTIVE");
-		
-		return entities.stream()
-				.map(entity -> ClubMemberDTO.builder()
-						.memberId(entity.getMember().getMemberId())
-						.memberName(entity.getMember().getName()) // ⭐ 이름 추가
-						.role(entity.getRole())
-						.build())
-				// ⭐ 직급 순서 정렬 (OWNER -> MANAGER -> MEMBER 순)
-				.sorted(Comparator.comparingInt(m -> {
-					if (m.getRole().equals("OWNER")) return 1;
-					if (m.getRole().equals("MANAGER")) return 2;
-					return 3;
-				}))
-				.toList();
 
 	/**
 	 * 클럽 가입 신청 취소 로직
@@ -544,13 +395,8 @@ public class ClubService {
 	}
 
 	/**
-	 * 특정 모임에서 해당 유저의 역할(Role)을 가져옵니다.
+	 * 모임 탈퇴 처리
 	 */
-	public String getMemberRole(Integer clubId, String memberId) {
-		// 1. 모임 ID와 멤버 ID로 가입 정보를 찾습니다.
-		return clubMemberRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId)
-				.map(ClubMemberEntity::getRole) // 정보가 있으면 Role(OWNER 등)을 꺼냅니다.
-				.orElse(null);                  // 정보가 없으면(미가입자) null을 반환합니다.
 	@Transactional
 	public void leaveClub(Integer clubId, String memberId) {
 		// 1. 가입된 상태인지 확인

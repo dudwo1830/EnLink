@@ -1,110 +1,51 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head('페이지 제목', ~{::link}, ~{::script})}">
-    <link rel="stylesheet" th:href="@{/css/manage.css}">
-    <script src="#" th:if="${false}"></script>
-    <style>
-        .detail-img {
-            width: 300px !important;  /* 공통 CSS를 무시하고 300px로 고정 */
-            height: 200px !important;
-            object-fit: cover !important;
-            border-radius: 12px !important;
-        }
-    </style>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>모임 상세 정보</title>
 </head>
 <body>
-<div class="grid-container">
-    <header th:replace="~{fragments/header :: header}" class="header"></header>
+<h1>모임 상세 정보</h1>
 
-    <main class="main">
-        <div class="detail-content-container">
-            <h1>모임 상세 정보</h1>
-            <p th:text="${loginMember}"></p>
-            <div style="color: red;">
-                현재 로그인 상태: <span th:text="${loginMember != null}"></span> <br>
-                현재 내 등급: <span th:text="${loginMember?.role}"></span>
-            </div>
+<nav class="club-tabs">
+    <a th:href="@{/club/{id}(id=${club.clubId})}">홈</a>
+    <a th:href="@{/club/{id}/board(id=${club.clubId})}">게시판</a>
+    <a th:href="@{/club/{id}/album(id=${club.clubId})}">사진첩</a>
+    <a th:href="@{/club/{id}/chat(id=${club.clubId})}">채팅</a>
+    <a th:href="@{/club/{id}/manage/requests(id=${club.clubId})}">모임관리</a>
+</nav>
 
+<hr>
 
-            <nav class="club-tabs">
-                <a th:href="@{/club/{id}(id=${club.clubId})}">홈</a>
-                <a th:href="@{/club/{id}/post/list(id=${club.clubId})}">게시판</a>
-                <a th:href="@{/club/{id}/album(id=${club.clubId})}">사진첩</a>
-                <a th:href="@{/club/{id}/chat(id=${club.clubId})}">채팅</a>
-                <th:block th:if="${loginMember != null && (loginMember.role == 'OWNER' || loginMember.role == 'MANAGER')}">
-                    <a th:href="@{/club/{id}/manage/requests(id=${club.clubId})}">모임관리</a>
-                </th:block>
-            </nav>
+<section class="club-info">
+    <img th:src="${club.imageUrl}" alt="모임 이미지">
+    <p><strong>모임 이름:</strong> <span th:text="${club.name}"></span></p>
+    <p><strong>소개:</strong> <span th:text="${club.description}"></span></p>
+    <p><strong>최대 인원:</strong> <span th:text="${club.maxMember}"></span>명</p>
+</section>
 
-            <hr>
+<hr>
 
-            <section class="club-info">
-                <div class="club-detail-header">
-                    <img th:src="${club.imageUrl}" alt="모임 이미지" class="detail-img" onerror="this.src='/images/default_club.jpg'">
-                    <div class="club-title-area">
-                        <h2 th:text="${club.name}">모임 이름</h2>
-                        <p class="member-count">
-                            <strong>멤버 </strong>
-                            <span th:text="${club.currentMemberCount != null ? club.currentMemberCount : 1}">1</span>명 /
-                            <span th:text="${club.maxMember}">10</span>명
-                        </p>
-                    </div>
-                </div>
+<div class="join-section">
+    <div th:if="${applyStatus == 'PENDING'}">
+        <button type="button" disabled>가입 대기 중</button>
+        <form th:action="@{|/club/${club.clubId}/apply/cancel|}" method="post" style="display: inline;">
+            <button type="submit" onclick="return confirm('신청을 취소하시겠습니까?')">신청 취소</button>
+        </form>
+    </div>
 
-                <div class="club-description-box">
-                    <p><strong>모임 소개</strong></p>
-                    <p th:text="${club.description}" class="desc-text"></p>
-                </div>
-            </section>
+    <div th:if="${applyStatus == null}">
+        <button type="button" onclick="openApplyModal()">가입 신청하기</button>
+    </div>
 
-            <hr>
-
-            <div class="join-section">
-                <div th:if="${applyStatus == 'ACTIVE'}">
-                    <form th:if="${loginMember.role != 'OWNER'}"
-                          th:action="@{|/club/${club.clubId}/member/leave|}"
-                          method="post">
-                        <button type="submit" onclick="return confirm('정말 탈퇴하시겠습니까?')">모임 탈퇴</button>
-                    </form>
-                    <span th:if="${loginMember?.role == 'OWNER'}" class="badge">👑 모임장</span>
-                </div>
-
-                <div th:if="${applyStatus == 'PENDING'}">
-                    <button type="button" class="btn-waiting" disabled>가입 대기 중</button>
-                    <form th:action="@{|/club/${club.clubId}/member/cancel|}" method="post" style="display: inline;">
-                        <button type="submit" class="btn-cancel" onclick="return confirm('신청을 취소하시겠습니까?')">신청 취소</button>
-                    </form>
-                </div>
-
-                <div th:if="${applyStatus == null or applyStatus == 'EXIT'}">
-                    <button type="button" class="btn-apply" onclick="openApplyModal()">가입 신청하기</button>
-                </div>
-            </div>
-
-            <br>
-
-            <div class="member-list-section">
-                <h3>가입된 멤버 목록 (<span th:text="${members.size()}">0</span>명)</h3>
-                <div class="member-vertical-list">
-                    <div th:each="member : ${members}" class="member-row">
-
-                        <span class="member-info">
-                <strong th:text="${member.MemberName}">이름</strong>
-                <span class="id-text" th:text="'(' + ${member.memberId} + ')'"> (아이디)</span>
-            </span>
-                        <span class="role-badge" th:classappend="${member.role}"
-                              th:text="${member.role == 'OWNER' ? '모임장' : (member.role == 'MANAGER' ? '운영진' : '')}">
-            </span>
-                    </div>
-                </div>
-            </div>
-
-            <a th:href="@{/club/list}" class="btn-back">목록으로 돌아가기</a>
-        </div>
-    </main>
-
-
-    <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
+    <div th:if="${applyStatus == 'ACTIVE'}">
+        <form th:action="@{|/club/${club.clubId}/leave|}" method="post" style="display: inline;">
+            <button type="submit" onclick="return confirm('정말로 이 모임에서 탈퇴하시겠습니까?')"
+                    style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                모임 탈퇴
+            </button>
+        </form>
+    </div>
 </div>
 
 <div id="applyModal" class="modal" style="display:none;">
@@ -113,20 +54,37 @@
         <p><strong>가입 질문:</strong></p>
         <p th:text="${club.joinQuestion}"></p>
 
-        <form th:action="@{|/club/${club.clubId}/member/apply|}" method="post">
+        <form th:action="@{|/club/${club.clubId}/apply|}" method="post">
             <label for="answer">답변 입력:</label>
             <input type="text" id="answer" name="answer" placeholder="답변을 입력해주세요." required>
 
             <div class="modal-buttons">
-                <button type="submit" class="btn-submit">가입 신청 완료</button>
-                <button type="button" class="btn-close" onclick="closeApplyModal()">취소</button>
+                <button type="button" onclick="closeApplyModal()">취소</button>
+                <button type="submit">가입 신청 완료</button>
             </div>
         </form>
     </div>
 </div>
 
+<br>
+<a th:href="@{/club/list}">목록으로 돌아가기</a>
 
-<input type="hidden" id="serverMessage" th:value="${message}">
-<script th:src="@{/js/club/club.js}"></script>
+<script th:inline="javascript">
+    function openApplyModal() {
+        document.getElementById('applyModal').style.display = 'block';
+    }
+
+    function closeApplyModal() {
+        document.getElementById('applyModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('applyModal');
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
+
 </body>
 </html>
