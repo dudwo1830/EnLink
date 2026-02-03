@@ -8,9 +8,8 @@ import net.datasa.EnLink.common.security.MemberDetails;
 import net.datasa.EnLink.member.dto.request.MemberCreateRequest;
 import net.datasa.EnLink.member.dto.request.MemberUpdateRequest;
 import net.datasa.EnLink.member.service.MemberService;
+import net.datasa.EnLink.membercity.dto.request.MemberCityUpdateRequest;
 import net.datasa.EnLink.membertopic.dto.request.MemberTopicReplaceRequest;
-import net.datasa.EnLink.membertopic.service.MemberTopicService;
-
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RequiredArgsConstructor
 public class MemberRestController {
 	private final MemberService memberService;
-	private final MemberTopicService memberTopicService;
 
 	/**
 	 * 회원 가입 처리
@@ -57,7 +55,7 @@ public class MemberRestController {
 	}
 
 	/**
-	 * 회원-관심 주제 설정
+	 * 회원의 관심 주제 설정
 	 *
 	 * @param member
 	 * @param topicIds
@@ -65,6 +63,18 @@ public class MemberRestController {
 	@PutMapping("me/topics")
 	public void replaceTopic(@AuthenticationPrincipal MemberDetails member,
 			@RequestBody MemberTopicReplaceRequest request) {
-		memberTopicService.replaceTopics(member.getMemberId(), request.getTopicIds());
+		memberService.replaceTopics(member.getMemberId(), request.getTopicIds());
+	}
+
+	/**
+	 * 회원의 관심 지역 설정
+	 * 
+	 * @param member
+	 * @param request
+	 */
+	@PutMapping("me/city")
+	public void updateCity(@AuthenticationPrincipal MemberDetails member,
+			@RequestBody MemberCityUpdateRequest request) {
+		memberService.updateCity(member.getMemberId(), request.getCityId());
 	}
 }

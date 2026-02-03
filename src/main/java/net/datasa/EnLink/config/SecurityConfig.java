@@ -28,7 +28,7 @@ public class SecurityConfig {
 			, "/images/**", "/css/**", "/js/**"
 			// 사용자 정의
 			// 회원
-			, "members/signup", "api/members"
+			, "members/signup", "api/members", "api/location/**"
 	};
 
 	/**

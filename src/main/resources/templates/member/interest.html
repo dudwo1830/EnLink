@@ -20,8 +20,23 @@
         </div>
         <div class="city-container">
           <h3>관심 지역</h3>
-          <div></div>
+          <div id="cityTarget">
+            <div>
+              <input type="hidden" id="regionInput" />
+              <ul id="regionList"></ul>
+            </div>
+            <div><input type="text" id="citySearch" placeholder="지역 검색" autocomplete="off" /></div>
+            <div>
+              <input type="hidden" id="cityInput" />
+              <ul id="cityList"></ul>
+            </div>
+            <div>
+              <h4>변경 후:</h4>
+              <span id="currentCity"></span>
+            </div>
+          </div>
         </div>
+        <div><button type="button" onclick="save()">수정</button></div>
       </main>
       <footer th:replace="~{fragments/footer :: footer}"></footer>
     </div>

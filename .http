@@ -1,0 +1,15 @@
+GET http://localhost:8000/api/cities/all
+Accept-Language: ja
+###
+
+GET http://localhost:8000/api/location/regions
+Accept-Language: ko
+
+###
+GET http://localhost:8000/api/location/cities
+content-type: application/json
+
+{
+	"regionId": null,
+	"keyword": "군"
+}

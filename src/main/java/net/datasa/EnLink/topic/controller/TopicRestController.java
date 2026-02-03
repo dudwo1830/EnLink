@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import net.datasa.EnLink.common.security.MemberDetails;
+import net.datasa.EnLink.membertopic.service.MemberTopicService;
 import net.datasa.EnLink.topic.dto.request.TopicCreateRequest;
 import net.datasa.EnLink.topic.dto.request.TopicUpdateRequest;
 import net.datasa.EnLink.topic.dto.response.TopicWithCheckResponse;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RequiredArgsConstructor
 public class TopicRestController {
 	private final TopicService topicService;
+	private final MemberTopicService memberTopicService;
 
 	/**
 	 * 주제 추가
@@ -65,6 +67,6 @@ public class TopicRestController {
 	 */
 	@GetMapping("me")
 	public List<TopicWithCheckResponse> getCheckListAll(@AuthenticationPrincipal MemberDetails member) {
-		return topicService.getCheckListAll(member.getMemberId());
+		return memberTopicService.getCheckListAll(member.getMemberId());
 	}
 }
