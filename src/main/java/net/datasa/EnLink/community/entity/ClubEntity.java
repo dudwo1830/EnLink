@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.datasa.EnLink.city.entity.CityEntity;
+import net.datasa.EnLink.topic.entity.TopicEntity;
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -23,36 +26,41 @@ public class ClubEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "club_id")
 	private Integer clubId;
-	
-	private Integer topicId;
-	private Integer cityId;
-	
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "topic_id")
+	private TopicEntity topic;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "city_id")
+	private CityEntity city;
+
 	@Column(unique = true, nullable = false)
 	private String name;
-	
+
 	private String description;
-	
+
 	@Builder.Default // 1. 빌더를 사용할 때도 이 기본값을 쓰겠다고 명시 (추가)
 	@Column(nullable = false) // 2. DB 컬럼 설정 (기존 유지)
 	private String imageUrl = "/images/default_club.jpg"; // 3. 실제 이미지 경로로 수정
-	
+
 	@Column(nullable = false)
 	private Integer maxMember = 10;
-	
+
 	private String joinQuestion;
-	
+
 	@Builder.Default
 	@Column(nullable = false)
 	private String status = "ACTIVE";
-	
+
 	@CreationTimestamp
 	private LocalDateTime createdAt;
-	
+
 	@UpdateTimestamp
 	private LocalDateTime updatedAt;
-	
+
 	private LocalDateTime deletedAt;
-	
+
 	@OneToMany(mappedBy = "club", cascade = CascadeType.ALL)
 	private List<ClubMemberEntity> members = new ArrayList<>();
 }
