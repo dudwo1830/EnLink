@@ -1,0 +1,32 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<aside class="manage-sidebar" th:fragment="sidebar(currentTab)">
+    <nav class="manage-tabs">
+        <th:block th:if="${loginMember != null && (loginMember.role == 'OWNER' || loginMember.role == 'MANAGER')}">
+            <div class="tab-item">
+                <a th:href="@{/club/{id}/manage/requests(id=${clubId})}"
+                   class="tab-link" th:classappend="${currentTab == 'requests'} ? 'active'">신청 현황</a>
+            </div>
+
+            <div class="tab-item">
+                <a th:href="@{/club/{id}/manage/edit(id=${clubId})}"
+                   class="tab-link" th:classappend="${currentTab == 'edit'} ? 'active'">정보 수정</a>
+            </div>
+
+            <div class="tab-item">
+                <a th:href="@{/club/{id}/manage/members(id=${clubId})}"
+                   class="tab-link" th:classappend="${currentTab == 'members'} ? 'active'">멤버 관리</a>
+            </div>
+        </th:block>
+
+        <div class="tab-item" th:if="${loginMember != null && loginMember.role == 'OWNER'}">
+            <a th:href="@{/club/{id}/manage/delete(id=${clubId})}"
+               class="tab-link delete-link" th:classappend="${currentTab == 'delete'} ? 'active'">삭제하기</a>
+        </div>
+
+        <div class="tab-item">
+            <a th:href="@{/club/{id}(id=${clubId})}" class="tab-link">상세페이지로 돌아가기</a>
+        </div>
+    </nav>
+</aside>
+</html>
