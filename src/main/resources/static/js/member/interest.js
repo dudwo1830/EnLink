@@ -10,6 +10,7 @@ document.querySelector('#citySearch').addEventListener('input', cityRender);
 /**
  * 관심 주제 설정
  */
+// 회원의 설정을 포함한 주제 목록 조회
 function topicRender() {
   fetch(`${TOPIC_API_BASE}/me`)
     .then((res) => {
@@ -83,6 +84,7 @@ function makeRegionElement(region) {
   li.addEventListener('click', selectRegion);
   return li;
 }
+
 function selectRegion(ev) {
   const regionInput = cityTarget.querySelector('#regionInput');
   regionInput.value = ev.target.dataset.regionId;
@@ -146,10 +148,11 @@ function updateCity() {
 
 // 최종 저장
 async function save() {
-  const topic = await updateTopic();
-  const msg = `관심 주제 수정: ${topic ? '성공' : '실패'}`;
   const cityId = cityTarget.querySelector('#cityInput').value;
-  if (cityId !== '') {
+
+  const topic = await updateTopic();
+  let msg = `관심 주제 수정: ${topic ? '성공' : '실패'}`;
+  if (cityId != null && cityId !== '') {
     const city = await updateCity();
     msg += `관심 지역 수정: ${city ? '성공' : '실패'}`;
   }
