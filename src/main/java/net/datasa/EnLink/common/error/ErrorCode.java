@@ -15,6 +15,8 @@ public enum ErrorCode {
 
 	// 사용자
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "사용자를 찾을 수 없습니다.", "error.user.not_found"),
+	
+	SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE_NOT_FOUND", "message", ""),
 
 	// 컨텐츠(게시글 등)
 	CONTENT_NOT_FOUND(HttpStatus.NOT_FOUND, "CONTENT_NOT_FOUND", "컨텐츠를 찾을 수 없습니다.", "error.content.not_found"),
