@@ -46,5 +46,30 @@ public interface ClubMemberRepository extends JpaRepository<ClubMemberEntity, In
 	// 특정 모임의 현재 활동 인원 수 (정원 체크용)
 	int countByClub_ClubIdAndStatus(Integer clubId, String status);
 	
+	// 특정 역할(OWNER)의 개수 카운트
+	long countByMember_MemberIdAndRole(String memberId, String role);
+	
+	// 현재 활동중이 모임 수 조회
+	long countByMember_MemberIdAndStatus(String memberId, String status);
+	
+	// 🚨 [필수] 여러 이력 중 가장 최근의 상태 하나만 가져오기
+	Optional<ClubMemberEntity> findFirstByClub_ClubIdAndMember_MemberIdAndStatusInOrderByJoinedAtDesc(
+			Integer clubId,
+			String memberId,
+			List<String> statuses // 여기에 List.of("EXIT", "BANNED")를 넣을 거예요.
+	);
+	
+	// 1️⃣ [상세 페이지용] 상태 상관없이 가장 최신 기록 1건 (현재 내 상태 확인용)
+	Optional<ClubMemberEntity> findFirstByClub_ClubIdAndMember_MemberIdOrderByJoinedAtDesc(
+			Integer clubId, String memberId
+	);
+	
+	// 전체 가입이력 조회
+	List<ClubMemberEntity> findByClub_ClubIdAndMember_MemberIdOrderByJoinedAtDesc(
+			Integer clubId, String memberId
+	);
+	
+	// 1. [추가] 모임 복구 시 소유 개수 체크를 위한 쿼리
+	long countByMember_MemberIdAndRoleAndStatus(String memberId, String role, String status);
 }
 

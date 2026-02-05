@@ -42,7 +42,7 @@ public class ClubMemberHistoryEntity {
 	@Column(columnDefinition = "TEXT")
 	private String description;
 	
-	@CreationTimestamp // 🚩 저장될 때 서버 시간을 자동으로 입력해줍니다.
+	@CreationTimestamp
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt;
 }

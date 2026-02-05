@@ -41,12 +41,16 @@ public class MemberViewController {
 	
 	@GetMapping("/mypage/clubs")
 	public String myClubs(@RequestParam(value = "type", defaultValue = "owned") String type,
+						  @AuthenticationPrincipal MemberDetails loginUser,
 						  Model model, HttpSession session) {
 		
-		String loginId = "user10"; // 임시
+		if (loginUser == null) {
+			return "redirect:/member/login";
+		}
+		String loginId = loginUser.getMemberId();
+		
 		Map<String, List<ClubDTO>> allClubs = clubMemberService.getMyClubs(loginId);
 		
-		// 선택한 type에 맞는 데이터와 제목만 넘김
 		switch (type) {
 			case "active" -> {
 				model.addAttribute("clubs", allClubs.get("activeClubs"));

@@ -1,117 +1,122 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head('페이지 제목', ~{::link}, ~{::script})}">
-    <link rel="stylesheet" th:href="@{/css/manage.css}">
-    <script src="#" th:if="${false}"></script>
-</head>
-<body>
-<div class="grid-container">
-<header th:replace="~{fragments/header :: header}"></header>
+    <!DOCTYPE html>
+    <html lang="ko" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{fragments/head :: head('가입 신청 관리', ~{::link}, ~{::script})}">
+        <link rel="stylesheet" th:href="@{/css/manage.css}">
+    </head>
+    <body>
+    <div class="grid-container">
+        <header th:replace="~{fragments/header :: header}"></header>
 
+        <div class="manage-main-container">
+            <aside th:replace="~{fragments/manageSidebar :: sidebar('requests')}"></aside>
 
-<div class="manage-main-container">
-    <aside th:replace="~{fragments/manageSidebar :: sidebar('requests')}"></aside>
+            <main class="manage-content-area">
+                <h1>가입 신청 현황</h1>
 
-    <main class="manage-content-area">
-        <h1>가입 신청 현황</h1>
+                <table class="manage-table">
+                    <thead>
+                    <tr>
+                        <th>신청자 ID</th>
+                        <th>신청자 이름</th>
+                        <th>가입 답변</th>
+                        <th>신청 일시</th>
+                        <th>가입 이력</th>
+                        <th>관리</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="request : ${joinRequests}">
+                        <td th:text="${request.memberId}">bgh_guest</td>
+                        <td th:text="${request.memberName}">가입신청자</td>
+                        <td>
+                            <button type="button" class="btn-view"
+                                    th:onclick="openManageModal([[${request.memberId}]], [[${request.memberName}]], [[${request.answerText}]])">
+                                답변 보기
+                            </button>
+                        </td>
+                        <td th:text="${#temporals.format(request.appliedAt, 'yyyy-MM-dd HH:mm')}">2026-01-22</td>
 
-        <table class="manage-table">
-            <thead>
-            <tr>
-                <th>신청자 ID</th>
-                <th>신청자 이름</th>
-                <th>가입 답변</th>
-                <th>신청 일시</th>
-                <th>관리</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="request : ${joinRequests}">
-                <td th:text="${request.memberId}">bgh_guest</td>
-                <td th:text="${request.memberName}">가입신청자</td>
-                <td>
-                    <button type="button"
-                            th:onclick="openManageModal([[${request.memberId}]], [[${request.memberName}]], [[${request.answerText}]])">
-                        답변 보기
-                    </button>
-                </td>
-                <td th:text="${#temporals.format(request.appliedAt, 'yyyy-MM-dd')}">2026-01-22</td>
-                <td>
-                    <form th:action="@{|/club/${clubId}/manage/approve|}" method="post" style="display:inline;">
-                        <input type="hidden" name="memberId" th:value="${request.memberId}">
-                        <button type="submit">승인</button>
-                    </form>
-                    <form th:action="@{|/club/${clubId}/manage/reject|}" method="post" style="display:inline;">
-                        <input type="hidden" name="memberId" th:value="${request.memberId}">
-                        <button type="submit">거절</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+                        <td style="vertical-align: middle;">
+                            <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+                                <div th:if="${request.lastActionType == null}">
+                                    <span style="color: #4caf50; font-size: 0.9em;">✨ 신규 유저</span>
+                                </div>
+                                <div th:if="${request.lastActionType != null}" style="display: flex; align-items: center; gap: 5px;">
+                                    <span th:classappend="${request.lastActionType == 'BANNED' ? 'badge-danger' : 'badge-gray'}"
+                                          th:text="${request.lastActionType == 'BANNED' ? '⚠️ 제명' : 'ℹ️ 탈퇴'}"
+                                          style="white-space: nowrap;">
+                                    </span>
+                                    <small th:text="${#temporals.format(request.lastActionDate, 'yy-MM-dd')}"
+                                           style="color: #888; white-space: nowrap;"></small>
+                                </div>
+                                <button type="button" class="btn-history-small"
+                                        th:data-member-id="${request.memberId}"
+                                        th:data-member-name="${request.memberName}"
+                                        th:data-club-id="${clubId}"
+                                        onclick="openHistoryModal(this)">
+                                    상세이력
+                                </button>
+                            </div>
+                        </td>
 
-        <div th:if="${!paging.isEmpty()}" class="pagination-container" style="text-align: center; margin-top: 30px; margin-bottom: 30px;">
-            <ul class="pagination" style="display: inline-flex; list-style: none; padding: 0; align-items: center;">
-                <li th:classappend="${!paging.hasPrevious()} ? 'disabled'" style="margin: 0 10px;">
-                    <a th:href="@{|/club/${clubId}/manage/requests?page=${paging.number - 1}|}"
-                       th:style="${!paging.hasPrevious()} ? 'pointer-events: none; color: #ccc;' : 'text-decoration: none; color: #333;'">이전</a>
-                </li>
+                        <td>
+                            <div style="display: flex; gap: 5px; justify-content: center;">
+                                <button type="button" class="btn-approve"
+                                        th:onclick="approveMember([[${clubId}]], [[${request.memberId}]])">승인</button>
+                                <button type="button" class="btn-reject"
+                                        th:onclick="rejectMember([[${clubId}]], [[${request.memberId}]])">거절</button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
 
-                <li th:each="page: ${#numbers.sequence(0, paging.totalPages - 1)}" style="margin: 0 5px;">
-                    <a th:text="${page + 1}"
-                       th:href="@{|/club/${clubId}/manage/requests?page=${page}|}"
-                       th:style="${page == paging.number} ? 'font-weight: bold; color: white; background: #007bff; padding: 5px 10px; border-radius: 4px;' : 'color: #666; padding: 5px 10px; border: 1px solid #ddd; border-radius: 4px; text-decoration: none;'"></a>
-                </li>
-
-                <li th:classappend="${!paging.hasNext()} ? 'disabled'" style="margin: 0 10px;">
-                    <a th:href="@{|/club/${clubId}/manage/requests?page=${paging.number + 1}|}"
-                       th:style="${!paging.hasNext()} ? 'pointer-events: none; color: #ccc;' : 'text-decoration: none; color: #333;'">다음</a>
-                </li>
-            </ul>
-        </div>
-
-        <div id="manageModal" class="modal" style="display:none; position:fixed; z-index:100; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
-            <div class="modal-content" style="background:#fff; margin:15% auto; padding:20px; width:400px; border-radius:8px;">
-                <h2 id="modalTitle">신청자 정보</h2>
-                <hr>
-                <p><strong>답변 내용:</strong></p>
-                <div id="modalAnswer" style="background:#f9f9f9; padding:15px; border:1px solid #ddd; min-height:100px; white-space: pre-wrap;"></div>
-                <div style="text-align:right; margin-top:15px;">
-                    <button type="button" onclick="closeManageModal()">닫기</button>
+                <div th:if="${!paging.isEmpty()}" class="pagination-container" style="text-align: center; margin-top: 30px;">
                 </div>
-            </div>
+
+                <div id="manageModal" class="modal" style="display:none; position:fixed; z-index:100; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
+                    <div class="modal-content" style="background:#fff; margin:15% auto; padding:20px; width:400px; border-radius:8px;">
+                        <h2 id="modalTitle">신청자 정보</h2>
+                        <hr>
+                        <p><strong>답변 내용:</strong></p>
+                        <div id="modalAnswer" style="background:#f9f9f9; padding:15px; border:1px solid #ddd; min-height:100px; white-space: pre-wrap;"></div>
+                        <div style="text-align:right; margin-top:15px;">
+                            <button type="button" onclick="closeManageModal()" class="btn-close">닫기</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="historyModal" class="modal" style="display:none; position:fixed; z-index:101; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
+                    <div class="modal-content" style="background:#fff; margin:5% auto; padding:20px; width:600px; border-radius:8px; display:flex; flex-direction:column; max-height:80vh;">
+                        <h2 id="historyTitle">전체 이력</h2>
+                        <hr>
+
+                        <div class="modal-body" style="overflow-y: auto; flex-grow: 1; margin-bottom: 15px;">
+                            <table style="width:100%; border-collapse: collapse; text-align: center;">
+                                <thead style="position: sticky; top: 0; background: #f4f4f4;">
+                                <tr>
+                                    <th style="padding: 10px; border-bottom: 1px solid #ddd;">날짜</th>
+                                    <th style="padding: 10px; border-bottom: 1px solid #ddd;">유형</th>
+                                    <th style="padding: 10px; border-bottom: 1px solid #ddd;">사유</th>
+                                </tr>
+                                </thead>
+                                <tbody id="historyList">
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div style="text-align:right; border-top: 1px solid #eee; padding-top: 15px;">
+                            <button type="button" onclick="closeHistoryModal()" class="btn-close-modal"
+                                    style="padding: 8px 16px; cursor: pointer; border: 1px solid #ccc; background: #fff; border-radius: 4px;">닫기</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
-    </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
 
-<footer th:replace="~{fragments/footer :: footer}"></footer>
-</div>
-</div>
-<script th:inline="javascript">
-    function openManageModal(memberId, memberName, answerText) {
-        // 1. 모달 요소 가져오기
-        const modal = document.getElementById('manageModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalAnswer = document.getElementById('modalAnswer');
-
-        // 2. 데이터 채우기
-        modalTitle.innerText = memberName + "(" + memberId + ") 님의 가입 신청 답변";
-        modalAnswer.innerText = answerText ? answerText : "제출된 답변이 없습니다.";
-
-        // 3. 모달 보이기
-        modal.style.display = 'block';
-    }
-
-    function closeManageModal() {
-        document.getElementById('manageModal').style.display = 'none';
-    }
-
-    // 모달 외부 클릭 시 닫기
-    window.onclick = function(event) {
-        const modal = document.getElementById('manageModal');
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
-    }
-</script>
-</body>
-</html>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script th:src="@{/js/club/manage.js}"></script>
+    </body>
+    </html>
