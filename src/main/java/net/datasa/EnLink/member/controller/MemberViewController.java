@@ -58,7 +58,7 @@ public class MemberViewController {
 	 * @return
 	 */
 	@GetMapping("me/interest")
-	public String interest(@AuthenticationPrincipal MemberDetails user, Model model) {
+	public String interest() {
 		return TEMPLATE_PATH + "interest";
 	}
 

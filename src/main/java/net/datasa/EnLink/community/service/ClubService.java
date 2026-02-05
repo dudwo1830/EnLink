@@ -8,6 +8,7 @@ import net.datasa.EnLink.common.error.BusinessException;
 import net.datasa.EnLink.common.error.ErrorCode;
 import net.datasa.EnLink.community.dto.ClubDTO;
 import net.datasa.EnLink.community.dto.ClubMemberDTO;
+import net.datasa.EnLink.community.dto.ClubSummaryResponse;
 import net.datasa.EnLink.community.entity.ClubEntity;
 import net.datasa.EnLink.community.entity.ClubJoinAnswerEntity;
 import net.datasa.EnLink.community.entity.ClubMemberEntity;
@@ -22,6 +23,8 @@ import net.datasa.EnLink.topic.entity.TopicEntity;
 import net.datasa.EnLink.topic.repository.TopicRepository;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -251,5 +254,28 @@ public class ClubService {
 					return 0;
 				})
 				.collect(Collectors.toList());
+	}
+
+	/**
+	 * 모임 리스트 조회 및 페이징 처리, 검색
+	 * 
+	 * @param pageable
+	 * @param search   검색할 내용
+	 * @param topicId  주제 PK
+	 * @param cityId   지역 PK
+	 * @return
+	 */
+	public Slice<ClubSummaryResponse> getClubListBySlice(Pageable pageable, Integer cityId, Integer topicId,
+			String search) {
+		return clubRepository.searchClubs(pageable, cityId, topicId, search).map(club -> {
+			return ClubSummaryResponse.builder()
+					.clubId(club.getClubId())
+					.name(club.getName())
+					.topicName(club.getTopic().getName())
+					.cityName(club.getCity().getRegion().getNameLocal() + " " + club.getCity().getNameLocal())
+					.imageUrl(club.getImageUrl())
+					.description(club.getDescription())
+					.build();
+		});
 	}
 }

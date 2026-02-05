@@ -29,6 +29,8 @@ public class SecurityConfig {
 			// 사용자 정의
 			// 회원
 			, "members/signup", "api/members", "api/location/**"
+			// 모임
+			, "api/clubs"
 	};
 
 	/**

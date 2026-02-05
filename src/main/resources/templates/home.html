@@ -2,33 +2,47 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head th:replace="~{fragments/head :: head('HOME', ~{::link}, ~{::script})}">
     <link rel="stylesheet" href="#" th:if="${false}" />
-    <script src="#" th:if="${false}"></script>
+    <script type="module" th:src="@{/js/club/list/clubList.js}"></script>
   </head>
   <body>
     <div class="grid-container">
       <header th:replace="~{fragments/header :: header}"></header>
       <aside th:replace="~{fragments/aside :: aside}"></aside>
       <main class="main">
+        <ul>
+          <li class="city" data-city-id="1">지역 1</li>
+          <li class="city" data-city-id="2">지역 2</li>
+          <li class="city" data-city-id="3">지역 3</li>
+        </ul>
+        <ul>
+          <li class="topic" data-topic-id="1">주제 1</li>
+          <li class="topic" data-topic-id="2">주제 2</li>
+          <li class="topic" data-topic-id="3">주제 3</li>
+        </ul>
+        <input type="text" id="searchInput" />
         <h1>HELLO ENLINK</h1>
-          <nav class="member-navigation">
-              <h2>👤 회원 관련 메뉴 (팀원 작업 확인용)</h2>
-              <ul>
-                  <li><a th:href="@{/members/}">회원가입</a></li>
-                  <li><a th:href="@{/member/login}">로그인</a></li>
-              </ul>
-          </nav>
+        <nav class="member-navigation">
+          <h2>👤 회원 관련 메뉴 (팀원 작업 확인용)</h2>
+          <ul>
+            <li><a th:href="@{/members/}">회원가입</a></li>
+            <li><a th:href="@{/member/login}">로그인</a></li>
+          </ul>
+        </nav>
 
-          <hr>
-          <nav class="test-navigation">
-              <h2>🚀 커뮤니티 기능 테스트 메뉴</h2>
-              <ul>
-                  <li><a th:href="@{/club/list}">모임 목록 보기</a></li>
+        <hr />
+        <nav class="test-navigation">
+          <h2>🚀 커뮤니티 기능 테스트 메뉴</h2>
+          <ul>
+            <li><a th:href="@{/club/list}">모임 목록 보기</a></li>
 
-                  <li><a th:href="@{/club/create}">새 모임 만들기</a></li>
-
-              </ul>
-          </nav>
-
+            <li><a th:href="@{/club/create}">새 모임 만들기</a></li>
+          </ul>
+        </nav>
+        <hr />
+        <div class="card-container">
+          <ul id="clubList"></ul>
+          <button type="button" id="clubListMore">더보기</button>
+        </div>
       </main>
       <footer th:replace="~{fragments/footer :: footer}"></footer>
     </div>
