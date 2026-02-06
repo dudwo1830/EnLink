@@ -99,7 +99,7 @@ public class ClubMemberService {
 				.maxMember(club.getMaxMember())
 				.currentMemberCount((int) activeCount)
 				.role(entity.getRole())
-				.status(entity.getStatus())
+				.status(club.getStatus())
 				.build();
 	}
 	
@@ -111,10 +111,10 @@ public class ClubMemberService {
 		
 		// 2. 권한 및 상태 검증
 		if ("OWNER".equals(member.getRole())) {
-			throw new BusinessException(ErrorCode.CLUB_OWNER_CANNOT_LEAVE);
+			throw new BusinessException(ErrorCode.OWNER_CANNOT_LEAVE);
 		}
 		if (!"ACTIVE".equals(member.getStatus())) {
-			throw new BusinessException(ErrorCode.ALREADY_LEFT_OR_BANNED);
+			throw new BusinessException(ErrorCode.ALREADY_INACTIVE);
 		}
 		
 		member.setStatus("EXIT");

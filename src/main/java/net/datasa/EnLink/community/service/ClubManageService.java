@@ -118,6 +118,8 @@ public class ClubManageService {
 		log.info("[모임 삭제 요청 완료] 모임ID: {}, 요청자: {}", clubId, loginId);
 	}
 	
+	
+	
 	/**
 	 * 삭제 대기 중인 모임의 상태를 'ACTIVE'로 되돌리고 삭제 예정 시간을 초기화합니다.
 	 * */
@@ -126,21 +128,21 @@ public class ClubManageService {
 		checkAuthority(clubId, loginId, "OWNER_ONLY");
 		ClubEntity club = getClubById(clubId);
 		
-		// 1. 상태 검증: 오직 삭제 대기 중일 때만 복구 가능
+		
 		if (!"DELETED_PENDING".equals(club.getStatus())) {
-			throw new BusinessException(ErrorCode.CLUB_NOT_IN_PENDING_STATE);
+			throw new BusinessException(ErrorCode.NOT_PENDING_STATE);
 		}
 		
-		// 2. 시간 검증: 7일이 지났는지 체크 (선택 사항)
+		
 		if (club.getDeletedAt() != null &&
 				club.getDeletedAt().plusDays(7).isBefore(LocalDateTime.now())) {
-			throw new BusinessException(ErrorCode.CONTENT_NOT_FOUND);
+			throw new BusinessException(ErrorCode.CLUB_NOT_FOUND);
 		}
 		
-		// 3. 정책 검증: 복구했을 때 5개가 넘지 않는지 확인 (핵심!)
-		long activeCount = clubMemberRepository.countByMember_MemberIdAndRoleAndStatus(loginId, "OWNER", "ACTIVE");
-		if (activeCount >= 5) {
-			throw new BusinessException(ErrorCode.CLUB_OWN_LIMIT_EXCEEDED);
+		long totalActiveCount = clubMemberRepository.countByMember_MemberIdAndStatus(loginId, "ACTIVE");
+		
+		if (totalActiveCount >= 5) {
+			throw new BusinessException(ErrorCode.RESTORE_LIMIT_EXCEEDED);
 		}
 		
 		// 4. 상태 복구
@@ -228,7 +230,7 @@ public class ClubManageService {
 		checkAuthority(clubId, loginId, "MANAGER_UP");
 		
 		ClubMemberEntity member = clubMemberRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId)
-				.orElseThrow(() -> new BusinessException(ErrorCode.JOIN_REQUEST_NOT_FOUND));
+				.orElseThrow(() -> new BusinessException(ErrorCode.REQUEST_NOT_FOUND));
 		
 		if (!"PENDING".equals(member.getStatus())) {
 			throw new BusinessException(ErrorCode.ALREADY_JOINED_OR_PENDING);
@@ -237,7 +239,7 @@ public class ClubManageService {
 		long activeCount = clubMemberRepository.countByMember_MemberIdAndStatus(memberId, "ACTIVE");
 		
 		if (activeCount >= 5) {
-			throw new BusinessException(ErrorCode.TOO_MANY_CLUBS);
+			throw new BusinessException(ErrorCode.JOIN_LIMIT_EXCEEDED);
 		}
 		
 		ClubEntity club = member.getClub();
@@ -262,7 +264,7 @@ public class ClubManageService {
 		checkAuthority(clubId, loginId,"MANAGER_UP");
 		
 		ClubMemberEntity member = clubMemberRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId)
-				.orElseThrow(() -> new BusinessException(ErrorCode.JOIN_REQUEST_NOT_FOUND));
+				.orElseThrow(() -> new BusinessException(ErrorCode.REQUEST_NOT_FOUND));
 		
 		clubAnswerRepository.deleteByClubIdAndMemberId(clubId, memberId);
 		clubMemberHistoryService.leaveHistory(clubId, memberId, loginId, "JOIN_REJECT", "가입 신청 거절");
@@ -319,7 +321,7 @@ public class ClubManageService {
 		
 		// 2. 본인 제명 방지
 		if (requesterId.equals(targetId)) {
-			throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
+			throw new BusinessException(ErrorCode.SELF_ACTION_NOT_ALLOWED);
 		}
 		
 		// 3. 권한별 필터링
@@ -406,11 +408,11 @@ public class ClubManageService {
 		
 		if ("OWNER_ONLY".equals(requiredRole)) {
 			if (!"OWNER".equals(currentRole)) {
-				throw new BusinessException(ErrorCode.OWNER_ONLY_ACCESS);
+				throw new BusinessException(ErrorCode.OWNER_ONLY);
 			}
 		} else if ("MANAGER_UP".equals(requiredRole)) {
 			if (!"OWNER".equals(currentRole) && !"MANAGER".equals(currentRole)) {
-				throw new BusinessException(ErrorCode.MANAGER_UP_ACCESS);
+				throw new BusinessException(ErrorCode.MANAGER_UP);
 			}
 		}
 	}
@@ -432,7 +434,7 @@ public class ClubManageService {
 	public void validateMaxMember(Integer clubId, int newMaxMember) {
 		int currentMemberCount = clubMemberRepository.countByClub_ClubIdAndStatus(clubId, "ACTIVE");
 		if (newMaxMember < currentMemberCount) {
-			throw new BusinessException(ErrorCode.MAX_MEMBER_LESS_THAN_CURRENT);
+			throw new BusinessException(ErrorCode.MAX_MEMBER_UNDER_CURRENT);
 		}
 	}
 	

@@ -15,9 +15,10 @@
 <div class="grid-container">
     <header th:replace="~{fragments/header :: header}" class="header"></header>
 
+
     <main class="main">
         <div class="detail-content-container">
-            <h1>모임 상세 정보</h1>
+
 
             <nav class="club-tabs">
                 <a th:href="@{/club/{id}(id=${club.clubId})}">홈</a>
@@ -30,12 +31,28 @@
             </nav>
 
             <hr>
-
+            <div th:if="${club.status == 'DELETED_PENDING'}" class="delete-pending-banner">
+                <div class="banner-content">
+                    <div class="banner-icon">⚠️</div>
+                    <div class="banner-text">
+                        <h4>모임 삭제 대기 안내</h4>
+                        <p>이 모임은 현재 삭제 절차가 진행 중입니다.</p>
+                        <div class="time-badge">
+                            <span>남은 시간: </span>
+                            <strong th:text="${club.remainingTime}">7일 0시간 남음</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <section class="club-info">
                 <div class="club-detail-header">
                     <img th:src="${club.imageUrl}" alt="모임 이미지" class="detail-img" onerror="this.src='/images/default_club.jpg'">
                     <div class="club-title-area">
-                        <h2 th:text="${club.name}">모임 이름</h2>
+                        <span th:text="${club.name}">모임 이름</span>
+                        <span th:if="${club.status == 'DELETED_PENDING'}"
+                              style="background-color: #fff4e5; color: #ffa117; border: 1px solid #ffa117; font-size: 14px; padding: 2px 8px; border-radius: 4px;">
+            삭제 대기 중
+        </span>
                         <p class="member-count">
                             <strong>멤버 </strong>
                             <span th:text="${club.currentMemberCount != null ? club.currentMemberCount : 1}">1</span>명 /

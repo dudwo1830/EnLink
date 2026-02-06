@@ -128,3 +128,49 @@
     .bg-warning { background-color: #ffc107; color: #212529 !important; } /* 탈퇴 - 노란색 */
     .bg-secondary { background-color: #6c757d; } /* 거절 - 회색 */
     .bg-gray { background-color: #e9ecef; color: #495057 !important; }    /* 기타 */
+
+        .delete-pending-banner {
+        background-color: #fff4e5; /* 연한 주황색 배경 */
+        border-left: 5px solid #ffa117; /* 포인트가 되는 굵은 선 */
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .banner-content {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .banner-icon {
+        font-size: 24px;
+    }
+
+    .banner-text h4 {
+        color: #cc7a00; /* 어두운 주황색 */
+        margin: 0 0 5px 0;
+        font-size: 1.1rem;
+        font-weight: bold;
+    }
+
+    .banner-text p {
+        color: #666;
+        margin: 0 0 10px 0;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .time-badge {
+        display: inline-block;
+        background-color: #ffa117;
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+
+    .time-badge strong {
+        font-weight: 600;
+    }

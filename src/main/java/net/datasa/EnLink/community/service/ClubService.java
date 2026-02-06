@@ -132,7 +132,7 @@ public class ClubService {
 		long activeCount = clubMemberRepository.countByMember_MemberIdAndStatus(memberId, "ACTIVE");
 		
 		if (activeCount >= 5) {
-			throw new BusinessException(ErrorCode.CLUB_JOIN_LIMIT_EXCEEDED);
+			throw new BusinessException(ErrorCode.JOIN_LIMIT_EXCEEDED);
 		}
 		
 		ClubEntity club = clubRepository.findById(clubId)
@@ -177,7 +177,7 @@ public class ClubService {
 	public void cancelApplication(Integer clubId, String loginId){
 			// 1. 신청 내역 조회
 			ClubMemberEntity member = clubMemberRepository.findByClub_ClubIdAndMember_MemberId(clubId, loginId)
-					.orElseThrow(() -> new BusinessException(ErrorCode.JOIN_REQUEST_NOT_FOUND));
+					.orElseThrow(() -> new BusinessException(ErrorCode.REQUEST_NOT_FOUND));
 			
 			clubAnswerRepository.deleteByClubIdAndMemberId(clubId, loginId);
 			
@@ -233,13 +233,15 @@ public class ClubService {
  	*/
 	private void validateCreateClub(ClubDTO clubDTO, String loginMemberId) {
 	if (clubRepository.existsByName(clubDTO.getName())) {
-		throw new BusinessException(ErrorCode.DUPLICATE_CLUB_NAME);
+		throw new BusinessException(ErrorCode.DUPLICATE_NAME);
 	}
 	if (clubDTO.getMaxMember() % 10 != 0) {
-		throw new BusinessException(ErrorCode.INVALID_MAX_MEMBER_UNIT);
+		throw new BusinessException(ErrorCode.INVALID_MAX_MEMBER);
 	}
-	if (clubMemberRepository.countByMember_MemberIdAndRole(loginMemberId, "OWNER") > 5) {
-		throw new BusinessException(ErrorCode.CLUB_OWN_LIMIT_EXCEEDED);
+		
+		long totalActiveCount = clubMemberRepository.countByMember_MemberIdAndStatus(loginMemberId, "ACTIVE");
+		if (totalActiveCount >= 5) {
+			throw new BusinessException(ErrorCode.JOIN_LIMIT_EXCEEDED);
 	}
 }
 	

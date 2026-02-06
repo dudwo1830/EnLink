@@ -33,7 +33,7 @@ public class ClubManageApiController {
 	public ResponseEntity<String> delete(@PathVariable Integer clubId,
 										@AuthenticationPrincipal MemberDetails userDetails) {
 		clubManageService.deleteClub(clubId, userDetails.getUsername());
-		return ResponseEntity.ok("모임이 삭제되었습니다.");
+		return ResponseEntity.ok("모임이 삭제요청이 완료되었습니다.");
 	}
 	
 	@PostMapping("/restore")

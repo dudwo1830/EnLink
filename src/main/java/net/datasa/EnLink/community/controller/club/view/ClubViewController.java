@@ -35,7 +35,7 @@ public class ClubViewController {
 		long totalActiveCount = clubMemberRepository.countByMember_MemberIdAndStatus(loginUser.getMemberId(), "ACTIVE");
 		if (totalActiveCount >= 5) {
 			log.info("가입 제한 초과 확인됨! 에러 발생시킵니다.");
-			throw new BusinessException(ErrorCode.CLUB_JOIN_LIMIT_EXCEEDED);
+			throw new BusinessException(ErrorCode.JOIN_LIMIT_EXCEEDED);
 		}
 		
 		model.addAttribute("clubDTO", new ClubDTO());
