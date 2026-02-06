@@ -29,44 +29,55 @@
 
     <main class="main">
         <div class="list-content-container">
-            <h1 th:text="${title}">제목</h1>
-            <p>테스트 계정(bgh_leader) 님의 활동 정보입니다.</p>
+            <h1 th:text="${title}">내 모임 활동</h1>
+            <p><strong th:text="${#authentication.name}">사용자</strong> 님의 활동 정보입니다.</p>
 
             <div class="tab-menu">
-                <a th:href="@{/mypage/clubs(type='owned')}" th:classappend="${currentType == 'owned'} ? 'active'">내가 만든 모임</a>
-                <a th:href="@{/mypage/clubs(type='active')}" th:classappend="${currentType == 'active'} ? 'active'">참여 중인 모임</a>
-                <a th:href="@{/mypage/clubs(type='pending')}" th:classappend="${currentType == 'pending'} ? 'active'">신청 현황</a>
+                <a th:href="@{/members/mypage/clubs(type='owned')}" th:classappend="${currentType == 'owned'} ? 'active'">내가 만든 모임</a>
+                <a th:href="@{/members/mypage/clubs(type='active')}" th:classappend="${currentType == 'active'} ? 'active'">참여 중인 모임</a>
+                <a th:href="@{/members/mypage/clubs(type='pending')}" th:classappend="${currentType == 'pending'} ? 'active'">신청 현황</a>
             </div>
 
-            <div th:if="${#lists.isEmpty(clubs)}" class="empty-msg">내역이 없습니다.</div>
+            <div th:if="${#lists.isEmpty(clubs)}" class="empty-msg"><p>표시할 내역이 없습니다. 새로운 모임에 참여해보세요!</p></div>
 
-            <div class="club-list">
+            <div class="club-list" th:if="${not #lists.isEmpty(clubs)}">
                 <div th:each="club : ${clubs}" class="club-item-card">
                     <a th:href="@{/club/{id}(id=${club.clubId})}">
                         <div class="club-img-wrapper">
                             <img th:src="${#strings.isEmpty(club.imageUrl) ? '/images/default_club.jpg' : club.imageUrl}" alt="모임 이미지">
                         </div>
                     </a>
+
                     <div class="club-info">
-                        <h3 th:text="${club.name}">모임 이름</h3>
+                        <h3 style="display: flex; align-items: center; gap: 8px;">
+                            <span th:text="${club.name}">모임 이름</span>
+                            <span th:if="${club.status == 'DELETED_PENDING'}"
+                                  style="background-color: #fff4e5; color: #ffa117; border: 1px solid #ffa117; font-size: 11px; padding: 1px 6px; border-radius: 4px; white-space: nowrap;">
+            삭제 대기
+        </span>
+                        </h3>
 
                         <div class="club-meta">
                             <th:block th:if="${currentType == 'owned'}">
                                 <span>멤버 <span th:text="${club.currentMemberCount}">0</span> / <span th:text="${club.maxMember}">10</span></span>
-                                <a th:href="@{/club/{id}/manage/requests(id=${club.clubId})}" class="btn-manage">관리 페이지</a>
+                                <div class="mt-2">
+                                    <a th:href="@{/club/{id}/manage/requests(id=${club.clubId})}" class="btn-action btn-manage">신청 관리</a>
+                                    <a th:href="@{/club/{id}/manage/edit(id=${club.clubId})}" class="btn-action" style="background:#6c757d; color:white;">정보 수정</a>
+                                </div>
                             </th:block>
 
                             <th:block th:if="${currentType == 'active'}">
-                                <p class="club-meta">현재 멤버로서 활동 중입니다.</p>
+                                <span>참여 멤버 <span th:text="${club.currentMemberCount}">0</span> / <span th:text="${club.maxMember}">10</span></span>
+                                <p class="mt-1" style="color: #28a745; font-size: 0.9em;">✔️ 현재 활동 중인 멤버입니다.</p>
                             </th:block>
 
                             <th:block th:if="${currentType == 'pending'}">
-                            <form th:action="@{|/api/club/${club.clubId}/member/cancel|}" method="post" style="display:inline;">
-                                <button type="submit" class="btn-cancel"
-                                        onclick="return confirm('정말로 가입 신청을 취소하시겠습니까?')">
+                                <p class="text-muted" style="font-size: 0.9em;">운영진의 승인을 기다리고 있습니다.</p>
+
+                                <button type="button" class="btn-action btn-cancel"
+                                        th:onclick="|cancelApply(${club.clubId})|">
                                     신청 취소
                                 </button>
-                            </form>
                             </th:block>
                         </div>
                     </div>
@@ -77,5 +88,7 @@
     <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script th:src="@{/js/club/clubDetail.js}"></script>
 </body>
 </html>

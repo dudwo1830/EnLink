@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head('페이지 제목', ~{::link}, ~{::script})}">
+<head th:replace="~{fragments/head :: head('모임 상세 정보', ~{::link}, ~{::script})}">
     <link rel="stylesheet" th:href="@{/css/manage.css}">
-    <script src="#" th:if="${false}"></script>
     <style>
         .detail-img {
-            width: 300px !important;  /* 공통 CSS를 무시하고 300px로 고정 */
+            width: 300px !important;
             height: 200px !important;
             object-fit: cover !important;
             border-radius: 12px !important;
@@ -16,14 +15,9 @@
 <div class="grid-container">
     <header th:replace="~{fragments/header :: header}" class="header"></header>
 
+
     <main class="main">
         <div class="detail-content-container">
-            <h1>모임 상세 정보</h1>
-            <p th:text="${loginMember}"></p>
-            <div style="color: red;">
-                현재 로그인 상태: <span th:text="${loginMember != null}"></span> <br>
-                현재 내 등급: <span th:text="${loginMember?.role}"></span>
-            </div>
 
 
             <nav class="club-tabs">
@@ -37,12 +31,28 @@
             </nav>
 
             <hr>
-
+            <div th:if="${club.status == 'DELETED_PENDING'}" class="delete-pending-banner">
+                <div class="banner-content">
+                    <div class="banner-icon">⚠️</div>
+                    <div class="banner-text">
+                        <h4>모임 삭제 대기 안내</h4>
+                        <p>이 모임은 현재 삭제 절차가 진행 중입니다.</p>
+                        <div class="time-badge">
+                            <span>남은 시간: </span>
+                            <strong th:text="${club.remainingTime}">7일 0시간 남음</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <section class="club-info">
                 <div class="club-detail-header">
                     <img th:src="${club.imageUrl}" alt="모임 이미지" class="detail-img" onerror="this.src='/images/default_club.jpg'">
                     <div class="club-title-area">
-                        <h2 th:text="${club.name}">모임 이름</h2>
+                        <span th:text="${club.name}">모임 이름</span>
+                        <span th:if="${club.status == 'DELETED_PENDING'}"
+                              style="background-color: #fff4e5; color: #ffa117; border: 1px solid #ffa117; font-size: 14px; padding: 2px 8px; border-radius: 4px;">
+            삭제 대기 중
+        </span>
                         <p class="member-count">
                             <strong>멤버 </strong>
                             <span th:text="${club.currentMemberCount != null ? club.currentMemberCount : 1}">1</span>명 /
@@ -61,23 +71,23 @@
 
             <div class="join-section">
                 <div th:if="${applyStatus == 'ACTIVE'}">
-                    <form th:if="${loginMember.role != 'OWNER'}"
-                          th:action="@{|/club/${club.clubId}/member/leave|}"
-                          method="post">
-                        <button type="submit" onclick="return confirm('정말 탈퇴하시겠습니까?')">모임 탈퇴</button>
-                    </form>
+                    <button th:if="${loginMember?.role != 'OWNER'}"
+                            type="button" class="btn-leave" onclick="openLeaveModal()">모임 탈퇴</button>
                     <span th:if="${loginMember?.role == 'OWNER'}" class="badge">👑 모임장</span>
                 </div>
 
                 <div th:if="${applyStatus == 'PENDING'}">
                     <button type="button" class="btn-waiting" disabled>가입 대기 중</button>
-                    <form th:action="@{|/club/${club.clubId}/member/cancel|}" method="post" style="display: inline;">
-                        <button type="submit" class="btn-cancel" onclick="return confirm('신청을 취소하시겠습니까?')">신청 취소</button>
-                    </form>
+                    <button type="button" class="btn-cancel"
+                            th:onclick="|cancelApply(${club.clubId})|">신청 취소</button>
                 </div>
 
-                <div th:if="${applyStatus == null or applyStatus == 'EXIT'}">
-                    <button type="button" class="btn-apply" onclick="openApplyModal()">가입 신청하기</button>
+                <div th:if="${applyStatus == null or applyStatus == 'EXIT' or applyStatus == 'BANNED'}">
+                    <button th:if="${totalActiveCount < 5}"
+                            type="button" class="btn-apply" onclick="openApplyModal()">가입 신청하기</button>
+
+                    <button th:if="${totalActiveCount >= 5}"
+                            type="button" class="btn-disabled" disabled>가입 신청 불가 (최대 5개)</button>
                 </div>
             </div>
 
@@ -87,14 +97,13 @@
                 <h3>가입된 멤버 목록 (<span th:text="${members.size()}">0</span>명)</h3>
                 <div class="member-vertical-list">
                     <div th:each="member : ${members}" class="member-row">
-
                         <span class="member-info">
-                <strong th:text="${member.MemberName}">이름</strong>
-                <span class="id-text" th:text="'(' + ${member.memberId} + ')'"> (아이디)</span>
-            </span>
+                            <strong th:text="${member.memberName}">이름</strong>
+                            <span class="id-text" th:text="'(' + ${member.memberId} + ')'"> (아이디)</span>
+                        </span>
                         <span class="role-badge" th:classappend="${member.role}"
                               th:text="${member.role == 'OWNER' ? '모임장' : (member.role == 'MANAGER' ? '운영진' : '')}">
-            </span>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -102,7 +111,6 @@
             <a th:href="@{/club/list}" class="btn-back">목록으로 돌아가기</a>
         </div>
     </main>
-
 
     <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
 </div>
@@ -113,20 +121,46 @@
         <p><strong>가입 질문:</strong></p>
         <p th:text="${club.joinQuestion}"></p>
 
-        <form th:action="@{|/club/${club.clubId}/member/apply|}" method="post">
-            <label for="answer">답변 입력:</label>
-            <input type="text" id="answer" name="answer" placeholder="답변을 입력해주세요." required>
+        <div class="modal-form-area">
+            <label for="applyAnswer">답변 입력:</label>
+            <input type="text" id="applyAnswer" name="answer" placeholder="답변을 입력해주세요." required>
 
             <div class="modal-buttons">
-                <button type="submit" class="btn-submit">가입 신청 완료</button>
+                <button type="button" class="btn-submit" th:onclick="|submitApply(${club.clubId})|">가입 신청 완료</button>
                 <button type="button" class="btn-close" onclick="closeApplyModal()">취소</button>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 
+<div id="leaveModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h3>모임 탈퇴</h3>
+        <p>정말 탈퇴하시겠습니까? 사유를 알려주시면 모임 운영에 큰 도움이 됩니다.</p>
 
-<input type="hidden" id="serverMessage" th:value="${message}">
-<script th:src="@{/js/club/club.js}"></script>
+        <div class="modal-form-area">
+            <label for="leaveReasonSelect">탈퇴 사유:</label>
+            <select id="leaveReasonSelect" name="description" class="form-select" onchange="toggleLeaveEtcInput()">
+                <option value="개인 사정">개인 사정</option>
+                <option value="활동 저조">활동 저조</option>
+                <option value="모임 성격 부적합">모임 성격 부적합</option>
+                <option value="기타">기타 (직접 입력)</option>
+            </select>
+
+            <div id="leaveEtcWrapper" style="display: none; margin-top: 10px;">
+                <input type="text" id="leaveEtcInput" class="form-control" placeholder="사유를 한 줄로 입력해주세요.">
+            </div>
+
+            <div class="modal-buttons" style="margin-top: 20px;">
+                <button type="button" class="btn-submit" style="background-color: #ff4d4d;"
+                        th:onclick="|submitLeave(${club.clubId})|">탈퇴하기</button>
+                <button type="button" class="btn-close" onclick="closeLeaveModal()">취소</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script th:src="@{/js/club/clubDetail.js}"></script>
 </body>
 </html>

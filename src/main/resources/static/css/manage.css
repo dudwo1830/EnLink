@@ -78,3 +78,99 @@
         height: 300px !important; /* 세로도 300px로 고정 */
         object-fit: cover;        /* 비율 유지하며 꽉 채우기 */
     }
+
+    .manage-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: auto; /* 내용에 맞게 조절 */
+    }
+
+    .manage-table th, .manage-table td {
+        padding: 12px 8px;
+        text-align: center;
+        vertical-align: middle;
+        border-bottom: 1px solid #eee;
+        white-space: nowrap; /* 제목 줄바꿈 방지 */
+    }
+
+    /* 이름 & 이력 영역은 왼쪽 정렬 */
+    .manage-table td:nth-child(2) {
+        text-align: left;
+        white-space: normal; /* 사유는 줄바꿈 허용 */
+        min-width: 200px;
+    }
+
+    /* 배지 스타일 미세 조정 */
+    .badge-kick {
+        display: inline-block;
+        padding: 2px 6px;
+        font-size: 11px;
+        border-radius: 4px;
+        margin-bottom: 4px;
+    }
+
+    /* 이력 모달 배지 공통 스타일 */
+    .history-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        color: white;
+        min-width: 60px;
+        text-align: center;
+    }
+
+    /* 색상별 클래스 */
+    .bg-info { background-color: #17a2b8; }      /* 신청 - 하늘색 */
+    .bg-success { background-color: #28a745; }   /* 승인 - 초록색 */
+    .bg-danger { background-color: #dc3545; }    /* 제명 - 빨간색 */
+    .bg-warning { background-color: #ffc107; color: #212529 !important; } /* 탈퇴 - 노란색 */
+    .bg-secondary { background-color: #6c757d; } /* 거절 - 회색 */
+    .bg-gray { background-color: #e9ecef; color: #495057 !important; }    /* 기타 */
+
+        .delete-pending-banner {
+        background-color: #fff4e5; /* 연한 주황색 배경 */
+        border-left: 5px solid #ffa117; /* 포인트가 되는 굵은 선 */
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .banner-content {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .banner-icon {
+        font-size: 24px;
+    }
+
+    .banner-text h4 {
+        color: #cc7a00; /* 어두운 주황색 */
+        margin: 0 0 5px 0;
+        font-size: 1.1rem;
+        font-weight: bold;
+    }
+
+    .banner-text p {
+        color: #666;
+        margin: 0 0 10px 0;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .time-badge {
+        display: inline-block;
+        background-color: #ffa117;
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+
+    .time-badge strong {
+        font-weight: 600;
+    }

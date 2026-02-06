@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<script th:inline="javascript">
+    // 디자인이고 뭐고 일단 알림이 뜨는지부터 확인!
+    const msg = [[${message}]];
+    alert(msg); // 💡 SweetAlert 대신 기본 alert 창 사용
+    history.back();
+</script>
+</body>
+</html>
