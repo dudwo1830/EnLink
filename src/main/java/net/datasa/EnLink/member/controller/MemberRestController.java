@@ -3,6 +3,7 @@ package net.datasa.EnLink.member.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.datasa.EnLink.common.security.MemberDetails;
 import net.datasa.EnLink.member.dto.request.MemberCreateRequest;
@@ -29,7 +30,7 @@ public class MemberRestController {
 	 * @param request
 	 */
 	@PostMapping("")
-	public void signup(@RequestBody MemberCreateRequest request) {
+	public void signup(@RequestBody @Valid MemberCreateRequest request) {
 		memberService.create(request);
 	}
 
@@ -40,7 +41,7 @@ public class MemberRestController {
 	 * @param request
 	 */
 	@PatchMapping("me")
-	public void update(@AuthenticationPrincipal MemberDetails member, @RequestBody MemberUpdateRequest request) {
+	public void update(@AuthenticationPrincipal MemberDetails member, @RequestBody @Valid MemberUpdateRequest request) {
 		memberService.update(request, member.getMemberId());
 	}
 

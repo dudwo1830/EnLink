@@ -15,10 +15,10 @@ public enum ErrorCode {
 
 	// 사용자
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "사용자를 찾을 수 없습니다.", "error.user.not_found"),
-
 	// 컨텐츠(게시글 등)
 	CONTENT_NOT_FOUND(HttpStatus.NOT_FOUND, "CONTENT_NOT_FOUND", "컨텐츠를 찾을 수 없습니다.", "error.content.not_found"),
 
+	VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "요청 값이 올바르지 않습니다.", "error.validation"),
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", "서버 내부 에러", "error.internal");
 
 	// HttpStatus
