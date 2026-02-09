@@ -5,14 +5,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import net.datasa.EnLink.city.dto.response.CityDetailResponse;
 import net.datasa.EnLink.common.security.MemberDetails;
 import net.datasa.EnLink.member.dto.request.MemberCreateRequest;
 import net.datasa.EnLink.member.dto.request.MemberUpdateRequest;
 import net.datasa.EnLink.member.service.MemberService;
 import net.datasa.EnLink.membercity.dto.request.MemberCityUpdateRequest;
 import net.datasa.EnLink.membertopic.dto.request.MemberTopicReplaceRequest;
+import net.datasa.EnLink.membertopic.service.MemberTopicService;
+import net.datasa.EnLink.topic.dto.response.TopicWithCheckResponse;
+
+import java.util.List;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,6 +30,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RequiredArgsConstructor
 public class MemberRestController {
 	private final MemberService memberService;
+	private final MemberTopicService memberTopicService;
 
 	/**
 	 * 회원 가입 처리
@@ -68,6 +76,17 @@ public class MemberRestController {
 	}
 
 	/**
+	 * 회원의 설정을 포함한 주제 조회
+	 * 
+	 * @param member
+	 * @return
+	 */
+	@GetMapping("me/topics")
+	public List<TopicWithCheckResponse> getCheckListAll(@AuthenticationPrincipal MemberDetails member) {
+		return memberTopicService.getCheckListAll(member.getMemberId());
+	}
+
+	/**
 	 * 회원의 관심 지역 설정
 	 * 
 	 * @param member
@@ -77,5 +96,16 @@ public class MemberRestController {
 	public void updateCity(@AuthenticationPrincipal MemberDetails member,
 			@RequestBody MemberCityUpdateRequest request) {
 		memberService.updateCity(member.getMemberId(), request.getCityId());
+	}
+
+	/**
+	 * 회원의 관심 지역 조회
+	 * 
+	 * @param member
+	 * @return
+	 */
+	@GetMapping("me/city")
+	public CityDetailResponse getCity(@AuthenticationPrincipal MemberDetails member) {
+		return memberService.getMemberCity(member.getMemberId());
 	}
 }

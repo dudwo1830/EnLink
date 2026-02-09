@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.datasa.EnLink.city.dto.response.CityDetailResponse;
 import net.datasa.EnLink.city.entity.CityEntity;
 import net.datasa.EnLink.city.repository.CityRepository;
 import net.datasa.EnLink.common.error.BusinessException;
@@ -70,7 +71,8 @@ public class MemberService {
 	 */
 	@PreAuthorize("#memberId == principal.memberId")
 	public boolean update(MemberUpdateRequest request, String memberId) {
-		MemberEntity entity = memberRepository.findById(memberId).orElse(null);
+		MemberEntity entity = memberRepository.findById(memberId)
+				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 		// 기존 비밀번호 확인
 		if (entity.getPassword().equals(passwordEncoder.encode(request.getPassword()))) {
 			log.debug("\n 기존 비밀번호가 틀렸을 경우");
@@ -141,7 +143,8 @@ public class MemberService {
 	 */
 	public void replaceTopics(String memberId, List<Integer> newTopicIds) {
 		// 회원 정보
-		MemberEntity memberEntity = memberRepository.findById(memberId).orElse(null);
+		MemberEntity memberEntity = memberRepository.findById(memberId)
+				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 		// 변경할 주제 리스트
 		List<TopicEntity> newTopics = topicRepository.findAllById(newTopicIds);
 
@@ -192,6 +195,7 @@ public class MemberService {
 	@PreAuthorize("#memberId == principal.memberId")
 	public void updateCity(String memberId, Integer cityId) {
 		Optional<MemberCityEntity> opt = memberCityRepository.findByMember_MemberId(memberId);
+		// 최초 수정시는 null
 		MemberCityEntity entity = opt.orElse(null);
 
 		CityEntity cityEntity = cityRepository.findById(cityId)
@@ -205,5 +209,16 @@ public class MemberService {
 			// 이후는 수정
 			entity.updateCity(cityEntity);
 		}
+	}
+
+	@PreAuthorize("#memberId == principal.memberId")
+	public CityDetailResponse getMemberCity(String memberId) {
+		MemberEntity memberEntity = memberRepository.findById(memberId)
+				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+		return new CityDetailResponse(
+				memberEntity.getCity().getCityId(),
+				memberEntity.getCity().getNameLocal(),
+				memberEntity.getCity().getRegion().getNameLocal() + " " + memberEntity.getCity().getNameLocal());
 	}
 }

@@ -3,9 +3,9 @@
   <head th:replace="~{fragments/head :: head('Interest', ~{::link}, ~{::script})}">
     <!--/* link 태그와 script가 없을 경우 에러가 발생함 */-->
     <!--/* link, script를 별도로 사용하지 않을 경우 이걸 남겨둘 것 */-->
-    <link rel="stylesheet" href="#" th:if="${false}" />
-    <script src="#" th:if="${false}"></script>
+    <link rel="stylesheet" th:href="@{/css/search-select.css}" />
     <script th:src="@{/js/member/memberCommon.js}" defer></script>
+    <script th:src="@{/js/common/search-select.js}" defer></script>
     <script th:src="@{/js/member/interest.js}" defer></script>
   </head>
   <body>
@@ -20,21 +20,17 @@
         </div>
         <div class="city-container">
           <h3>관심 지역</h3>
-          <div id="cityTarget">
-            <div>
-              <input type="hidden" id="regionInput" />
-              <ul id="regionList"></ul>
-            </div>
-            <div><input type="text" id="citySearch" placeholder="지역 검색" autocomplete="off" /></div>
-            <div>
-              <input type="hidden" id="cityInput" />
-              <ul id="cityList"></ul>
-            </div>
-            <div>
-              <h4>변경 후:</h4>
-              <span id="currentCity"></span>
-            </div>
+          <div class="select-search regions" data-name="regionId">
+            <input type="text" class="select-input" autocomplete="false" />
+            <input type="hidden" class="select-hidden" />
+            <ul class="select-options"></ul>
           </div>
+          <div class="select-search cities" data-name="cityId">
+            <input type="text" class="select-input" autocomplete="false" />
+            <input type="hidden" class="select-hidden" />
+            <ul class="select-options"></ul>
+          </div>
+          <h4>변경 후:<span id="currentCity"></span></h4>
         </div>
         <div><button type="button" onclick="save()">수정</button></div>
       </main>

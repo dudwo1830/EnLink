@@ -1,20 +1,25 @@
-const TOPIC_API_BASE = '/api/topics';
-const CITY_API_BASE = '/api/location';
 const topicTarget = document.querySelector('#topicTarget');
-const cityTarget = document.querySelector('#cityTarget');
 
 topicRender();
-regionRender();
-document.querySelector('#citySearch').addEventListener('input', cityRender);
+// 회원이 설정한 지역
+fetch(`/api/members/me/city`)
+  .then((res) => {
+    if (!res.ok) {
+      throw res.json();
+    }
+    return res.json();
+  })
+  .then((data) => {
+    changeCity(data.nameLocal);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
-/**
- * 관심 주제 설정
- */
 // 회원의 설정을 포함한 주제 목록 조회
 function topicRender() {
-  fetch(`${TOPIC_API_BASE}/me`)
+  fetch(`/api/members/me/topics`)
     .then((res) => {
-      console.log(res);
       if (res.ok) {
         return res.json();
       }
@@ -40,6 +45,59 @@ function makeTopicElement(topic) {
   return template.content.firstElementChild;
 }
 
+const regionTarget = document.querySelector('.select-search.regions');
+const cityTarget = document.querySelector('.select-search.cities');
+const regionSelect = new SearchSelect(regionTarget);
+const citySelect = new SearchSelect(cityTarget);
+regionSelect.load(`/api/location/regions`, {
+  valueKey: 'regionId',
+  labelKey: 'nameLocal',
+  includeAll: true,
+  allLabel: '도/시 전체',
+});
+citySelect.load(`/api/location/cities`, {
+  valueKey: 'cityId',
+  labelKey: 'fullNameLocal',
+  includeAll: true,
+  allLabel: '지역 전체',
+});
+regionTarget.addEventListener('change', (e) => {
+  changeRegion(regionSelect.getValue());
+});
+cityTarget.addEventListener('change', (e) => {
+  changeCity(citySelect.getText());
+});
+
+function changeRegion(regionId) {
+  const params = new URLSearchParams();
+  if (regionId != null) {
+    params.append('regionId', regionId);
+  }
+  citySelect.load(`/api/location/cities?${params.toString()}`, {
+    valueKey: 'cityId',
+    labelKey: regionId === '' ? 'fullNameLocal' : 'nameLocal',
+    includeAll: true,
+    allLabel: '지역 전체',
+  });
+}
+
+function changeCity(cityText) {
+  document.querySelector('#currentCity').textContent = cityText;
+}
+
+// 최종 저장
+async function save() {
+  const cityId = citySelect.getValue();
+
+  const topic = await updateTopic();
+  let msg = `관심 주제 수정: ${topic ? '성공' : '실패'}`;
+  if (cityId != null && cityId !== '') {
+    const city = await updateCity();
+    msg += `관심 지역 수정: ${city ? '성공' : '실패'}`;
+  }
+  alert(msg);
+}
+
 function updateTopic() {
   const topicIds = [...topicTarget.querySelectorAll('input[type=checkbox]:checked')].map((el) => el.value);
   return fetch(`${API_BASE}/me/topics`, {
@@ -55,84 +113,8 @@ function updateTopic() {
   });
 }
 
-/**
- * 관심 지역 설정
- */
-// 도/시, 현
-function regionRender() {
-  const regionList = cityTarget.querySelector('#regionList');
-  fetch(`${CITY_API_BASE}/regions`)
-    .then((res) => {
-      if (res.ok) {
-        return res.json();
-      } else {
-        alert(res.status);
-      }
-    })
-    .then((data) => {
-      regionList.innerHTML = '';
-      data.forEach((region) => {
-        regionList.appendChild(makeRegionElement(region));
-      });
-    });
-}
-
-function makeRegionElement(region) {
-  const li = document.createElement('li');
-  li.textContent = region.nameLocal;
-  li.dataset.regionId = region.regionId;
-  li.addEventListener('click', selectRegion);
-  return li;
-}
-
-function selectRegion(ev) {
-  const regionInput = cityTarget.querySelector('#regionInput');
-  regionInput.value = ev.target.dataset.regionId;
-  cityRender();
-}
-
-// 구/군, 시/정/마을
-function cityRender() {
-  const search = cityTarget.querySelector('#citySearch').value;
-  const regionId = cityTarget.querySelector('#regionInput').value;
-  const cityList = cityTarget.querySelector('#cityList');
-  const params = new URLSearchParams();
-  params.append('keyword', search);
-  if (regionId !== '' && regionId != null) {
-    params.append('regionId', regionId);
-  }
-  fetch(`${CITY_API_BASE}/cities?${params.toString()}`)
-    .then((res) => {
-      if (res.ok) {
-        return res.json();
-      } else {
-        alert(res.status);
-      }
-    })
-    .then((data) => {
-      cityList.innerHTML = '';
-      data.forEach((city) => {
-        cityList.appendChild(makeCityElement(city));
-      });
-    });
-}
-
-function makeCityElement(city) {
-  const li = document.createElement('li');
-  li.textContent = city.nameLocal;
-  li.dataset.cityId = city.cityId;
-  li.addEventListener('click', selectCity);
-  return li;
-}
-function selectCity(ev) {
-  const currentCity = cityTarget.querySelector('#currentCity');
-  const cityInput = cityTarget.querySelector('#cityInput');
-  currentCity.textContent = ev.target.textContent;
-  cityInput.value = ev.target.dataset.cityId;
-}
-
 function updateCity() {
-  const cityId = cityTarget.querySelector('#cityInput').value;
+  const cityId = citySelect.getValue();
   return fetch(`${API_BASE}/me/city`, {
     method: 'PUT',
     headers: {
@@ -144,17 +126,4 @@ function updateCity() {
   }).then((res) => {
     return res.ok;
   });
-}
-
-// 최종 저장
-async function save() {
-  const cityId = cityTarget.querySelector('#cityInput').value;
-
-  const topic = await updateTopic();
-  let msg = `관심 주제 수정: ${topic ? '성공' : '실패'}`;
-  if (cityId != null && cityId !== '') {
-    const city = await updateCity();
-    msg += `관심 지역 수정: ${city ? '성공' : '실패'}`;
-  }
-  alert(msg);
 }

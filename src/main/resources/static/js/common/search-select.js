@@ -41,6 +41,12 @@ class SearchSelect {
     });
   }
 
+  getText() {
+    return this.input.value;
+  }
+  getValue() {
+    return this.hidden.value;
+  }
   // 옵션 보이기
   open() {
     this.options.style.display = 'block';
@@ -113,7 +119,6 @@ class SearchSelect {
     const res = await fetch(url);
     if (!res.ok) return;
     const data = await res.json();
-    console.log(data);
     this.setOptions(data, mapping);
   }
 }

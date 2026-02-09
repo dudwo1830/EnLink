@@ -30,7 +30,7 @@ regionSelect.load(`/api/location/regions`, {
 });
 citySelect.load(`/api/location/cities`, {
   valueKey: 'cityId',
-  labelKey: 'nameLocal',
+  labelKey: 'fullNameLocal',
   includeAll: true,
   allLabel: '지역 전체',
 });
