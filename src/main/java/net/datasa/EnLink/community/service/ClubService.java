@@ -266,8 +266,8 @@ public class ClubService {
 	 * @return
 	 */
 	public Slice<ClubSummaryResponse> getClubListBySlice(Pageable pageable, Integer cityId, Integer topicId,
-			String search) {
-		return clubRepository.searchClubs(pageable, cityId, topicId, search).map(club -> {
+			String search, Integer regionId) {
+		return clubRepository.searchClubs(pageable, cityId, topicId, search, regionId).map(club -> {
 			return ClubSummaryResponse.builder()
 					.clubId(club.getClubId())
 					.name(club.getName())

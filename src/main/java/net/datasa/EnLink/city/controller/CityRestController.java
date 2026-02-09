@@ -4,7 +4,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.micrometer.common.lang.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.datasa.EnLink.city.dto.response.CityDetailResponse;
@@ -31,10 +30,9 @@ public class CityRestController {
 
 	@GetMapping("")
 	public List<CityDetailResponse> getCityList(
-			@RequestParam(required = false) @Nullable Integer regionId,
-			@RequestParam String keyword,
+			@RequestParam(required = false) Integer regionId,
 			Locale locale) {
-		return cityService.getCityList(regionId, keyword, LanguageType.from(locale));
+		return cityService.getCityList(regionId, LanguageType.from(locale));
 	}
 
 }

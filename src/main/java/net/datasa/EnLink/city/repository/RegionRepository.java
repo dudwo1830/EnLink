@@ -10,6 +10,6 @@ import net.datasa.EnLink.city.entity.RegionEntity;
 @Repository
 public interface RegionRepository extends JpaRepository<RegionEntity, Integer> {
 
-	List<RegionEntity> findByCountry_code(String code);
+	List<RegionEntity> findByCountry_codeOrderByNameLocalAsc(String code);
 
 }

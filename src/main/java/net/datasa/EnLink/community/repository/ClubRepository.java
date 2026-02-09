@@ -36,6 +36,9 @@ public interface ClubRepository extends JpaRepository<ClubEntity, Integer> {
 				(:cityId is null
 					or c.cityId = :cityId)
 			and
+				(:regionId is null
+					or c.region.regionId = :regionId)
+			and
 				(:topicId is null
 					or t.topicId = :topicId)
 			and
@@ -46,5 +49,6 @@ public interface ClubRepository extends JpaRepository<ClubEntity, Integer> {
 	Slice<ClubEntity> searchClubs(Pageable pageable,
 			@Param("cityId") Integer cityId,
 			@Param("topicId") Integer topicId,
-			@Param("search") String search);
+			@Param("search") String search,
+			@Param("regionId") Integer regionId);
 }

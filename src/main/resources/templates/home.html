@@ -2,23 +2,30 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head th:replace="~{fragments/head :: head('HOME', ~{::link}, ~{::script})}">
     <link rel="stylesheet" href="#" th:if="${false}" />
-    <script type="module" th:src="@{/js/club/list/clubList.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/search-select.css}" />
+    <script type="module" th:src="@{/js/club/list/club-list.js}"></script>
+    <script th:src="@{/js/common/search-select.js}"></script>
   </head>
   <body>
     <div class="grid-container">
       <header th:replace="~{fragments/header :: header}"></header>
       <aside th:replace="~{fragments/aside :: aside}"></aside>
       <main class="main">
-        <ul>
-          <li class="city" data-city-id="1">지역 1</li>
-          <li class="city" data-city-id="2">지역 2</li>
-          <li class="city" data-city-id="3">지역 3</li>
-        </ul>
-        <ul>
-          <li class="topic" data-topic-id="1">주제 1</li>
-          <li class="topic" data-topic-id="2">주제 2</li>
-          <li class="topic" data-topic-id="3">주제 3</li>
-        </ul>
+        <div class="select-search topics" data-name="topicId">
+          <input type="text" class="select-input" autocomplete="false" />
+          <input type="hidden" class="select-hidden" />
+          <ul class="select-options"></ul>
+        </div>
+        <div class="select-search regions" data-name="regionId">
+          <input type="text" class="select-input" autocomplete="false" />
+          <input type="hidden" class="select-hidden" />
+          <ul class="select-options"></ul>
+        </div>
+        <div class="select-search cities" data-name="cityId">
+          <input type="text" class="select-input" autocomplete="false" />
+          <input type="hidden" class="select-hidden" />
+          <ul class="select-options"></ul>
+        </div>
         <input type="text" id="searchInput" />
         <h1>HELLO ENLINK</h1>
         <nav class="member-navigation">

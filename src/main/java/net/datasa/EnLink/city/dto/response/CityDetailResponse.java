@@ -8,4 +8,5 @@ import lombok.Getter;
 public class CityDetailResponse {
 	private Integer cityId;
 	private String nameLocal;
+	private String fullNameLocal;
 }

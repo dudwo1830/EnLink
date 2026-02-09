@@ -23,8 +23,8 @@ public interface CityRepository extends JpaRepository<CityEntity, Integer> {
 
 	List<CityEntity> findByRegion_regionId(Integer regionId);
 
-	List<CityEntity> findByRegion_Country_CodeAndNameLocalContaining(String code, String keyword);
+	List<CityEntity> findByRegion_Country_CodeOrderByNameLocalAsc(String code);
 
-	List<CityEntity> findByRegion_Country_CodeAndRegion_RegionIdAndNameLocalContaining(String code, Integer regionId,
-			String keyword);
+	List<CityEntity> findByRegion_Country_CodeAndRegion_RegionIdOrderByNameLocalAsc(String code,
+			Integer regionId);
 }

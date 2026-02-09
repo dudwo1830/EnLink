@@ -38,17 +38,18 @@ public class CityService {
 	public List<CityDetailResponse> getCityList(Integer regionId) {
 		List<CityEntity> cities = cityRepository.findByRegion_regionId(regionId);
 		return cities.stream()
-				.map(city -> new CityDetailResponse(city.getCityId(), city.getNameLocal()))
+				.map(city -> new CityDetailResponse(city.getCityId(), city.getNameLocal(),
+						city.getRegion().getNameLocal() + " " + city.getNameLocal()))
 				.toList();
 	}
 
-	public List<CityDetailResponse> getCityList(Integer regionId, String keyword, LanguageType lang) {
+	public List<CityDetailResponse> getCityList(Integer regionId, LanguageType lang) {
 		List<CityEntity> cities = (regionId == null)
-				? cityRepository.findByRegion_Country_CodeAndNameLocalContaining(lang.getCode(), keyword)
-				: cityRepository.findByRegion_Country_CodeAndRegion_RegionIdAndNameLocalContaining(lang.getCode(), regionId,
-						keyword);
+				? cityRepository.findByRegion_Country_CodeOrderByNameLocalAsc(lang.getCode())
+				: cityRepository.findByRegion_Country_CodeAndRegion_RegionIdOrderByNameLocalAsc(lang.getCode(), regionId);
 		return cities.stream()
-				.map(city -> new CityDetailResponse(city.getCityId(), city.getNameLocal()))
+				.map(city -> new CityDetailResponse(city.getCityId(), city.getNameLocal(),
+						city.getRegion().getNameLocal() + " " + city.getNameLocal()))
 				.toList();
 	}
 

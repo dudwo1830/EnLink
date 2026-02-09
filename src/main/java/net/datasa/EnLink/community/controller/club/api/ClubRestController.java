@@ -4,7 +4,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.micrometer.common.lang.Nullable;
 import lombok.RequiredArgsConstructor;
 import net.datasa.EnLink.community.dto.ClubSummaryResponse;
 import net.datasa.EnLink.community.service.ClubService;
@@ -25,10 +24,11 @@ public class ClubRestController {
 	@GetMapping("")
 	public Slice<ClubSummaryResponse> getClubListBySlice(
 			@PageableDefault(size = 5, sort = "clubId", direction = Sort.Direction.DESC) Pageable pageable,
-			@RequestParam(name = "cityId") @Nullable Integer cityId,
-			@RequestParam(name = "topicId") @Nullable Integer topicId,
-			@RequestParam(name = "search") @Nullable String search) {
-		return clubService.getClubListBySlice(pageable, cityId, topicId, search);
+			@RequestParam(name = "cityId", required = false) Integer cityId,
+			@RequestParam(name = "topicId", required = false) Integer topicId,
+			@RequestParam(name = "search", required = false) String search,
+			@RequestParam(name = "regionId", required = false) Integer regionId) {
+		return clubService.getClubListBySlice(pageable, cityId, topicId, search, regionId);
 	}
 
 }

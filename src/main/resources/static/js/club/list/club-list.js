@@ -1,5 +1,5 @@
-import { resetPaging, nextPage } from './clubPaging.js';
-import { setCity, setTopic, setSearch, getFilters } from './clubSearchFilter.js';
+import { resetPaging, nextPage } from './club-paging.js';
+import { setCity, setTopic, setSearch, setRegion, getFilters } from './club-search-filter.js';
 
 //베이스 api 주소
 const CLUB_API_BASE = '/api/clubs';
@@ -7,21 +7,48 @@ const CLUB_API_BASE = '/api/clubs';
 const clubListTarget = document.querySelector('#clubList');
 // 더 보기 버튼
 const clubListMoreBtn = document.querySelector('#clubListMore');
-// 지역 요소
-const cities = document.querySelectorAll('.city');
-// 주제 요소
-const topics = document.querySelectorAll('.topic');
+clubListMoreBtn.onclick = () => clubListRender();
 // 검색어 요소
 const searchInput = document.querySelector('#searchInput');
-
-clubListMoreBtn.onclick = () => clubListRender();
-cities.forEach((cityLi) => {
-  cityLi.onclick = (e) => changeCity(e.target.dataset.cityId);
-});
-topics.forEach((topicLi) => {
-  topicLi.onclick = (e) => changeTopic(e.target.dataset.topicId);
-});
 searchInput.oninput = () => changeSearch(searchInput.value);
+// 도/시 요소
+const regionTarget = document.querySelector('.select-search.regions');
+// 지역 요소
+const cityTarget = document.querySelector('.select-search.cities');
+// 주제 요소
+const topicTarget = document.querySelector('.select-search.topics');
+
+/* SearchSelect */
+const regionSelect = new SearchSelect(regionTarget);
+const citySelect = new SearchSelect(cityTarget);
+const topicSelect = new SearchSelect(topicTarget);
+regionSelect.load(`/api/location/regions`, {
+  valueKey: 'regionId',
+  labelKey: 'nameLocal',
+  includeAll: true,
+  allLabel: '도/시 전체',
+});
+citySelect.load(`/api/location/cities`, {
+  valueKey: 'cityId',
+  labelKey: 'nameLocal',
+  includeAll: true,
+  allLabel: '지역 전체',
+});
+topicSelect.load(`/api/topics`, {
+  valueKey: 'topicId',
+  labelKey: 'name',
+  includeAll: true,
+  allLabel: '주제 전체',
+});
+regionTarget.addEventListener('change', (e) => {
+  changeRegion(e.detail.value);
+});
+cityTarget.addEventListener('change', (e) => {
+  changeCity(e.detail.value);
+});
+topicTarget.addEventListener('change', (e) => {
+  changeTopic(e.detail.value);
+});
 
 // 최초 1회 실행
 clubListRender();
@@ -82,30 +109,39 @@ function makeClubElement(club) {
   return template.content.firstElementChild;
 }
 
-function changeCity(cityId) {
-  console.log(cityId);
-  setCity(cityId);
-  resetPaging();
-  clubListTarget.innerHTML = '';
-  clubListMoreBtn.style.display = 'block';
+function changeRegion(regionId) {
+  const params = new URLSearchParams();
+  if (regionId != null) {
+    params.append('regionId', regionId);
+  }
+  citySelect.load(`/api/location/cities?${params.toString()}`, {
+    valueKey: 'cityId',
+    labelKey: regionId === '' ? 'fullNameLocal' : 'nameLocal',
+    includeAll: true,
+    allLabel: '지역 전체',
+  });
+  setRegion(regionId);
+  changeCity(null);
+}
 
-  clubListRender();
+function changeCity(cityId) {
+  setCity(cityId);
+  resetAndRender();
 }
 
 function changeTopic(topicId) {
   setTopic(topicId);
-  resetPaging();
-  clubListTarget.innerHTML = '';
-  clubListMoreBtn.style.display = 'block';
-
-  clubListRender();
+  resetAndRender();
 }
 
 function changeSearch(search) {
   setSearch(search);
+  resetAndRender();
+}
+
+function resetAndRender() {
   resetPaging();
   clubListTarget.innerHTML = '';
   clubListMoreBtn.style.display = 'block';
-
   clubListRender();
 }
