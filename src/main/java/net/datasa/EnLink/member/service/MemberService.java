@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.datasa.EnLink.city.dto.response.CityDetailResponse;
 import net.datasa.EnLink.city.entity.CityEntity;
 import net.datasa.EnLink.city.repository.CityRepository;
+import net.datasa.EnLink.common.Utils.MaskingUtils;
 import net.datasa.EnLink.common.error.BusinessException;
 import net.datasa.EnLink.common.error.ErrorCode;
 import net.datasa.EnLink.member.dto.request.MemberCreateRequest;
@@ -50,6 +51,9 @@ public class MemberService {
 	 * @param request
 	 */
 	public void create(MemberCreateRequest request) {
+		if (!request.getPassword().equals(request.getRePassword())) {
+			throw new BusinessException(ErrorCode.USER_PASSWORD_NOT_MATCH);
+		}
 		MemberEntity entity = MemberEntity.builder()
 				.memberId(request.getMemberId())
 				.password(passwordEncoder.encode(request.getPassword()))
@@ -70,25 +74,22 @@ public class MemberService {
 	 * @return
 	 */
 	@PreAuthorize("#memberId == principal.memberId")
-	public boolean update(MemberUpdateRequest request, String memberId) {
+	public void update(MemberUpdateRequest request, String memberId) {
 		MemberEntity entity = memberRepository.findById(memberId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 		// 기존 비밀번호 확인
 		if (entity.getPassword().equals(passwordEncoder.encode(request.getPassword()))) {
-			log.debug("\n 기존 비밀번호가 틀렸을 경우");
-			return false;
+			throw new BusinessException(ErrorCode.USER_PASSWORD_NOT_MATCH);
 		}
 		// 새 비밀번호가 존재할 경우
 		if (!request.getNewPassword().isEmpty()) {
 			if (request.getNewPassword().equals(request.getRePassword())) {
 				entity.updatePassword(passwordEncoder.encode(request.getNewPassword()));
 			} else {
-				log.debug("\n 새 비밀번호와 재입력이 다른 경우");
-				return false;
+				throw new BusinessException(ErrorCode.USER_PASSWORD_NOT_MATCH);
 			}
 		}
 		entity.updateProfile(request.getName(), request.getEmail(), request.getBirth());
-		return true;
 	}
 
 	/**
@@ -100,11 +101,17 @@ public class MemberService {
 	public MemberDetailResponse read(String memberId) {
 		MemberEntity entity = memberRepository.findById(memberId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+		String topic = String
+				.join(", ", entity.getMemberTopics().stream().map(memberTopic -> memberTopic.getTopic().getName()).toList());
+		String city = entity.getCity().getRegion().getNameLocal() + " " + entity.getCity().getNameLocal();
 		return MemberDetailResponse.builder()
 				.memberId(entity.getMemberId())
 				.name(entity.getName())
-				.email(entity.getEmail())
+				.email(MaskingUtils.maskEmail(entity.getEmail()))
 				.birth(entity.getBirth())
+				.topic(topic)
+				.city(city)
 				.build();
 	}
 
@@ -114,19 +121,21 @@ public class MemberService {
 	 * @param memberId
 	 */
 	public void delete(String memberId) {
-		MemberEntity entity = memberRepository.findById(memberId).orElse(null);
+		MemberEntity entity = memberRepository.findById(memberId)
+				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 		entity.updateStatus(MemberStatus.INACTIVE);
 	}
 
 	/**
-	 * 회원 기본 정보 수정
+	 * 회원 수정시 정보 조회
 	 * 
 	 * @param memberId
 	 * @return
 	 */
 	@PreAuthorize("#memberId == principal.memberId")
 	public MemberUpdateResponse edit(String memberId) {
-		MemberEntity entity = memberRepository.findById(memberId).orElse(null);
+		MemberEntity entity = memberRepository.findById(memberId)
+				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 		return MemberUpdateResponse.builder()
 				.memberId(entity.getMemberId())
 				.name(entity.getName())
@@ -147,14 +156,13 @@ public class MemberService {
 				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 		// 변경할 주제 리스트
 		List<TopicEntity> newTopics = topicRepository.findAllById(newTopicIds);
-
-		// 기존 회원_주제 데이터에서 주제 id만 가져옴
-		Set<Integer> currentTopicIdSet = memberTopicRepository.findTopicIdsByMember(memberEntity);
 		// List -> Set 변환
 		Set<Integer> newTopicIdSet = new HashSet<>(newTopicIds);
 
-		/* 필요한 부분만 변경하도록 계산하는 작업 */
+		// 기존 회원_주제 데이터에서 주제 id만 가져옴
+		Set<Integer> currentTopicIdSet = memberTopicRepository.findTopicIdsByMember(memberEntity);
 
+		/* 필요한 부분만 변경하도록 계산하는 작업 */
 		// 삭제할 주제 id
 		Set<Integer> deleteSet = new HashSet<>(currentTopicIdSet);
 		// 기존 데이터에서 새로운 데이터의 요소와 중복되는 부분을 제거 = 제거할 id만 남음
@@ -211,6 +219,12 @@ public class MemberService {
 		}
 	}
 
+	/**
+	 * 회원의 관심 지역 조회
+	 * 
+	 * @param memberId
+	 * @return
+	 */
 	@PreAuthorize("#memberId == principal.memberId")
 	public CityDetailResponse getMemberCity(String memberId) {
 		MemberEntity memberEntity = memberRepository.findById(memberId)

@@ -30,6 +30,13 @@ public class MemberViewController {
 		return TEMPLATE_PATH + "signup";
 	}
 
+	/**
+	 * 회원 정보 수정 페이지
+	 * 
+	 * @param member
+	 * @param model
+	 * @return
+	 */
 	@GetMapping("me/edit")
 	public String edit(@AuthenticationPrincipal MemberDetails member, Model model) {
 		MemberUpdateResponse response = memberService.edit(member.getMemberId());
@@ -38,7 +45,7 @@ public class MemberViewController {
 	}
 
 	/**
-	 * 회원 정보 수정 페이지
+	 * 회원 상세 정보 페이지
 	 * 
 	 * @param memberId
 	 * @param model

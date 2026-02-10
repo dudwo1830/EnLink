@@ -28,12 +28,15 @@ public class MemberCreateRequest {
 	private String name;
 
 	@NotBlank
-	@Size(min = 2, max = 50)
+	@Size(min = 2, max = 100)
 	private String password;
+	@NotBlank
+	@Size(min = 2, max = 100)
+	private String rePassword;
 
 	@NotBlank
 	@Email
-	@Size(min = 8, max = 100)
+	@Size(min = 8, max = 50)
 	private String email;
 
 	@NotNull

@@ -18,4 +18,6 @@ public class MemberDetailResponse {
 	private String name;
 	private String email;
 	private LocalDate birth;
+	private String topic;
+	private String city;
 }
