@@ -93,7 +93,7 @@ function renderClubList(data) {
 function makeClubElement(club) {
   const template = document.createElement('template');
   template.innerHTML = `
-		<li class="club-card">
+		<div class="card">
 			<a href="/club/${club.clubId}">
 				<img th:src="@{${club.imageUrl}}" alt="모임 대표 이미지">
 				<p class="club-title">${club.name}</p>
@@ -103,7 +103,7 @@ function makeClubElement(club) {
 					<span>${club.cityName}</span>
 				</p>
 			</a>
-		</li>
+		</div>
 	`;
 
   return template.content.firstElementChild;

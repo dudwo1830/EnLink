@@ -1,8 +1,8 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head th:replace="~{fragments/head :: head('HOME', ~{::link}, ~{::script})}">
-    <link rel="stylesheet" href="#" th:if="${false}" />
     <link rel="stylesheet" th:href="@{/css/search-select.css}" />
+    <link rel="stylesheet" th:href="@{/css/card-layout.css}" />
     <script type="module" th:src="@{/js/club/list/club-list.js}"></script>
     <script th:src="@{/js/common/search-select.js}"></script>
   </head>
@@ -46,9 +46,9 @@
           </ul>
         </nav>
         <hr />
-        <div class="card-container">
-          <ul id="clubList"></ul>
-          <button type="button" id="clubListMore">더보기</button>
+        <div>
+          <div class="card-container" id="clubList"></div>
+          <button type="button" id="clubListMore">모임 더보기</button>
         </div>
       </main>
       <footer th:replace="~{fragments/footer :: footer}"></footer>
