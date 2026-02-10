@@ -1,30 +1,29 @@
 package net.datasa.EnLink.community.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.datasa.EnLink.common.error.BusinessException;
+import net.datasa.EnLink.common.error.ErrorCode;
 import net.datasa.EnLink.community.dto.ClubDTO;
 import net.datasa.EnLink.community.dto.ClubJoinRequestDTO;
 import net.datasa.EnLink.community.dto.ClubMemberDTO;
 import net.datasa.EnLink.community.entity.ClubEntity;
 import net.datasa.EnLink.community.entity.ClubJoinAnswerEntity;
 import net.datasa.EnLink.community.entity.ClubMemberEntity;
-import net.datasa.EnLink.community.entity.ClubMemberHistoryEntity;
 import net.datasa.EnLink.community.repository.ClubAnswerRepository;
 import net.datasa.EnLink.community.repository.ClubMemberHistoryRepository;
 import net.datasa.EnLink.community.repository.ClubMemberRepository;
 import net.datasa.EnLink.community.repository.ClubRepository;
-import net.datasa.EnLink.member.entity.MemberEntity;
-import net.datasa.EnLink.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,14 +39,14 @@ import java.util.stream.Collectors;
 @Service
 public class ClubManageService {
 	
+	@Value("${file.upload.path}")
+	private String uploadPath;
+	
 	private final ClubRepository clubRepository;
 	private final ClubAnswerRepository clubAnswerRepository;
 	private final ClubMemberRepository clubMemberRepository;
 	private final ClubMemberHistoryRepository clubMemberHistoryRepository;
-	private final MemberRepository memberRepository;
-	
-	@Value("${file.upload.path:src/main/resources/static/images/}") // 파일 저장 경로 설정
-	private String uploadPath;
+	private final ClubMemberHistoryService clubMemberHistoryService;
 	
 	/**
 	 * 모임 ID로 모임 엔티티를 직접 조회합니다.
@@ -55,7 +54,7 @@ public class ClubManageService {
 	@Transactional(readOnly = true)
 	public ClubEntity getClubById(Integer clubId) {
 		return clubRepository.findById(clubId)
-				.orElseThrow(() -> new EntityNotFoundException("존재하지 않는 모임입니다."));
+				.orElseThrow(() -> new BusinessException(ErrorCode.CLUB_NOT_FOUND));
 	}
 	
 	
@@ -72,93 +71,87 @@ public class ClubManageService {
 	 * 모임의 기본 정보(이름, 설명, 인원, 질문)와 업로드된 파일을 처리하여 정보를 업데이트합니다.
 	 */
 	@Transactional
-	public void updateClub(Integer id, ClubDTO clubDTO) {
+	public void updateClub(Integer id, ClubDTO clubDTO, String loginId) {
+		checkAuthority(id, loginId, "MANAGER_UP");
+		ClubEntity club = getClubById(id);
 		
-		ClubEntity club = clubRepository.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("해당 모임이 존재하지 않습니다. id=" + id));
+		validateMaxMember(id, clubDTO.getMaxMember());
+		
+		String oldImageUrl = club.getImageUrl();
+		
+		if (clubDTO.isDefaultImage()) {
+			// [경우 A] 기본 이미지로 변경 시
+			club.setImageUrl("/images/default_club.jpg");
+			deleteRealFile(oldImageUrl);
+		}
+		else if (isNewFileUploaded(clubDTO.getUploadFile())) {
+			// [경우 B] 새 이미지로 교체 시
+			String newImageUrl = storeUploadFile(clubDTO.getUploadFile());
+			if (newImageUrl != null) {
+				club.setImageUrl(newImageUrl);
+				deleteRealFile(oldImageUrl);
+			}
+		}
 		
 		club.setName(clubDTO.getName());
 		club.setDescription(clubDTO.getDescription());
 		club.setMaxMember(clubDTO.getMaxMember());
 		club.setJoinQuestion(clubDTO.getJoinQuestion());
-		
-		// ⭐ 이미지 수정 로직
-		if (clubDTO.getUploadFile() != null && !clubDTO.getUploadFile().isEmpty()) {
-			try {
-				String savedFileName = System.currentTimeMillis() + "_" +
-						clubDTO.getUploadFile().getOriginalFilename();
-				
-				Path path = Paths.get(uploadPath, savedFileName);
-				Files.copy(
-						clubDTO.getUploadFile().getInputStream(),
-						path,
-						StandardCopyOption.REPLACE_EXISTING
-				);
-				
-				club.setImageUrl("/images/" + savedFileName);
-			} catch (IOException e) {
-				throw new RuntimeException("이미지 수정 실패", e);
-			}
-		}
-	}
-	
-	/**
-	 * 모임삭제
-	 * */
-	public void requestDeleteClub(Integer clubId) {
-		ClubEntity club = clubRepository.findById(clubId)
-				.orElseThrow(() -> new EntityNotFoundException("모임을 찾을 수 없습니다."));
-		
-		// 1. 상태를 '삭제 대기'로 변경
-		club.setStatus("PENDING_DELETE");
-		
-		// 2. 삭제 요청 시간 기록 (현재 시간)
-		club.setDeletedAt(LocalDateTime.now());
-		
-		clubRepository.save(club);
 	}
 	
 	/**
 	 * 모임 상태를 'DELETED_PENDING'으로 변경하고 삭제 시간을 기록하여 7일 유예 기간을 시작합니다.
 	 */
 	@Transactional
-	public void deleteClub(Integer clubId) {
-		// 1. 삭제할 모임 존재 여부 확인
+	public void deleteClub(Integer clubId, String loginId) {
+		
+		checkAuthority(clubId, loginId, "OWNER_ONLY");
+		
 		ClubEntity club = clubRepository.findById(clubId)
-				.orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("삭제할 모임 정보를 찾을 수 없습니다."));
+				.orElseThrow(() -> new BusinessException(ErrorCode.CONTENT_NOT_FOUND));
 		
-		// 2. 모임 상태를 '삭제 대기'로 변경
 		club.setStatus("DELETED_PENDING");
-		
-		// 3. 삭제 요청 시간 기록 (영재님이 만든 deleted_at 컬럼 활용)
-		// 이 시간을 기준으로 스케줄러가 7일을 계산합니다.
+		clubRepository.save(club);
 		club.setDeletedAt(LocalDateTime.now());
 		
-		// 4. 변경 내용 저장 (더티 체킹에 의해 자동 반영되지만 명시적으로 호출 가능)
-		clubRepository.save(club);
-		
-		System.out.println(clubId + "번 모임이 삭제 대기 상태로 변경되었습니다. (7일 후 자동 삭제)");
+		clubMemberHistoryService.leaveHistory(clubId, loginId, loginId, "CLUB_DELETE", "모임 삭제 요청");
+		log.info("[모임 삭제 요청 완료] 모임ID: {}, 요청자: {}", clubId, loginId);
 	}
+	
 	
 	
 	/**
 	 * 삭제 대기 중인 모임의 상태를 'ACTIVE'로 되돌리고 삭제 예정 시간을 초기화합니다.
 	 * */
 	@Transactional
-	public void restoreClub(Integer clubId) {
-		ClubEntity club = clubRepository.findById(clubId)
-				.orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("복구할 모임을 찾을 수 없습니다."));
+	public void restoreClub(Integer clubId, String loginId) {
+		checkAuthority(clubId, loginId, "OWNER_ONLY");
+		ClubEntity club = getClubById(clubId);
 		
-		// 1. 상태를 다시 활동 중으로 변경
+		
+		if (!"DELETED_PENDING".equals(club.getStatus())) {
+			throw new BusinessException(ErrorCode.NOT_PENDING_STATE);
+		}
+		
+		
+		if (club.getDeletedAt() != null &&
+				club.getDeletedAt().plusDays(7).isBefore(LocalDateTime.now())) {
+			throw new BusinessException(ErrorCode.CLUB_NOT_FOUND);
+		}
+		
+		long totalActiveCount = clubMemberRepository.countByMember_MemberIdAndStatus(loginId, "ACTIVE");
+		
+		if (totalActiveCount >= 5) {
+			throw new BusinessException(ErrorCode.RESTORE_LIMIT_EXCEEDED);
+		}
+		
+		// 4. 상태 복구
 		club.setStatus("ACTIVE");
-		
-		// 2. 삭제 예정 시간 초기화
 		club.setDeletedAt(null);
 		
-		// 저장 (더티 체킹에 의해 자동 반영)
-		clubRepository.save(club);
+		clubMemberHistoryService.leaveHistory(clubId, loginId, loginId, "CLUB_RESTORE", "모임 삭제 취소 및 복구");
 		
-		System.out.println(clubId + "번 모임이 성공적으로 복구되어 다시 리스트에 노출됩니다.");
+		log.info("[모임 복구 완료] 모임ID: {}, 요청자: {}", clubId, loginId);
 	}
 	
 	
@@ -209,13 +202,22 @@ public class ClubManageService {
 					.map(ClubJoinAnswerEntity::getAnswerText)
 					.orElse("답변이 없습니다.");
 			
-			return ClubJoinRequestDTO.builder()
+			// 2. DTO 기본 생성
+			ClubJoinRequestDTO dto = ClubJoinRequestDTO.builder()
 					.memberId(memberId)
 					.memberName(entity.getMember().getName())
 					.answerText(answer)
 					.appliedAt(entity.getAppliedAt())
 					.status(entity.getStatus())
 					.build();
+			
+			clubMemberHistoryRepository.findFirstByClub_ClubIdAndTargetMember_MemberIdOrderByCreatedAtDesc(clubId, memberId)
+					.ifPresent(history -> {
+						dto.setLastActionType(history.getActionType());
+						dto.setLastDescription(history.getDescription());
+						dto.setLastActionDate(history.getCreatedAt());
+					});
+			return dto;
 		});
 	}
 	
@@ -223,56 +225,49 @@ public class ClubManageService {
 	 * 가입 승인 로직
 	 * */
 	@Transactional
-	public void approveMember(Integer clubId, String memberId) {
-		// 1. 신청 내역 조회
-		ClubMemberEntity member = clubMemberRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId)
-				.orElseThrow(() -> new RuntimeException("신청 내역을 찾을 수 없습니다."));
+	public void approveMember(Integer clubId, String memberId, String loginId) {
 		
-		// 2. 안전 장치: PENDING 상태인 경우에만 승인 진행
+		checkAuthority(clubId, loginId, "MANAGER_UP");
+		
+		ClubMemberEntity member = clubMemberRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId)
+				.orElseThrow(() -> new BusinessException(ErrorCode.REQUEST_NOT_FOUND));
+		
 		if (!"PENDING".equals(member.getStatus())) {
-			throw new RuntimeException("대기 상태인 회원만 승인할 수 있습니다.");
+			throw new BusinessException(ErrorCode.ALREADY_JOINED_OR_PENDING);
+		}
+		
+		long activeCount = clubMemberRepository.countByMember_MemberIdAndStatus(memberId, "ACTIVE");
+		
+		if (activeCount >= 5) {
+			throw new BusinessException(ErrorCode.JOIN_LIMIT_EXCEEDED);
 		}
 		
 		ClubEntity club = member.getClub();
-		
-		// 3. 인원 제한 체크 (선택 사항)
-		long currentCount = club.getMembers().stream()
-				.filter(m -> "ACTIVE".equals(m.getStatus()))
-				.count();
-		
-		// 3. 정원 체크
-		if (currentCount >= club.getMaxMember()) {
-			throw new RuntimeException("정원이 초과되었습니다.");
+		int currentMemberCount = clubMemberRepository.countByClub_ClubIdAndStatus(clubId, "ACTIVE");
+		if (currentMemberCount >= club.getMaxMember()) {
+			throw new BusinessException(ErrorCode.CLUB_IS_FULL);
 		}
 		
-		// 4. 상태 업데이트
 		member.setStatus("ACTIVE");
-		member.setJoinedAt(LocalDateTime.now()); // 정식 가입 시간 기록
+		member.setJoinedAt(LocalDateTime.now());
 		
-		// 5. 답변 삭제 (내용 가방 비우기)
 		clubAnswerRepository.deleteByClubIdAndMemberId(clubId, memberId);
-		
-		// 6. 승인 이력 남기기
-		String managerId = "user15";
-		leaveHistory(clubId, memberId, managerId, "JOIN_APPROVE", "모임 가입이 승인되었습니다.");
+		clubMemberHistoryService.leaveHistory(clubId, memberId,loginId, "JOIN_APPROVE", "모임 가입 승인");
 	}
 	
 	/**
-	 * 가입 거절: 관련 답변 데이터와 멤버 신청 내역을 DB에서 완전히 삭제합니다.
+	 * 가입 거절
 	 */
-	
 	@Transactional
-	public void rejectMember(Integer clubId, String memberId) {
-		// 1. 답변 삭제
-		clubAnswerRepository.deleteByClubIdAndMemberId(clubId, memberId);
+	public void rejectMember(Integer clubId, String memberId, String loginId) {
 		
-		// 2. 멤버 신청 내역 삭제
+		checkAuthority(clubId, loginId,"MANAGER_UP");
+		
 		ClubMemberEntity member = clubMemberRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId)
-				.orElseThrow(() -> new RuntimeException("신청 내역을 찾을 수 없습니다."));
+				.orElseThrow(() -> new BusinessException(ErrorCode.REQUEST_NOT_FOUND));
 		
-		// ⭐ [추가] 거절 이력 남기기 (DB에서 삭제하기 전에 데이터를 참조해야 하므로 삭제 직전에 호출!)
-		String managerId = "user10";
-		leaveHistory(clubId, memberId, managerId, "JOIN_REJECT", "가입 신청이 거절되었습니다.");
+		clubAnswerRepository.deleteByClubIdAndMemberId(clubId, memberId);
+		clubMemberHistoryService.leaveHistory(clubId, memberId, loginId, "JOIN_REJECT", "가입 신청 거절");
 		
 		clubMemberRepository.delete(member);
 	}
@@ -295,87 +290,63 @@ public class ClubManageService {
 	}
 	
 	 /**
-	  * 모임장 권한으로 특정 멤버의 직급을 변경하며, 모임장 권한 위임 시 본인은 일반 멤버로 강등됩니다.
+	  * 권한 변경 (모임장 위임 포함)
 	 */
 	 @Transactional
 	 public void updateMemberRole(Integer clubId, String requesterId, String targetId, String newRole) {
-		 log.info("[권한 변경 시작] 모임ID: {}, 대상자: {}, 요청자: {}", clubId, targetId, requesterId);
+		 checkAuthority(clubId, requesterId, "OWNER_ONLY");
 		 
 		 ClubMemberEntity requester = findMember(clubId, requesterId);
 		 ClubMemberEntity target = findMember(clubId, targetId);
 		 String oldRole = target.getRole();
 		 
-		 // 1. 요청자 권한 체크 (모임장만 가능)
-		 if (!"OWNER".equals(requester.getRole())) {
-			 throw new RuntimeException("모임장만 권한을 변경할 수 있습니다.");
-		 }
-		 
-		 // 2. 새로운 권한이 "OWNER"(위임)인 경우 특별 처리
+		
 		 if ("OWNER".equals(newRole)) {
-			 // [핵심] 기존 모임장(나)을 일반 멤버로 강등
 			 requester.setRole("MEMBER");
-			 log.info("[권한 위임] 기존 모임장({})이 일반 멤버로 강등되었습니다.", requesterId);
+			 log.info("[권한 위임] 기존 모임장({})-> 일반 멤버 강등.", requesterId);
 		 }
 		 
-		 // 3. 대상자의 권한 변경 (MEMBER, MANAGER, 또는 위임받은 OWNER)
 		 target.setRole(newRole);
-		 
-		 // 4. 이력 기록 (NFR-06)
-		 ClubMemberHistoryEntity history = ClubMemberHistoryEntity.builder()
-				 .club(target.getClub())
-				 .targetMember(target.getMember())
-				 .actorMember(requester.getMember())
-				 .actionType("ROLE_CHANGE")
-				 .description(oldRole + " -> " + newRole + " 권한 변경")
-				 .build();
-		 clubMemberHistoryRepository.save(history);
-		 
-		 log.info("[권한 변경 완료] {}님의 권한이 {}에서 {}로 변경되었습니다.", targetId, oldRole, newRole);
+		 clubMemberHistoryService.leaveHistory(clubId, targetId, requesterId, "ROLE_CHANGE", oldRole + " -> " + newRole + " 권한 변경");
 	 }
 	
 	/**
-	 * 관리 권한(OWNER, MANAGER)에 따라 멤버를 제명하며, 본인 제명이나 운영진의 상급자 제명은 차단합니다.
+	 * 멤버 제명 (BANNED)
 	 */
 	@Transactional
-	public void kickMember(Integer clubId, String requesterId, String targetId) {
+	public void kickMember(Integer clubId, String requesterId, String targetId, String description) {
 		// 1. 요청자와 대상자 정보 가져오기
 		ClubMemberEntity requester = findMember(clubId, requesterId);
 		ClubMemberEntity target = findMember(clubId, targetId);
 		
 		// 2. 본인 제명 방지
 		if (requesterId.equals(targetId)) {
-			throw new RuntimeException("자기 자신은 제명할 수 없습니다.");
+			throw new BusinessException(ErrorCode.SELF_ACTION_NOT_ALLOWED);
 		}
 		
 		// 3. 권한별 필터링
-		if (requester.getRole().equals("MANAGER")) {
-			// 운영진은 일반 멤버만 제명 가능
-			if (!target.getRole().equals("MEMBER")) {
-				throw new RuntimeException("운영진은 운영진이나 모임장을 제명할 수 없습니다.");
+		if ("MANAGER".equals(requester.getRole())) {
+			if (!"MEMBER".equals(target.getRole())) {
+				throw new BusinessException(ErrorCode.UNAUTHORIZED_ACCESS);
 			}
-		} else if (!requester.getRole().equals("OWNER")) {
-			// 일반 멤버가 이 로직을 호출한 경우
-			throw new RuntimeException("제명 권한이 없습니다.");
+		} else if (!"OWNER".equals(requester.getRole())) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED_ACCESS);
 		}
 		
-		// 4. 제명 처리 (상태 변경 등)
 		target.setStatus("BANNED");
-		
-		// 이력을 남겨야 나중에 재가입 시도 시 'BANNED' 기록을 보고 차단할 수 있습니다.
-		leaveHistory(clubId, targetId, requesterId, "BANNED", "운영진에 의한 강제 제명 처리");
+		clubMemberHistoryService.leaveHistory(clubId, targetId, requesterId, "BANNED", description);
 	}
 	
 	/**
-	 * [공통] 모임 ID와 멤버 ID로 멤버 엔티티를 안전하게 조회합니다.
+	 * 멤버 조회 공통 메서드
 	 */
-	
 	private ClubMemberEntity findMember(Integer clubId, String memberId) {
 		return clubMemberRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId)
-				.orElseThrow(() -> new RuntimeException("해당 모임의 멤버를 찾을 수 없습니다. (ID: " + memberId + ")"));
+				.orElseThrow(() -> new BusinessException(ErrorCode.NOT_CLUB_MEMBER));
 	}
 	
 	/**
-	 * [필수] 특정 모임에서 특정 유저의 상세 멤버 정보(권한, 가입일 등)를 DTO로 반환합니다.
+	 * 특정 모임에서 특정 유저의 상세 멤버 정보(권한, 가입일 등)를 DTO로 반환합니다.
 	 */
 	public ClubMemberDTO getMemberInfo(Integer clubId, String memberId) {
 		// 1. 데이터를 가져옵니다.
@@ -426,62 +397,100 @@ public class ClubManageService {
 	
 	/** 권한 체크 */
 	public void checkAuthority(Integer clubId, String memberId, String requiredRole) {
-		// 1. 멤버 정보 조회 (기존의 role 컬럼 활용)
-		ClubMemberDTO member = getMemberInfo(clubId, memberId);
+		ClubMemberEntity member = clubMemberRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId)
+				.orElseThrow(() -> new BusinessException(ErrorCode.NOT_CLUB_MEMBER));
 		
-		if (member == null || !"ACTIVE".equals(member.getStatus())) {
-			throw new AccessDeniedException("멤버 정보가 없거나 활동 중이 아닙니다.");
+		if (!"ACTIVE".equals(member.getStatus())) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED_ACCESS);
 		}
 		
-		// 2. 권한 체크 로직 (문자열 비교)
-		String currentRole = member.getRole(); // 기존 컬럼값 (LEADER, MANAGER, MEMBER 등)
+		String currentRole = member.getRole();
 		
 		if ("OWNER_ONLY".equals(requiredRole)) {
 			if (!"OWNER".equals(currentRole)) {
-				throw new AccessDeniedException("모임장만 접근 가능합니다.");
+				throw new BusinessException(ErrorCode.OWNER_ONLY);
 			}
 		} else if ("MANAGER_UP".equals(requiredRole)) {
-			// 운영진 이상 (모임장 또는 운영진)
 			if (!"OWNER".equals(currentRole) && !"MANAGER".equals(currentRole)) {
-				throw new AccessDeniedException("운영진 이상의 권한이 필요합니다.");
+				throw new BusinessException(ErrorCode.MANAGER_UP);
 			}
 		}
 	}
 	
-	/*제명자 체크? 기능*/
-	public void checkJoinEligibility(Integer clubId, String memberId) {
-		// 1. 제명자 체크
-		if (clubMemberHistoryRepository.existsByClub_ClubIdAndTargetMember_MemberIdAndActionType(clubId, memberId, "BANNED")) {
-			throw new RuntimeException("과거 제명된 이력이 있어 가입 신청이 불가능합니다.");
-		}
+	/**
+	 * 상세 페이지용 가입 상태 조회
+	 */
+	public String getApplyStatus(Integer id, String loginId) {
+		if (loginId == null) return null;
 		
-		// 2. 쿨타임 체크 (예: 7일)
-		clubMemberHistoryRepository.findFirstByClub_ClubIdAndTargetMember_MemberIdOrderByCreatedAtDesc(clubId, memberId)
-				.ifPresent(lastHistory -> {
-					if (lastHistory.getActionType().equals("EXIT") || lastHistory.getActionType().equals("JOIN_REJECT")) {
-						LocalDateTime limit = lastHistory.getCreatedAt().plusDays(365);
-						if (LocalDateTime.now().isBefore(limit)) {
-							throw new RuntimeException("탈퇴 또는 거절 후 1년이 경과후 재신청이 가능합니다.");
-						}
-					}
-				});
+		return clubMemberRepository.findFirstByClub_ClubIdAndMember_MemberIdOrderByJoinedAtDesc(id, loginId)
+				.map(ClubMemberEntity::getStatus)
+				.orElse(null);
 	}
 	
-	@Transactional
-	public void leaveHistory(Integer clubId, String targetId, String actorId, String actionType, String description) {
-		ClubEntity club = clubRepository.findById(clubId).orElseThrow();
-		MemberEntity target = memberRepository.findById(targetId).orElseThrow();
-		MemberEntity actor = memberRepository.findById(actorId).orElseThrow();
+	/**
+	 * 모임 수정시 최대 인원 수정 유효성 검사
+	 */
+	public void validateMaxMember(Integer clubId, int newMaxMember) {
+		int currentMemberCount = clubMemberRepository.countByClub_ClubIdAndStatus(clubId, "ACTIVE");
+		if (newMaxMember < currentMemberCount) {
+			throw new BusinessException(ErrorCode.MAX_MEMBER_UNDER_CURRENT);
+		}
+	}
+	
+	/**
+	 * 실제 파일 업로드 여부 확인
+	 */
+	public boolean isNewFileUploaded(MultipartFile file) {
+		return file != null && !file.isEmpty();
+	}
+	
+	/**
+	 * 파일 저장 로직 (자동 폴더 생성 포함)
+	 */
+	private String storeUploadFile(MultipartFile file) {
+		if (file == null || file.isEmpty()) {
+			return null;
+		}
 		
-		ClubMemberHistoryEntity history = ClubMemberHistoryEntity.builder()
-				.club(club)
-				.targetMember(target)
-				.actorMember(actor)
-				.actionType(actionType)
-				.description(description)
-				.createdAt(LocalDateTime.now())
-				.build();
+		try {
+			Path root = Paths.get(uploadPath);
+			if (!Files.exists(root)) Files.createDirectories(root);
+			
+			String savedFileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+			Files.copy(file.getInputStream(), root.resolve(savedFileName), StandardCopyOption.REPLACE_EXISTING);
+			
+			return "/images/" + savedFileName;
+		} catch (IOException e) {
+			log.error("이미지 저장 실패: {}", e.getMessage());
+			throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	/**
+	 * 파일 삭제 로직 (자동 폴더 생성 포함)
+	 */
+	public void deleteRealFile(String imageUrl) {
+		// 1. 기본 이미지는 지우면 안 되니까 방어 로직 추가
+		if (imageUrl == null || imageUrl.equals("/images/default_club.jpg")) {
+			return;
+		}
 		
-		clubMemberHistoryRepository.save(history);
+		try {
+			// 2. DB 저장 경로(/images/파일명)를 실제 서버 경로(C:/enlink_storage/파일명)로 변환
+			String fileName = imageUrl.replace("/images/", "");
+			File file = new File(uploadPath + fileName);
+			
+			// 3. 파일이 존재하면 삭제
+			if (file.exists()) {
+				if (file.delete()) {
+					log.info("기존 파일 삭제 성공: {}", fileName);
+				} else {
+					log.warn("기존 파일 삭제 실패: {}", fileName);
+				}
+			}
+		} catch (Exception e) {
+			log.error("파일 삭제 중 에러 발생: {}", e.getMessage());
+		}
 	}
 }

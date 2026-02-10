@@ -12,7 +12,7 @@
         <div class="create-content-container">
             <h1>새로운 모임 만들기</h1>
 
-            <form th:action="@{/club/create}" th:object="${clubDTO}" method="post" enctype="multipart/form-data" class="create-form">
+            <form id="createClubForm" th:object="${clubDTO}" enctype="multipart/form-data" class="create-form">
 
                 <div class="form-group">
                     <label>모임 이름:</label>
@@ -67,5 +67,9 @@
 
     <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script th:src="@{/js/club/createClub.js}"></script>
 </body>
 </html>

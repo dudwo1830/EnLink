@@ -32,9 +32,9 @@ public class ClubEntity {
 	
 	private String description;
 	
-	@Builder.Default // 1. 빌더를 사용할 때도 이 기본값을 쓰겠다고 명시 (추가)
-	@Column(nullable = false) // 2. DB 컬럼 설정 (기존 유지)
-	private String imageUrl = "/images/default_club.jpg"; // 3. 실제 이미지 경로로 수정
+	@Builder.Default //
+	@Column(nullable = false) //
+	private String imageUrl = "/images/default_club.jpg";
 	
 	@Column(nullable = false)
 	private Integer maxMember = 10;

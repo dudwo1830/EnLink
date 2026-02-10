@@ -2,7 +2,6 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('모임 정보 수정', ~{::link}, ~{::script})}">
     <link rel="stylesheet" th:href="@{/css/manage.css}">
-    <script></script>
 </head>
 <body>
 <div class="grid-container">
@@ -15,74 +14,74 @@
             <section class="manage-content-area">
                 <h1>모임 정보 수정</h1>
 
-                <form th:action="@{/club/{clubId}/manage/edit(clubId=${clubDTO.clubId})}"
-                      th:object="${clubDTO}"
-                      method="post"
-                      enctype="multipart/form-data"
-                      class="edit-form">
-
-                    <input type="hidden" th:field="*{clubId}"/>
-                    <input type="hidden" th:field="*{imageUrl}"/>
+                <form id="editClubForm" class="edit-form" enctype="multipart/form-data">
+                    <input type="hidden" name="clubId" th:value="${clubDTO.clubId}"/>
+                    <input type="hidden" name="imageUrl" th:value="${clubDTO.imageUrl}"/>
 
                     <div class="form-group">
                         <label>모임 이름:</label>
-                        <input type="text" th:field="*{name}" required>
+                        <input type="text" name="name" th:value="${clubDTO.name}" required>
                     </div>
 
                     <div class="form-group">
                         <label>현재 모임 이미지:</label>
                         <div class="image-preview">
                             <img th:src="${clubDTO.imageUrl != null ? clubDTO.imageUrl : '/images/default_club.jpg'}"
-                                 alt="모임 이미지"
-                                 width="200"
-                                 style="border-radius: 8px; object-fit: cover;"
+                                 alt="모임 이미지" width="200" style="border-radius: 8px; object-fit: cover;"
                                  onerror="this.src='/images/default_club.jpg'">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label>모임 이미지 변경:</label>
-                        <input type="file" th:field="*{uploadFile}" accept="image/*">
+                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                            <input type="file" name="uploadFile" accept="image/*" id="fileInput">
+
+                            <div class="reset-checkbox" style="display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" name="defaultImage" id="defaultImage" value="true">
+                                <label for="defaultImage" style="font-size: 0.9rem; color: #d9534f; cursor: pointer; margin: 0;">기본 이미지로 변경</label>
+                            </div>
+                        </div>
                         <p class="help-text" style="font-size: 0.85rem; color: #666;">
                             * 이미지를 선택하지 않으면 기존 이미지가 유지됩니다.
+                            * '기본 이미지로 변경'을 체크하면 등록한 사진이 삭제되고 기본 로고로 바뀝니다.
                         </p>
                     </div>
 
                     <div class="form-group">
                         <label>관심사 카테고리:</label>
-                        <select th:field="*{topicId}">
-                            <option value="1">운동</option>
-                            <option value="2">스터디</option>
-                            <option value="3">친목</option>
+                        <select name="topicId">
+                            <option value="1" th:selected="${clubDTO.topicId == 1}">운동</option>
+                            <option value="2" th:selected="${clubDTO.topicId == 2}">스터디</option>
+                            <option value="3" th:selected="${clubDTO.topicId == 3}">친목</option>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label>상세 지역 (구/군):</label>
-                        <select th:field="*{cityId}">
-                            <option value="">-- 상세 지역 선택 --</option>
-                            <option value="2">강남구</option>
+                        <select name="cityId">
+                            <option value="2" th:selected="${clubDTO.cityId == 2}">강남구</option>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label>최대 인원:</label>
-                        <input type="number" th:field="*{maxMember}" min="10" step="10">
+                        <input type="number" name="maxMember" th:value="${clubDTO.maxMember}" min="10" step="10">
                         <p class="help-text" style="font-size: 0.85rem; color: #d9534f;">* 정원은 10명 단위로 설정 가능합니다.</p>
                     </div>
 
                     <div class="form-group">
                         <label>모임 소개:</label>
-                        <textarea th:field="*{description}" rows="5" style="width: 100%;"></textarea>
+                        <textarea name="description" th:text="${clubDTO.description}" rows="5" style="width: 100%;"></textarea>
                     </div>
 
                     <div class="form-group">
                         <label>가입 질문:</label>
-                        <input type="text" th:field="*{joinQuestion}" placeholder="가입 시 신청자에게 묻고 싶은 질문을 입력하세요.">
+                        <input type="text" name="joinQuestion" th:value="${clubDTO.joinQuestion}" placeholder="가입 신청 질문">
                     </div>
 
                     <div class="form-actions">
-                        <button type="submit" class="btn-submit">수정 완료</button>
+                        <button type="button" class="btn-submit" th:onclick="|updateClubInfo(${clubDTO.clubId})|">수정 완료</button>
                         <a th:href="@{/club/{id}(id=${clubDTO.clubId})}" class="btn-cancel">취소</a>
                     </div>
                 </form>
@@ -93,8 +92,7 @@
     <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
 </div>
 
-<script th:inline="javascript">
-    /* 여기에 나중에 자바스크립트 로직을 추가할 수 있습니다 */
-</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script th:src="@{/js/club/manage.js}"></script>
 </body>
 </html>
