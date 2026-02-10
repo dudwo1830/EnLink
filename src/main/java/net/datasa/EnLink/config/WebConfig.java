@@ -13,9 +13,10 @@ public class WebConfig implements WebMvcConfigurer {
 	
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		// 1. 배경호 님의 모임(Club) 이미지 설정
+		String rootPath = uploadPath.endsWith("/") ? uploadPath : uploadPath + "/";
+		
 		registry.addResourceHandler("/images/**")
-				.addResourceLocations("file:///" + uploadPath);
+				.addResourceLocations("file:///" + uploadPath, "classpath:/static/images/");
 		
 		// 2. 팀원의 갤러리(Gallery) 이미지 설정 (기존 설정 유지)
 		registry.addResourceHandler("/galleryImg/**")

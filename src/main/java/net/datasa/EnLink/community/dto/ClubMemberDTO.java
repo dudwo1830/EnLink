@@ -1,13 +1,14 @@
 package net.datasa.EnLink.community.dto;
 
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import net.datasa.EnLink.community.entity.ClubMemberEntity;
 
 import java.time.LocalDateTime;
 
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class ClubMemberDTO {
 	private Integer cmId;       // ClubMember PK
@@ -17,15 +18,6 @@ public class ClubMemberDTO {
 	private String status;      // 상태 (ACTIVE...)
 	private LocalDateTime joinedAt;
 	
-	// 1. [해결용] 6개 데이터를 받는 생성자 (앞에 반드시 public!)
-	public ClubMemberDTO(Integer clubId, String memberId, String memberName, String role, String status, LocalDateTime joinedAt) {
-		this.cmId = clubId;
-		this.memberId = memberId;
-		this.memberName = memberName;
-		this.role = role;
-		this.status = status;
-		this.joinedAt = joinedAt;
-	}
 	
 	// 2. [해결용] 엔티티 덩어리 하나를 받는 생성자 (여기도 반드시 public!)
 	public ClubMemberDTO(ClubMemberEntity entity) {
