@@ -17,6 +17,7 @@
         <div class="topic-container">
           <h3>관심 주제</h3>
           <div id="topicTarget"></div>
+          <div><button type="button" id="topicUpdateBtn">관심 주제 저장</button></div>
         </div>
         <div class="city-container">
           <h3>관심 지역</h3>
@@ -30,9 +31,9 @@
             <input type="hidden" class="select-hidden" />
             <ul class="select-options"></ul>
           </div>
-          <h4>변경 후:<span id="currentCity"></span></h4>
+          <h4 id="currentCity"></h4>
+          <div><button type="button" id="cityUpdateBtn">관심 지역 저장</button></div>
         </div>
-        <div><button type="button" onclick="save()">수정</button></div>
       </main>
       <footer th:replace="~{fragments/footer :: footer}"></footer>
     </div>

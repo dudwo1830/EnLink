@@ -1,15 +1,24 @@
 const form = document.querySelector('#signupForm');
 form.addEventListener('submit', signup);
-function signup(e) {
+async function signup(e) {
   e.preventDefault();
-  const data = Object.fromEntries(new FormData(form));
-  fetch(`${API_BASE}`, {
+  const formData = Object.fromEntries(new FormData(form));
+  const res = await fetch(`${API_BASE}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(data),
-  }).then((res) => {
-    console.log(res);
+    body: JSON.stringify(formData),
   });
+  if (!res.ok) {
+    const data = await res.json();
+    const msg = `
+    ${data.messageCode != null ? data.messageCode : data.defaultMessage}
+    Code: ${data.code}
+    `;
+    alert(msg);
+  } else {
+    alert('success');
+    location.replace('/auth/login');
+  }
 }

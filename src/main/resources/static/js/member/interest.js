@@ -1,3 +1,8 @@
+const topicUpdateBtn = document.querySelector('#topicUpdateBtn');
+const cityUpdateBtn = document.querySelector('#cityUpdateBtn');
+topicUpdateBtn.addEventListener('click', updateTopic);
+cityUpdateBtn.addEventListener('click', updateCity);
+
 const topicTarget = document.querySelector('#topicTarget');
 
 topicRender();
@@ -10,7 +15,7 @@ fetch(`/api/members/me/city`)
     return res.json();
   })
   .then((data) => {
-    changeCity(data.nameLocal);
+    changeCity('현재 설정: ' + data.fullNameLocal);
   })
   .catch((err) => {
     console.log(err);
@@ -58,14 +63,12 @@ regionSelect.load(`/api/location/regions`, {
 citySelect.load(`/api/location/cities`, {
   valueKey: 'cityId',
   labelKey: 'fullNameLocal',
-  includeAll: true,
-  allLabel: '지역 전체',
 });
 regionTarget.addEventListener('change', (e) => {
   changeRegion(regionSelect.getValue());
 });
 cityTarget.addEventListener('change', (e) => {
-  changeCity(citySelect.getText());
+  changeCity('변경 후: ' + citySelect.getText());
 });
 
 function changeRegion(regionId) {
@@ -75,9 +78,7 @@ function changeRegion(regionId) {
   }
   citySelect.load(`/api/location/cities?${params.toString()}`, {
     valueKey: 'cityId',
-    labelKey: regionId === '' ? 'fullNameLocal' : 'nameLocal',
-    includeAll: true,
-    allLabel: '지역 전체',
+    labelKey: 'fullNameLocal',
   });
 }
 
@@ -86,21 +87,23 @@ function changeCity(cityText) {
 }
 
 // 최종 저장
-async function save() {
-  const cityId = citySelect.getValue();
+// function save() {
+//   const cityId = citySelect.getValue();
+//   let result = updateTopic();
+//   if (cityId != null && cityId !== '') {
+//     result = result && updateCity();
+//   }
+//   if (result) {
+//     alert('저장 되었습니다.');
+//     location.reload();
+//   } else {
+//     alert('failed');
+//   }
+// }
 
-  const topic = await updateTopic();
-  let msg = `관심 주제 수정: ${topic ? '성공' : '실패'}`;
-  if (cityId != null && cityId !== '') {
-    const city = await updateCity();
-    msg += `관심 지역 수정: ${city ? '성공' : '실패'}`;
-  }
-  alert(msg);
-}
-
-function updateTopic() {
+async function updateTopic() {
   const topicIds = [...topicTarget.querySelectorAll('input[type=checkbox]:checked')].map((el) => el.value);
-  return fetch(`${API_BASE}/me/topics`, {
+  const res = await fetch(`${API_BASE}/me/topics`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -108,14 +111,22 @@ function updateTopic() {
     body: JSON.stringify({
       topicIds: topicIds,
     }),
-  }).then((res) => {
-    return res.ok;
   });
+  if (!res.ok) {
+    const data = await res.json();
+    const msg = `
+    ${data.messageCode != null ? data.messageCode : data.defaultMessage}
+    Code: ${data.code}
+    `;
+    alert(msg);
+  } else {
+    alert('saved');
+  }
 }
 
-function updateCity() {
+async function updateCity() {
   const cityId = citySelect.getValue();
-  return fetch(`${API_BASE}/me/city`, {
+  const res = await fetch(`${API_BASE}/me/city`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -123,7 +134,15 @@ function updateCity() {
     body: JSON.stringify({
       cityId: cityId,
     }),
-  }).then((res) => {
-    return res.ok;
   });
+  if (!res.ok) {
+    const data = await res.json();
+    const msg = `
+    ${data.messageCode != null ? data.messageCode : data.defaultMessage}
+    Code: ${data.code}
+    `;
+    alert(msg);
+  } else {
+    alert('saved');
+  }
 }
