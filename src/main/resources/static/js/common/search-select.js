@@ -17,6 +17,10 @@ class SearchSelect {
     // hidden의 name설정
     this.hidden.name = root.dataset.name;
 
+    //onload
+    this.isReady = false;
+    this.readyCallbacks = [];
+
     // init
     this.bindEvents();
     this.close();
@@ -108,6 +112,9 @@ class SearchSelect {
       li.textContent = item[labelKey];
       this.options.appendChild(li);
     });
+
+    this.isReady = true;
+    this.readyCallbacks.forEach(cb => cb(this));
   }
 
   setDefaultOption(label = '전체', value = '') {
@@ -120,5 +127,13 @@ class SearchSelect {
     if (!res.ok) return;
     const data = await res.json();
     this.setOptions(data, mapping);
+  }
+
+  onReady(callback) {
+    if (this.isReady) {
+      callback(this);
+    } else {
+      this.readyCallbacks.push(callback);
+    }
   }
 }
