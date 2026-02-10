@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('새로운 모임 만들기', ~{::link}, ~{::script})}">
-    <link rel="stylesheet" href="#" th:if="${false}"/>
-    <script src="#" th:if="${false}"></script>
+    <link rel="stylesheet" th:href="@{/css/search-select.css}" />
+    <script th:src="@{/js/common/search-select.js}" defer></script>
+    <script th:src="@{/js/club/create-club-form.js}" defer></script>
 </head>
 <body>
 <div class="grid-container">
@@ -27,19 +28,25 @@
 
                 <div class="form-group">
                     <label>관심사 카테고리:</label>
-                    <select th:block th:field="*{topicId}">
-                        <option value="1">운동</option>
-                        <option value="2">스터디</option>
-                        <option value="3">친목</option>
-                    </select>
+                    <div class="select-search topics" data-name="topicId">
+                        <input type="text" class="select-input" autocomplete="false" />
+                        <input type="hidden" class="select-hidden" />
+                        <ul class="select-options"></ul>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label>상세 지역 (구/군)</label>
-                    <select th:field="*{cityId}" id="citySelect">
-                        <option value="">-- 상세 지역 선택 --</option>
-                        <option value="2">강남구</option>
-                    </select>
+                    <div class="select-search regions" data-name="regionId">
+                        <input type="text" class="select-input" autocomplete="false" />
+                        <input type="hidden" class="select-hidden" />
+                        <ul class="select-options"></ul>
+                    </div>
+                    <div class="select-search cities" data-name="cityId">
+                        <input type="text" class="select-input" autocomplete="false" />
+                        <input type="hidden" class="select-hidden" />
+                        <ul class="select-options"></ul>
+                    </div>
                 </div>
 
                 <div class="form-group">
