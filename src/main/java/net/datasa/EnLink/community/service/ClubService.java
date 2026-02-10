@@ -4,11 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.datasa.EnLink.common.error.BusinessException;
 import net.datasa.EnLink.common.error.ErrorCode;
-import net.datasa.EnLink.community.dto.ClubDTO;
-import net.datasa.EnLink.community.dto.response.ClubDetailResponse;
-import net.datasa.EnLink.community.dto.response.ClubMemberResponse;
 import net.datasa.EnLink.community.dto.request.ClubCreateRequest;
+import net.datasa.EnLink.community.dto.response.ClubDetailResponse;
 import net.datasa.EnLink.community.dto.response.ClubListResponse;
+import net.datasa.EnLink.community.dto.response.ClubMemberResponse;
 import net.datasa.EnLink.community.entity.ClubEntity;
 import net.datasa.EnLink.community.entity.ClubJoinAnswerEntity;
 import net.datasa.EnLink.community.entity.ClubMemberEntity;
@@ -278,39 +277,6 @@ public class ClubService {
 				.collect(Collectors.toList());
 	}
 	
-	/**
-	 * 유틸리티 메서드 entity -> DTO
-	 * */
-	private ClubDTO convertToDTO(ClubEntity entity) {TopicDetailResponse topicDto = null;
-		
-		
-		if (entity.getTopic() != null) {
-			topicDto = TopicDetailResponse.builder()
-					.topicId(entity.getTopic().getTopicId())
-					.name(entity.getTopic().getName())
-					.build();
-		}
-		
-		ClubDTO dto = ClubDTO.builder()
-				.clubId(entity.getClubId())
-				.name(entity.getName())
-				.description(entity.getDescription())
-				.maxMember(entity.getMaxMember())
-				.topic(topicDto)
-				.cityId(entity.getCityId())
-				.cityName(entity.getCityId() != null && entity.getCityId() == 2 ? "강남구" : "종로구")
-				.imageUrl(entity.getImageUrl())
-				.status(entity.getStatus())
-				.joinQuestion(entity.getJoinQuestion())
-				.build();
-		
-		if ("DELETED_PENDING".equals(entity.getStatus()) && entity.getDeletedAt() != null) {
-			LocalDateTime expiryDate = entity.getDeletedAt().plusDays(7);
-			Duration duration = Duration.between(LocalDateTime.now(), expiryDate);
-			dto.setRemainingTime(duration.isNegative() ? "곧 삭제 예정" : duration.toDays() + "일 " + duration.toHoursPart() + "시간 남음");
-		}
-		return dto;
-	}
 	
 	/**
  	* 모임 생성 유효성 검증
