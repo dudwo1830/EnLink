@@ -28,5 +28,7 @@ import java.util.Optional;
 		@Modifying // 데이터를 변경/삭제할 때 필수!
 		@Query("DELETE FROM ClubJoinAnswerEntity a WHERE a.clubId = :clubId AND a.memberId = :memberId")
 		void deleteByClubIdAndMemberId(Integer clubId, String memberId);
-	}
+	
+	void deleteByClubId(Integer clubId);
+}
 

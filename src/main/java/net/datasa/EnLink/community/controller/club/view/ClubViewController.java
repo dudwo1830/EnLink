@@ -1,17 +1,25 @@
 package net.datasa.EnLink.community.controller.club.view;
 
 import lombok.RequiredArgsConstructor;
-import net.datasa.EnLink.community.dto.ClubDTO;
-import net.datasa.EnLink.community.dto.ClubMemberDTO;
+import lombok.extern.slf4j.Slf4j;
+import net.datasa.EnLink.common.error.BusinessException;
+import net.datasa.EnLink.common.error.ErrorCode;
+import net.datasa.EnLink.common.security.MemberDetails;
+import net.datasa.EnLink.community.dto.request.ClubCreateRequest;
+import net.datasa.EnLink.community.repository.ClubMemberRepository;
 import net.datasa.EnLink.community.service.ClubManageService;
 import net.datasa.EnLink.community.service.ClubService;
+import net.datasa.EnLink.topic.service.TopicService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.lang.reflect.Member;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/club")
 @Controller
@@ -19,67 +27,57 @@ public class ClubViewController {
 	
 	private final ClubService clubService;
 	private final ClubManageService clubManageService;
+	private final ClubMemberRepository clubMemberRepository;
+	private final TopicService topicService;
 	
-	/**
-	 * 모임생성 폼 이동
-	 * // TODO: Spring Security 적용 시 수정
-	 */
+	/** 모임 생성 폼 이동 */
 	@GetMapping("/create")
-	public String createForm(Model model, @SessionAttribute(name = "loginMember", required = false) Member loginMember){
-		model.addAttribute("clubDTO", new ClubDTO());
+	public String createForm(Model model, @AuthenticationPrincipal MemberDetails loginUser) {
+		if (loginUser == null) return "redirect:/auth/login";
 		
-		if (loginMember == null) {
-			return "redirect:/login";
+		
+		long ownerCount = clubMemberRepository.countOwnerQuota(loginUser.getUsername());
+		
+		if (ownerCount >= 5) {
+			throw new BusinessException(ErrorCode.OWNER_LIMIT_EXCEEDED);
 		}
+		
+		model.addAttribute("topics", topicService.getListAll());
+		
+		ClubCreateRequest clubCreateRequest = new ClubCreateRequest();
+		
+		model.addAttribute("clubCreateRequest", clubCreateRequest);
 		
 		return "club/createClubForm";
 	}
 	
-	/**
-	 * 모임 생성 (처리 후 리스트로 이동 유도)
-	 */
-	@PostMapping("/create")
-	public String create(@ModelAttribute("clubDTO") ClubDTO clubDTO) {
-		String loginId = "bgh_leader";
-		clubService.createClub(clubDTO, loginId);
-		
-		return "redirect:/club/clubList";
-	}
-	
-	/**
-	 * 모임 목록 조회
-	 */
+	/** 모임 목록 조회 */
 	@GetMapping("/list")
-	public String list(Model model) {
-		List<ClubDTO> clubs = clubService.getClubList();
-		model.addAttribute("clubs", clubs);
+	public String list(Model model, @AuthenticationPrincipal MemberDetails loginUser) {
+		String loginMemberId = (loginUser != null) ? loginUser.getUsername() : null;
+		
+		model.addAttribute("clubs", clubService.getClubList());
+		model.addAttribute("loginMemberId", loginMemberId);
 		return "club/clubList";
 	}
 	
-	/**
-	 * 클럽 상세조회
-	 */
+	/** 클럽 상세조회 */
 	@GetMapping("/{id}")
-	public String detail(@PathVariable("id") Integer id, Model model) {
+	public String detail(@PathVariable("id") Integer id, @AuthenticationPrincipal MemberDetails loginUser, Model model) {
+		String loginId = (loginUser != null) ? loginUser.getMemberId() : null;
 		
-		String loginId = "user10";
+		model.addAttribute("club", clubService.getClubDetail(id));
+		model.addAttribute("members", clubService.getActiveMembers(id));
+		model.addAttribute("loginMember", clubManageService.getMemberInfo(id, loginId));
+		model.addAttribute("applyStatus", clubManageService.getApplyStatus(id, loginId));
 		
-		ClubDTO club = clubService.getClubDetail(id);
-		List<ClubMemberDTO> members = clubService.getActiveMembers(loginId);
+		long myJoinCount = 0;
+		if (loginId != null) {
+			myJoinCount = clubMemberRepository.countByMember_MemberIdAndRoleInAndStatus(
+					loginId, List.of("MEMBER", "MANAGER"), "ACTIVE");
+		}
 		
-		// 1. 여기서 이미 ACTIVE 여부를 체크해서 가져옵니다.
-		ClubMemberDTO loginMember = clubManageService.getMemberInfo(id, loginId);
-		
-		model.addAttribute("club", club);
-		model.addAttribute("members", members);
-		model.addAttribute("loginMember", loginMember);
-		
-		// 2. ⭐ applyStatus도 loginMember 상태에 따라 결정합니다.
-		// loginMember가 null이면 신청 안 한 상태(null), 아니면 현재 상태(ACTIVE)
-		String applyStatus = (loginMember != null) ? loginMember.getStatus() : null;
-		model.addAttribute("applyStatus", applyStatus);
-		
-		System.out.println("Status: " + applyStatus);
+		model.addAttribute("canJoin", myJoinCount < 5);
 		
 		return "club/clubDetail";
 	}

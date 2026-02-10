@@ -1,20 +1,18 @@
 package net.datasa.EnLink.member.controller;
 
 import jakarta.servlet.http.HttpSession;
-import net.datasa.EnLink.community.dto.ClubDTO;
-import net.datasa.EnLink.community.service.ClubMemberService;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-
 import lombok.RequiredArgsConstructor;
 import net.datasa.EnLink.common.security.MemberDetails;
+import net.datasa.EnLink.community.dto.response.ClubDetailResponse;
+import net.datasa.EnLink.community.service.ClubMemberService;
 import net.datasa.EnLink.member.dto.response.MemberDetailResponse;
 import net.datasa.EnLink.member.dto.response.MemberUpdateResponse;
 import net.datasa.EnLink.member.service.MemberService;
-
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -41,12 +39,16 @@ public class MemberViewController {
 	
 	@GetMapping("/mypage/clubs")
 	public String myClubs(@RequestParam(value = "type", defaultValue = "owned") String type,
+						  @AuthenticationPrincipal MemberDetails loginUser,
 						  Model model, HttpSession session) {
 		
-		String loginId = "user10"; // 임시
-		Map<String, List<ClubDTO>> allClubs = clubMemberService.getMyClubs(loginId);
+		if (loginUser == null) {
+			return "redirect:/member/login";
+		}
+		String loginId = loginUser.getMemberId();
 		
-		// 선택한 type에 맞는 데이터와 제목만 넘김
+		Map<String, List<ClubDetailResponse>> allClubs = clubMemberService.getMyClubs(loginId);
+		
 		switch (type) {
 			case "active" -> {
 				model.addAttribute("clubs", allClubs.get("activeClubs"));

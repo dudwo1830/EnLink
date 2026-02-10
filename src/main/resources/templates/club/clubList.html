@@ -33,18 +33,18 @@
                 <a th:each="club : ${clubs}" th:href="@{/club/{id}(id=${club.clubId})}" class="club-item-card">
 
                     <div class="club-img-wrapper">
-                        <img th:src="${(club.imageUrl == null or club.imageUrl == '') ? '/images/default_club.jpg' : club.imageUrl}"
+                        <img th:src="${#strings.isEmpty(club.imageUrl)} ? @{/images/default_club.jpg} : @{${club.imageUrl}}"
                              alt="모임 이미지"
-                             onerror="this.onerror=null; this.src='/images/default_club.jpg';">
+                             onerror="this.src='/images/default_club.jpg';">
                     </div>
 
                     <div class="club-info">
                         <h3 th:text="${club.name}">모임 이름</h3>
-                        <p th:text="${club.description}" class="club-desc">모임 설명...</p>
+                        <p th:if="${club.description != null}" th:text="${club.description}" class="club-desc">모임 설명...</p>
 
                         <div class="club-meta">
-                            <span th:text="${club.topicId == 2 ? '스터디' : '주제'}">주제명</span> ·
-                            <span th:text="${club.cityId == 2 ? '강남구' : '지역명'}">지역명</span> ·
+                            <span th:text="${club.topic?.name}">주제명</span> ·
+                            <span th:text="${club.cityName}">지역명</span> ·
                             <span>멤버 <span th:text="${club.currentMemberCount}">0</span> / <span th:text="${club.maxMember}">10</span></span>
                         </div>
                     </div>

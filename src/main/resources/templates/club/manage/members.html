@@ -2,7 +2,6 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('멤버 관리', ~{::link}, ~{::script})}">
     <link rel="stylesheet" th:href="@{/css/manage.css}">
-    <script src="#" th:if="${false}"></script>
 </head>
 <body>
 <div class="grid-container">
@@ -15,6 +14,15 @@
             <section class="manage-content-area">
                 <h1>멤버 관리</h1>
                 <table class="manage-table">
+                    <thead>
+                    <tr>
+                        <th>이름(ID)</th>
+                        <th>역할</th>
+                        <th>가입일</th>
+                        <th>권한 변경</th>
+                        <th>제명</th>
+                    </tr>
+                    </thead>
                     <tbody>
                     <tr th:each="m : ${members}">
                         <td class="col-name">
@@ -22,40 +30,43 @@
                             <small th:text="|(${m.memberId})|" style="color: #888;"></small>
                             <span th:if="${m.memberId == loginMember.memberId}" style="font-size: 0.7em; color: #2196f3;">[나]</span>
                         </td>
-
                         <td class="col-role">
-                <span th:switch="${m.role}">
-                    <span th:case="'OWNER'" style="color: #ff9800; font-weight: bold;">(모임장)</span>
-                    <span th:case="'MANAGER'" style="color: #2196f3;">(운영진)</span>
-                    <span th:case="'MEMBER'" style="color: #757575;">(멤버)</span>
-                </span>
+                                <span th:switch="${m.role}">
+                                    <span th:case="'OWNER'" style="color: #ff9800; font-weight: bold;">(모임장)</span>
+                                    <span th:case="'MANAGER'" style="color: #2196f3;">(운영진)</span>
+                                    <span th:case="'MEMBER'" style="color: #757575;">(멤버)</span>
+                                </span>
                         </td>
-
                         <td class="col-date">
                             <span th:text="${#temporals.format(m.joinedAt, 'yyyy.MM.dd')}">2024.01.23</span>
                         </td>
-
                         <td class="col-update">
-                            <form th:if="${loginMember.role == 'OWNER' and m.memberId != loginMember.memberId}"
-                                  th:action="@{|/club/${clubId}/manage/members/update-role|}" method="post" class="inline-form">
-                                <input type="hidden" name="memberId" th:value="${m.memberId}">
-                                <select name="newRole" class="manage-select">
-                                    <option value="MEMBER" th:selected="${m.role == 'MEMBER'}">멤버</option>
+                            <div th:if="${loginMember.role == 'OWNER' and m.memberId != loginMember.memberId}">
+                                <select class="manage-select"
+                                        th:data-club-id="${clubId}"
+                                        th:data-member-id="${m.memberId}"
+                                        onchange="updateRole(this)"> <option value="MEMBER" th:selected="${m.role == 'MEMBER'}">멤버</option>
                                     <option value="MANAGER" th:selected="${m.role == 'MANAGER'}">운영진</option>
                                     <option value="OWNER" th:selected="${m.role == 'OWNER'}">모임장</option>
                                 </select>
-                                <button type="submit" class="btn-update">변경</button>
-                            </form>
+                            </div>
                             <span th:if="${loginMember.role != 'OWNER' or m.memberId == loginMember.memberId}" style="color: #ccc;">-</span>
                         </td>
 
                         <td class="col-kick">
-                            <form th:if="${m.memberId != loginMember.memberId and (loginMember.role == 'OWNER' or (loginMember.role == 'MANAGER' and m.role == 'MEMBER'))}"
-                                  th:action="@{|/club/${clubId}/manage/members/kick|}" method="post" class="inline-form">
-                                <input type="hidden" name="memberId" th:value="${m.memberId}">
-                                <button type="submit" class="btn-danger" onclick="return confirm('정말 이 멤버를 제명하시겠습니까?')">제명</button>
-                            </form>
-                            <span th:if="${m.memberId == loginMember.memberId or (loginMember.role == 'MANAGER' and m.role != 'MEMBER')}" style="color: #ccc;">-</span>
+                            <div th:if="${m.memberId != loginMember.memberId and
+                 (loginMember.role == 'OWNER' or (loginMember.role == 'MANAGER' and m.role == 'MEMBER'))}">
+                                <button type="button" class="btn-danger"
+                                        th:data-member-id="${m.memberId}"
+                                        th:data-member-name="${m.memberName}"
+                                        th:data-club-id="${clubId}"
+                                        onclick="openKickModal(this)">
+                                    제명
+                                </button>
+                            </div>
+                            <span th:if="${!(m.memberId != loginMember.memberId and
+                  (loginMember.role == 'OWNER' or (loginMember.role == 'MANAGER' and m.role == 'MEMBER')))}"
+                                  style="color: #ccc;">-</span>
                         </td>
                     </tr>
                     </tbody>
@@ -66,5 +77,34 @@
 
     <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
 </div>
+
+<div id="kickModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h3>멤버 제명</h3>
+        <p><strong id="kickTargetName"></strong> 멤버를 정말 제명하시겠습니까?</p>
+
+        <div class="modal-form-area">
+            <label for="kickReasonSelect">제명 사유:</label>
+            <select id="kickReasonSelect" class="form-select" onchange="toggleKickEtcInput()">
+                <option value="부적절한 게시물 게시">부적절한 게시물 게시</option>
+                <option value="모임 분위기 저해">모임 분위기 저해</option>
+                <option value="장기간 미접속">장기간 미접속</option>
+                <option value="기타">기타 (직접 입력)</option>
+            </select>
+
+            <div id="kickEtcWrapper" style="display: none; margin-top: 10px;">
+                <input type="text" id="kickEtcInput" class="form-control" placeholder="사유를 입력하세요.">
+            </div>
+
+            <div class="modal-buttons" style="margin-top: 20px;">
+                <button type="button" class="btn-submit" style="background-color: #d9534f;" onclick="submitKick()">제명 처리</button>
+                <button type="button" class="btn-close" onclick="closeKickModal()">취소</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script th:src="@{/js/club/manage.js}"></script>
 </body>
 </html>
