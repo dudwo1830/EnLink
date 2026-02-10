@@ -20,5 +20,12 @@ public class WebConfig implements WebMvcConfigurer {
 		// 2. 팀원의 갤러리(Gallery) 이미지 설정 (기존 설정 유지)
 		registry.addResourceHandler("/galleryImg/**")
 				.addResourceLocations("file:///" + uploadPath + "gallery/");
+		
+		// 3. ✨ 추가: 채팅 미디어 파일 설정
+		// URL 패턴을 /chatImg/** 로 하고,
+		// 💡 실제 저장 경로: C:/enrink_storage/chat/
+		String absolutePath = uploadPath + "chat/";
+		registry.addResourceHandler("/chatImg/**")
+				.addResourceLocations("file:///" + absolutePath);
 	}
 }
