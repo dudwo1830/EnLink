@@ -4,9 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.datasa.EnLink.common.error.BusinessException;
 import net.datasa.EnLink.common.error.ErrorCode;
-import net.datasa.EnLink.community.dto.ClubDTO;
-import net.datasa.EnLink.community.dto.ClubJoinRequestDTO;
-import net.datasa.EnLink.community.dto.ClubMemberDTO;
+import net.datasa.EnLink.community.dto.request.ClubUpdateRequest;
+import net.datasa.EnLink.community.dto.response.ClubDetailResponse;
+import net.datasa.EnLink.community.dto.response.ClubJoinResponse;
+import net.datasa.EnLink.community.dto.response.ClubMemberResponse;
 import net.datasa.EnLink.community.entity.ClubEntity;
 import net.datasa.EnLink.community.entity.ClubJoinAnswerEntity;
 import net.datasa.EnLink.community.entity.ClubMemberEntity;
@@ -14,6 +15,9 @@ import net.datasa.EnLink.community.repository.ClubAnswerRepository;
 import net.datasa.EnLink.community.repository.ClubMemberHistoryRepository;
 import net.datasa.EnLink.community.repository.ClubMemberRepository;
 import net.datasa.EnLink.community.repository.ClubRepository;
+import net.datasa.EnLink.topic.dto.response.TopicDetailResponse;
+import net.datasa.EnLink.topic.entity.TopicEntity;
+import net.datasa.EnLink.topic.repository.TopicRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,6 +51,7 @@ public class ClubManageService {
 	private final ClubMemberRepository clubMemberRepository;
 	private final ClubMemberHistoryRepository clubMemberHistoryRepository;
 	private final ClubMemberHistoryService clubMemberHistoryService;
+	private final TopicRepository topicRepository;
 	
 	/**
 	 * 모임 ID로 모임 엔티티를 직접 조회합니다.
@@ -59,44 +64,40 @@ public class ClubManageService {
 	
 	
 	/**
-	 * 모임 수정을 위해 기존 정보를 조회하고 DTO로 변환하여 반환 (Controller의 edit 메서드에서 호출)
-	 */
-	@Transactional(readOnly = true)
-	public ClubDTO getClubForEdit(Integer clubId) {
-		ClubEntity entity = getClubById(clubId);
-		return convertToDTO(entity);
-	}
-	
-	/**
 	 * 모임의 기본 정보(이름, 설명, 인원, 질문)와 업로드된 파일을 처리하여 정보를 업데이트합니다.
 	 */
 	@Transactional
-	public void updateClub(Integer id, ClubDTO clubDTO, String loginId) {
+	public void updateClub(Integer id, ClubUpdateRequest request, String loginId) {
 		checkAuthority(id, loginId, "MANAGER_UP");
+		
 		ClubEntity club = getClubById(id);
 		
-		validateMaxMember(id, clubDTO.getMaxMember());
+		validateMaxMember(id, request.getMaxMember());
 		
 		String oldImageUrl = club.getImageUrl();
 		
-		if (clubDTO.isDefaultImage()) {
-			// [경우 A] 기본 이미지로 변경 시
+		if (request.isDefaultImage()) {
 			club.setImageUrl("/images/default_club.jpg");
 			deleteRealFile(oldImageUrl);
 		}
-		else if (isNewFileUploaded(clubDTO.getUploadFile())) {
+		else if (isNewFileUploaded(request.getUploadFile())) {
 			// [경우 B] 새 이미지로 교체 시
-			String newImageUrl = storeUploadFile(clubDTO.getUploadFile());
+			String newImageUrl = storeUploadFile(request.getUploadFile());
 			if (newImageUrl != null) {
 				club.setImageUrl(newImageUrl);
 				deleteRealFile(oldImageUrl);
 			}
 		}
 		
-		club.setName(clubDTO.getName());
-		club.setDescription(clubDTO.getDescription());
-		club.setMaxMember(clubDTO.getMaxMember());
-		club.setJoinQuestion(clubDTO.getJoinQuestion());
+		club.setName(request.getName());
+		club.setDescription(request.getDescription());
+		club.setMaxMember(request.getMaxMember());
+		club.setJoinQuestion(request.getJoinQuestion());
+		
+		if (request.getTopicId() != null) {
+			TopicEntity topic = topicRepository.findById(request.getTopicId()).orElseThrow();
+			club.setTopic(topic);
+		}
 	}
 	
 	/**
@@ -118,7 +119,35 @@ public class ClubManageService {
 		log.info("[모임 삭제 요청 완료] 모임ID: {}, 요청자: {}", clubId, loginId);
 	}
 	
-	
+	/**
+	 * 모임즉시삭제
+	 * */
+	@Transactional
+	public void hardDeleteClub(Integer clubId, String loginId) {
+		// 1. 권한 체크 (모임장만 가능)
+		checkAuthority(clubId, loginId, "OWNER_ONLY");
+		
+		ClubEntity club = clubRepository.findById(clubId)
+				.orElseThrow(() -> new BusinessException(ErrorCode.CLUB_NOT_FOUND));
+		
+		if (club.getImageUrl() != null) {
+			deleteRealFile(club.getImageUrl());
+		}
+		
+		// 모임 멤버 이력 삭제
+		clubMemberHistoryRepository.deleteByClub_ClubId(clubId);
+		
+		// 가입 질문 답변들 삭제 (가입 신청 중인 유저들의 답변 데이터)
+		clubAnswerRepository.deleteByClubId(clubId);
+		
+		// 모임 멤버 데이터 삭제
+		clubMemberRepository.deleteByClub_ClubId(clubId);
+		
+		// 모임 엔티티 영구 삭제
+		clubRepository.delete(club);
+		
+		log.info("[모임 즉시 삭제 완료] 모임ID: {}", clubId);
+	}
 	
 	/**
 	 * 삭제 대기 중인 모임의 상태를 'ACTIVE'로 되돌리고 삭제 예정 시간을 초기화합니다.
@@ -133,19 +162,17 @@ public class ClubManageService {
 			throw new BusinessException(ErrorCode.NOT_PENDING_STATE);
 		}
 		
-		
 		if (club.getDeletedAt() != null &&
 				club.getDeletedAt().plusDays(7).isBefore(LocalDateTime.now())) {
 			throw new BusinessException(ErrorCode.CLUB_NOT_FOUND);
 		}
 		
-		long totalActiveCount = clubMemberRepository.countByMember_MemberIdAndStatus(loginId, "ACTIVE");
+		long activeOwnerCount = clubMemberRepository.countOwnerQuotaExcludingCurrent(loginId, clubId);
 		
-		if (totalActiveCount >= 5) {
+		if (activeOwnerCount >= 5) {
 			throw new BusinessException(ErrorCode.RESTORE_LIMIT_EXCEEDED);
 		}
 		
-		// 4. 상태 복구
 		club.setStatus("ACTIVE");
 		club.setDeletedAt(null);
 		
@@ -159,7 +186,7 @@ public class ClubManageService {
 	 * 가입 신청 대기자 목록 조회 (PENDING 상태인 유저들)
 	 */
 	@Transactional(readOnly = true)
-	public List<ClubJoinRequestDTO> getPendingRequests(Integer clubId) {
+	public List<ClubJoinResponse> getPendingRequests(Integer clubId) {
 		// 1. 해당 모임의 멤버들 중 상태가 'PENDING'인 엔티티들만 조회
 		List<ClubMemberEntity> pendingEntities = clubMemberRepository.findByClub_ClubIdAndStatusOrderByRoleAsc(clubId, "PENDING");
 		
@@ -173,7 +200,7 @@ public class ClubManageService {
 					.orElse("답변이 없습니다."); // 만약 답변이 없을 경우를 대비한 기본값
 			
 			// 4. 화면(HTML)에 뿌려줄 가방(DTO)에 담기
-			return ClubJoinRequestDTO.builder()
+			return ClubJoinResponse.builder()
 					.memberId(memberId)
 					.memberName(entity.getMember().getName())
 					.answerText(answer)
@@ -187,7 +214,7 @@ public class ClubManageService {
 	 * 가입 신청 대기자 목록 조회 (페이징 버전)
 	 */
 	@Transactional(readOnly = true)
-	public Page<ClubJoinRequestDTO> getPendingRequestsPaging(Integer clubId, int page) {
+	public Page<ClubJoinResponse> getPendingRequestsPaging(Integer clubId, int page) {
 		// 1. 10개씩, 신청일시(appliedAt) 내림차순 정렬 설정
 		Pageable pageable = PageRequest.of(page, 10, Sort.by("appliedAt").descending());
 		
@@ -203,7 +230,7 @@ public class ClubManageService {
 					.orElse("답변이 없습니다.");
 			
 			// 2. DTO 기본 생성
-			ClubJoinRequestDTO dto = ClubJoinRequestDTO.builder()
+			ClubJoinResponse dto = ClubJoinResponse.builder()
 					.memberId(memberId)
 					.memberName(entity.getMember().getName())
 					.answerText(answer)
@@ -236,9 +263,9 @@ public class ClubManageService {
 			throw new BusinessException(ErrorCode.ALREADY_JOINED_OR_PENDING);
 		}
 		
-		long activeCount = clubMemberRepository.countByMember_MemberIdAndStatus(memberId, "ACTIVE");
+		long activeParticipantCount = clubMemberRepository.countParticipantQuota(memberId);
 		
-		if (activeCount >= 5) {
+		if (activeParticipantCount >= 5) {
 			throw new BusinessException(ErrorCode.JOIN_LIMIT_EXCEEDED);
 		}
 		
@@ -275,11 +302,11 @@ public class ClubManageService {
 	/**
 	 * 현재 모임에 정식 가입(ACTIVE)된 멤버들을 직급 순서대로 정렬하여 리스트로 반환
 	 * */
-	public List<ClubMemberDTO> getActiveMembers(Integer clubId) {
+	public List<ClubMemberResponse> getActiveMembers(Integer clubId) {
 	List<ClubMemberEntity> entities = clubMemberRepository.findByClub_ClubIdAndStatusOrderByRoleAsc(clubId, "ACTIVE");
 		
 		return entities.stream()
-				.map(entity -> ClubMemberDTO.builder()
+				.map(entity -> ClubMemberResponse.builder()
 						.cmId(entity.getCmId())
 						.memberId(entity.getMember().getMemberId())
 						.memberName(entity.getMember().getName())
@@ -348,7 +375,7 @@ public class ClubManageService {
 	/**
 	 * 특정 모임에서 특정 유저의 상세 멤버 정보(권한, 가입일 등)를 DTO로 반환합니다.
 	 */
-	public ClubMemberDTO getMemberInfo(Integer clubId, String memberId) {
+	public ClubMemberResponse getMemberInfo(Integer clubId, String memberId) {
 		// 1. 데이터를 가져옵니다.
 		ClubMemberEntity entity = clubMemberRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId)
 				.orElse(null);
@@ -359,40 +386,40 @@ public class ClubManageService {
 		}
 		
 		// 3. 상태(PENDING, EXIT, ACTIVE 등)가 담긴 DTO를 그대로 반환합니다.
-		return new ClubMemberDTO(entity);
+		return new ClubMemberResponse(entity);
 	}
 	
 	/**
 	 * 모임 엔티티를 DTO로 변환하며, 특히 '삭제 대기' 상태일 때 남은 시간을 계산하는 핵심 로직을 포함
 	 */
-	private ClubDTO convertToDTO(ClubEntity entity) {
-		ClubDTO dto = ClubDTO.builder()
+	private ClubDetailResponse convertToDetailResponse(ClubEntity entity) {
+		// 1. 빌더로 기본 정보 채우기
+		ClubDetailResponse response = ClubDetailResponse.builder()
 				.clubId(entity.getClubId())
 				.name(entity.getName())
 				.description(entity.getDescription())
 				.maxMember(entity.getMaxMember())
-				.topicId(entity.getTopicId())
+				// ✅ 아까 만든 영재 상 DTO의 fromEntity 활용!
+				.topic(TopicDetailResponse.fromEntity(entity.getTopic()))
 				.cityId(entity.getCityId())
 				.imageUrl(entity.getImageUrl())
 				.status(entity.getStatus())
 				.joinQuestion(entity.getJoinQuestion())
+				.createdAt(entity.getCreatedAt())
 				.build();
 		
-		// 삭제 대기 상태일 때만 남은 시간 계산
+		// 2. 삭제 대기 남은 시간 계산 (기존 로직 그대로 이식)
 		if ("DELETED_PENDING".equals(entity.getStatus()) && entity.getDeletedAt() != null) {
-			LocalDateTime expiryDate = entity.getDeletedAt().plusDays(7); // 삭제 예정일
+			LocalDateTime expiryDate = entity.getDeletedAt().plusDays(7);
 			Duration duration = Duration.between(LocalDateTime.now(), expiryDate);
 			
-			long days = duration.toDays();
-			long hours = duration.toHoursPart();
-			
 			if (duration.isNegative()) {
-				dto.setRemainingTime("곧 삭제 예정");
+				response.setRemainingTime("삭제 처리 중...");
 			} else {
-				dto.setRemainingTime(days + "일 " + hours + "시간 남음");
+				response.setRemainingTime(duration.toDays() + "일 " + duration.toHoursPart() + "시간 남음");
 			}
 		}
-		return dto;
+		return response;
 	}
 	
 	/** 권한 체크 */

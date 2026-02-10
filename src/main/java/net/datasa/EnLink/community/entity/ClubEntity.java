@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.datasa.EnLink.topic.entity.TopicEntity;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -24,7 +25,10 @@ public class ClubEntity {
 	@Column(name = "club_id")
 	private Integer clubId;
 	
-	private Integer topicId;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "topic_id")
+	private TopicEntity topic;
+	
 	private Integer cityId;
 	
 	@Column(unique = true, nullable = false)
@@ -32,8 +36,8 @@ public class ClubEntity {
 	
 	private String description;
 	
-	@Builder.Default //
-	@Column(nullable = false) //
+	@Builder.Default
+	@Column(nullable = false)
 	private String imageUrl = "/images/default_club.jpg";
 	
 	@Column(nullable = false)
@@ -53,6 +57,12 @@ public class ClubEntity {
 	
 	private LocalDateTime deletedAt;
 	
-	@OneToMany(mappedBy = "club", cascade = CascadeType.ALL)
+	@Builder.Default
+	@OneToMany(mappedBy = "club", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<ClubMemberEntity> members = new ArrayList<>();
+	
+	public void addMember(ClubMemberEntity member) {
+		this.members.add(member);
+		member.setClub(this);
+	}
 }

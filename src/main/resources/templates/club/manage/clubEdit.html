@@ -51,9 +51,9 @@
                     <div class="form-group">
                         <label>관심사 카테고리:</label>
                         <select name="topicId">
-                            <option value="1" th:selected="${clubDTO.topicId == 1}">운동</option>
-                            <option value="2" th:selected="${clubDTO.topicId == 2}">스터디</option>
-                            <option value="3" th:selected="${clubDTO.topicId == 3}">친목</option>
+                            <option value="1" th:selected="${clubDTO.topic != null && clubDTO.topic.topicId == 1}">운동</option>
+                            <option value="2" th:selected="${clubDTO.topic != null && clubDTO.topic.topicId == 2}">스터디</option>
+                            <option value="3" th:selected="${clubDTO.topic != null && clubDTO.topic.topicId == 3}">친목</option>
                         </select>
                     </div>
 

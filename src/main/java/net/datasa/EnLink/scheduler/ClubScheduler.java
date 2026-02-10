@@ -2,6 +2,7 @@ package net.datasa.EnLink.scheduler;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.datasa.EnLink.community.entity.ClubEntity;
 import net.datasa.EnLink.community.repository.ClubRepository;
 import net.datasa.EnLink.community.service.ClubManageService;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ClubScheduler {
@@ -29,16 +30,10 @@ public class ClubScheduler {
 		// 2. 삭제 대기 중(DELETED_PENDING)이면서 7일이 지난 모임 조회
 		List<ClubEntity> targetClubs = clubRepository.findByStatusAndDeletedAtBefore("DELETED_PENDING", oneWeekAgo);
 		
-		if (!targetClubs.isEmpty()) {
-			
-			for (ClubEntity club : targetClubs) {
-				clubManageService.deleteRealFile(club.getImageUrl());
-			}
-			
-			// 4. DB에서 영구 삭제
-			clubRepository.deleteAll(targetClubs);
-			
-			System.out.println(targetClubs.size() + "개의 모임과 관련 이미지 파일이 영구 삭제되었습니다.");
+		for (ClubEntity club : targetClubs) {
+			clubManageService.hardDeleteClub(club.getClubId(), "SYSTEM_ADMIN");
 		}
+		
+		log.info("{}개의 만료된 모임이 시스템에 의해 영구 삭제되었습니다.", targetClubs.size());
 	}
 }

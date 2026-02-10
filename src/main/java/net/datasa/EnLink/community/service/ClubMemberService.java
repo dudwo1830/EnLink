@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.datasa.EnLink.common.error.BusinessException;
 import net.datasa.EnLink.common.error.ErrorCode;
 import net.datasa.EnLink.community.dto.ClubDTO;
-import net.datasa.EnLink.community.dto.ClubMemberHistoryDTO;
+import net.datasa.EnLink.community.dto.response.ClubMemberHistoryResponse;
 import net.datasa.EnLink.community.entity.ClubEntity;
 import net.datasa.EnLink.community.entity.ClubMemberEntity;
 import net.datasa.EnLink.community.entity.ClubMemberHistoryEntity;
@@ -130,26 +130,26 @@ public class ClubMemberService {
 	/**
 	 * 특정 멤버의 중요 이력(탈퇴, 제명)만 필터링하여 조회
 	 */
-	public List<ClubMemberHistoryDTO> getMemberImportantHistory(Integer clubId, String memberId) {
+	public List<ClubMemberHistoryResponse> getMemberImportantHistory(Integer clubId, String memberId) {
 		List<ClubMemberHistoryEntity> historyEntities = clubMemberHistoryRepository
 				.findByClub_ClubIdAndTargetMember_MemberIdOrderByCreatedAtDesc(clubId, memberId);
 		
 		return historyEntities.stream()
 				.filter(h -> java.util.Arrays.asList("EXIT", "BANNED").contains(h.getActionType()))
-				.map(ClubMemberHistoryDTO::fromEntity)
+				.map(ClubMemberHistoryResponse::fromEntity)
 				.toList();
 	}
 	
 	/**
 	 * 특정 멤버의 전체 이력만 필터링하여 조회
 	 */
-	public List<ClubMemberHistoryDTO> getMemberAllHistory(Integer clubId, String memberId) {
+	public List<ClubMemberHistoryResponse> getMemberAllHistory(Integer clubId, String memberId) {
 		// 1. 해당 유저의 모든 이력을 최신순으로 조회
 		List<ClubMemberHistoryEntity> historyEntities = clubMemberHistoryRepository
 				.findByClub_ClubIdAndTargetMember_MemberIdOrderByCreatedAtDesc(clubId, memberId);
 		
 		return historyEntities.stream()
-				.map(ClubMemberHistoryDTO::fromEntity)
+				.map(ClubMemberHistoryResponse::fromEntity)
 				.toList();
 	}
 }

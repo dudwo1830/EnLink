@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.datasa.EnLink.topic.dto.response.TopicDetailResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 @Data
@@ -13,8 +14,11 @@ import org.springframework.web.multipart.MultipartFile;
 public class ClubDTO {
 	private Integer clubId;			// 모임 고유번호
 	private String name;           // 모임명
-	private Integer topicId;       // 관심사 ID
-	private Integer cityId;        // 지역 ID
+	private TopicDetailResponse topic;
+	
+	private Integer cityId;
+	private String cityName; // 시티는 아직 엔티티가 없으니 일단 유지
+	
 	private String description;    // 모임 소개글
 	private Integer maxMember;     // 최대 정원
 	private String joinQuestion;   // 가입 질문

@@ -83,10 +83,10 @@
                 </div>
 
                 <div th:if="${applyStatus == null or applyStatus == 'EXIT' or applyStatus == 'BANNED'}">
-                    <button th:if="${totalActiveCount < 5}"
+                    <button th:if="${canJoin}"
                             type="button" class="btn-apply" onclick="openApplyModal()">가입 신청하기</button>
 
-                    <button th:if="${totalActiveCount >= 5}"
+                    <button th:if="${!canJoin}"
                             type="button" class="btn-disabled" disabled>가입 신청 불가 (최대 5개)</button>
                 </div>
             </div>

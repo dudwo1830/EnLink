@@ -22,6 +22,11 @@
                         <span th:text="${club.remainingTime}" class="time-limit">7일 0시간 남음</span>
                     </p>
                     <div class="action-area">
+                        <button type="button" class="btn-hard-delete"
+                                th:onclick="|hardDeleteClub(${club.clubId})|"
+                                style="background-color: #ff4d4f; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">
+                            즉시 삭제하기
+                        </button>
                         <button type="button" class="btn-restore" th:onclick="|restoreClub(${club.clubId})|">삭제 취소 (지금 복구하기)</button>
                     </div>
                 </div>

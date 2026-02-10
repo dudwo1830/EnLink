@@ -291,3 +291,37 @@ async function restoreClub(clubId) {
             location.reload();
         });
 }
+
+function hardDeleteClub(clubId) {
+    Swal.fire({
+        title: '정말 즉시 삭제하시겠습니까?',
+        text: "이미지와 모든 데이터가 즉시 삭제되며, 복구할 수 없습니다!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: '네, 영구 삭제합니다',
+        cancelButtonText: '취소'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // ✅ 수정된 부분: URL 구조를 컨트롤러 매핑과 일치시킵니다.
+            fetch(`/api/club/${clubId}/manage/hard-delete`, { method: 'DELETE' })
+                .then(res => {
+                    if(res.ok) {
+                        Swal.fire('삭제 완료', '모임이 완전히 사라졌습니다.', 'success')
+                            .then(() => {
+                                // 삭제 후에는 목록 페이지로 이동
+                                location.href = '/club/list';
+                            });
+                    } else {
+                        // 권한이 없거나 서버 에러일 경우
+                        res.text().then(msg => Swal.fire('삭제 실패', msg, 'error'));
+                    }
+                })
+                .catch(err => {
+                    console.error('Fetch error:', err);
+                    Swal.fire('에러', '네트워크 통신 중 오류가 발생했습니다.', 'error');
+                });
+        }
+    });
+}
