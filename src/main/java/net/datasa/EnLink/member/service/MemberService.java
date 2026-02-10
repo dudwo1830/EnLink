@@ -101,10 +101,9 @@ public class MemberService {
 	public MemberDetailResponse read(String memberId) {
 		MemberEntity entity = memberRepository.findById(memberId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
 		String topic = String
 				.join(", ", entity.getMemberTopics().stream().map(memberTopic -> memberTopic.getTopic().getName()).toList());
-		String city = entity.getCity().getRegion().getNameLocal() + " " + entity.getCity().getNameLocal();
+		String city = (entity.getCity() != null) ? entity.getCity().getRegion().getNameLocal() + " " + entity.getCity().getNameLocal() : "";
 		return MemberDetailResponse.builder()
 				.memberId(entity.getMemberId())
 				.name(entity.getName())
