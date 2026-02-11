@@ -12,12 +12,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import net.datasa.EnLink.common.security.MemberDetails;
-import net.datasa.EnLink.community.dto.ClubDTO;
+import net.datasa.EnLink.community.dto.response.ClubDetailResponse;
 import net.datasa.EnLink.community.service.ClubMemberService;
 import net.datasa.EnLink.member.dto.response.MemberDetailResponse;
 import net.datasa.EnLink.member.dto.response.MemberUpdateResponse;
 import net.datasa.EnLink.member.service.MemberService;
-
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
@@ -44,7 +43,7 @@ public class MemberViewController {
 						  Model model, HttpSession session) {
 		String loginId = loginUser.getMemberId();
 		
-		Map<String, List<ClubDTO>> allClubs = clubMemberService.getMyClubs(loginId);
+		Map<String, List<ClubDetailResponse>> allClubs = clubMemberService.getMyClubs(loginId);
 		
 		switch (type) {
 			case "active" -> {

@@ -25,9 +25,10 @@ public enum ErrorCode {
 	// --- 모임 관리 (Clubs) ---
 	CLUB_NOT_FOUND(HttpStatus.NOT_FOUND, "CLUB_001", "해당 모임을 찾을 수 없습니다.", "error.club.not_found"),
 	DUPLICATE_NAME(HttpStatus.BAD_REQUEST, "CLUB_002", "이미 사용 중인 모임 이름입니다.", "error.club.duplicate_name"),
-	OWN_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "CLUB_003", "모임은 인당 최대 5개까지만 개설할 수 있습니다.", "error.club.own_limit"),
+	TOPIC_NOT_FOUND(HttpStatus.BAD_REQUEST, "CLUB_003", "관심사를 찾을수 없습니다.", "error.club.topic.not_found"),
 	RESTORE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "CLUB_004", "개설 가능한 모임 수를 초과하여 복구할 수 없습니다.", "error.club.restore_limit"),
 	NOT_PENDING_STATE(HttpStatus.BAD_REQUEST, "CLUB_005", "삭제 대기 상태인 모임만 복구할 수 있습니다.", "error.club.not_pending"),
+	OWNER_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "CLUB_006", "모임은 5개까지 개설할 수 있습니다.", "error.club.create_limit"),
 	
 	// --- 모임 설정 (Settings) ---
 	INVALID_MAX_MEMBER(HttpStatus.BAD_REQUEST, "CLUB_SET_001", "최대 인원은 10명 단위로만 설정 가능합니다.", "error.club.invalid_max_member"),

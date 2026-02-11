@@ -1,4 +1,4 @@
-package net.datasa.EnLink.community.dto;
+package net.datasa.EnLink.community.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClubMemberHistoryDTO {
+public class ClubMemberHistoryResponse {
 	private Integer historyId;
 	private Integer clubId;
 	
@@ -27,8 +27,8 @@ public class ClubMemberHistoryDTO {
 	private LocalDateTime createdAt;
 	
 	// Entity -> DTO 변환 생성자
-	public static ClubMemberHistoryDTO fromEntity(ClubMemberHistoryEntity entity) {
-		return ClubMemberHistoryDTO.builder()
+	public static ClubMemberHistoryResponse fromEntity(ClubMemberHistoryEntity entity) {
+		return ClubMemberHistoryResponse.builder()
 				.historyId(entity.getHistoryId())
 				.clubId(entity.getClub().getClubId())
 				.targetMemberId(entity.getTargetMember().getMemberId())

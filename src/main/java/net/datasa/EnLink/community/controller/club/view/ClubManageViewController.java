@@ -2,9 +2,9 @@
 	
 	import lombok.RequiredArgsConstructor;
 	import net.datasa.EnLink.common.security.MemberDetails;
-	import net.datasa.EnLink.community.dto.ClubDTO;
-	import net.datasa.EnLink.community.dto.ClubJoinRequestDTO;
-	import net.datasa.EnLink.community.dto.ClubMemberDTO;
+	import net.datasa.EnLink.community.dto.response.ClubDetailResponse;
+	import net.datasa.EnLink.community.dto.response.ClubJoinResponse;
+	import net.datasa.EnLink.community.dto.response.ClubMemberResponse;
 	import net.datasa.EnLink.community.service.ClubManageService;
 	import net.datasa.EnLink.community.service.ClubService;
 	import org.springframework.data.domain.Page;
@@ -35,8 +35,8 @@
 			
 			if (userDetails == null) return "redirect:/auth/login";
 			
-			ClubMemberDTO loginMember = clubManageService.getMemberInfo(clubId, userDetails.getUsername());
-			Page<ClubJoinRequestDTO> requestPage = clubManageService.getPendingRequestsPaging(clubId, page);
+			ClubMemberResponse loginMember = clubManageService.getMemberInfo(clubId, userDetails.getUsername());
+			Page<ClubJoinResponse> requestPage = clubManageService.getPendingRequestsPaging(clubId, page);
 			
 			model.addAttribute("loginMember", loginMember);
 			model.addAttribute("joinRequests", requestPage.getContent());
@@ -48,15 +48,17 @@
 		
 		/** 모임 정보 수정 페이지 이동 */
 		@GetMapping("/edit")
-		public String edit(@PathVariable Integer clubId, Model model,
+		public String edit(@PathVariable("clubId") Integer clubId,
+						   Model model,
 						   @AuthenticationPrincipal MemberDetails userDetails) {
 			if (userDetails == null) return "redirect:/auth/login";
 			
-			ClubMemberDTO loginMember = clubManageService.getMemberInfo(clubId, userDetails.getUsername());
-			ClubDTO clubDTO = clubManageService.getClubForEdit(clubId);
+			ClubMemberResponse loginMember = clubManageService.getMemberInfo(clubId, userDetails.getUsername());
+			
+			ClubDetailResponse clubDetail = clubService.getClubDetail(clubId);
 			
 			model.addAttribute("loginMember", loginMember);
-			model.addAttribute("clubDTO", clubDTO);
+			model.addAttribute("clubDTO", clubDetail);
 			
 			return "club/manage/clubEdit";
 		}
@@ -68,8 +70,9 @@
 								 Model model) {
 			if (userDetails == null) return "redirect:/auth/login";
 			
-			ClubMemberDTO loginMember = clubManageService.getMemberInfo(clubId, userDetails.getUsername());
-			ClubDTO club = clubService.getClubDetail(clubId);
+			ClubMemberResponse loginMember = clubManageService.getMemberInfo(clubId, userDetails.getUsername());
+			
+			ClubDetailResponse club = clubService.getClubDetail(clubId);
 			
 			model.addAttribute("loginMember", loginMember);
 			model.addAttribute("club", club);
@@ -84,7 +87,7 @@
 									Model model) {
 			if (userDetails == null) return "redirect:/auth/login";
 			
-			ClubMemberDTO loginMember = clubManageService.getMemberInfo(clubId, userDetails.getUsername());
+			ClubMemberResponse loginMember = clubManageService.getMemberInfo(clubId, userDetails.getUsername());
 			
 			model.addAttribute("members", clubManageService.getActiveMembers(clubId));
 			model.addAttribute("loginMember", loginMember);

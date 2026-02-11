@@ -13,7 +13,8 @@
         <div class="create-content-container">
             <h1>새로운 모임 만들기</h1>
 
-            <form id="createClubForm" th:object="${clubDTO}" enctype="multipart/form-data" class="create-form">
+
+            <form id="createClubForm" th:object="${clubCreateRequest}" enctype="multipart/form-data" class="create-form" method="post" th:action="@{/club/create}">
 
                 <div class="form-group">
                     <label>모임 이름:</label>
@@ -65,7 +66,8 @@
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn-submit">모임 개설하기</button>
+                    <!-- JS 이벤트 사용 중이면 type="button" 그대로 가능 -->
+                    <button type="button" id="submitBtn" class="btn-submit">모임 개설하기</button>
                     <a th:href="@{/}" class="btn-cancel">취소</a>
                 </div>
             </form>
@@ -76,7 +78,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script th:src="@{/js/club/createClub.js}"></script>
 </body>
 </html>

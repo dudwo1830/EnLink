@@ -9,8 +9,10 @@
   left: 0;
   right: 0;
 
-  border: 1px solid #ccc;
+  z-index: 1000;
   background: white;
+  border: 1px solid #ccc;
+
   max-height: 150px;
   overflow-y: auto;
 
@@ -20,11 +22,11 @@
   margin: 0;
 }
 
-.options li {
+.select-options li {
   padding: 8px;
   cursor: pointer;
 }
 
-.options li:hover {
+.select-options li:hover {
   background: #eee;
 }

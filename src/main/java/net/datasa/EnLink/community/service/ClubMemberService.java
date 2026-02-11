@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.datasa.EnLink.common.error.BusinessException;
 import net.datasa.EnLink.common.error.ErrorCode;
-import net.datasa.EnLink.community.dto.ClubDTO;
-import net.datasa.EnLink.community.dto.ClubMemberHistoryDTO;
+import net.datasa.EnLink.community.dto.response.ClubDetailResponse;
+import net.datasa.EnLink.community.dto.response.ClubMemberHistoryResponse;
 import net.datasa.EnLink.community.entity.ClubEntity;
 import net.datasa.EnLink.community.entity.ClubMemberEntity;
 import net.datasa.EnLink.community.entity.ClubMemberHistoryEntity;
@@ -34,55 +34,61 @@ public class ClubMemberService {
 	private final ClubMemberHistoryRepository clubMemberHistoryRepository;
 	private final ClubMemberHistoryService clubMemberHistoryService;
 	
-	/**
-	 * 내 모임 목록 조회
-	 */
 	@Transactional(readOnly = true)
-	public Map<String, List<ClubDTO>> getMyClubs(String memberId) {
+	public Map<String, List<ClubDetailResponse>> getMyClubs(String memberId) {
 		
 		if (!memberRepository.existsById(memberId)) {
 			throw new BusinessException(ErrorCode.USER_NOT_FOUND);
 		}
 		
-		Map<String, List<ClubDTO>> myClubsMap = new HashMap<>();
+		Map<String, List<ClubDetailResponse>> myClubsMap = new HashMap<>();
 		
-		List<ClubMemberEntity> activeEntities = clubMemberRepository.findByMember_MemberIdAndStatus(memberId, "ACTIVE");
+		// ✅ 1. 내가 현재 'ACTIVE' 멤버로 속해 있는 모든 모임 멤버십을 가져옵니다.
+		// (모임의 상태가 ACTIVE든 DELETED_PENDING이든 나는 일단 ACTIVE 멤버니까요)
+		List<ClubMemberEntity> allMyActiveMemberships = clubMemberRepository.findByMember_MemberIdAndStatus(memberId, "ACTIVE");
 		
-		// 1. 내가 만든 모임
-		myClubsMap.put("ownedClubs", activeEntities.stream()
+		// 1. 내가 만든 모임 (OWNER)
+		// 💡 팁: 리스트를 한 번만 가져와서 스트림으로 거르는 게 DB 부하가 적습니다.
+		myClubsMap.put("ownedClubs", allMyActiveMemberships.stream()
 				.filter(e -> "OWNER".equals(e.getRole()))
-				.map(this::convertToDTO).toList());
+				.map(this::convertToDetailResponse) // ✅ MemberEntity를 받는 오버로딩 메서드 사용
+				.toList());
 		
-		// 2. 참여 중인 모임
-		myClubsMap.put("activeClubs", activeEntities.stream()
-				.filter(e -> !"OWNER".equals(e.getRole()))
-				.map(this::convertToDTO).toList());
+		// 2. 참여 중인 모임 (MANAGER, MEMBER)
+		myClubsMap.put("activeClubs", allMyActiveMemberships.stream()
+				.filter(e -> List.of("MANAGER", "MEMBER").contains(e.getRole()))
+				.map(this::convertToDetailResponse)
+				.toList());
 		
-		// 3. 신청 중인 모임
+		// 3. 신청 중인 모임 (PENDING)
+		// 💡 신청 중인 모임은 별도의 조회가 필요합니다 (내 상태가 PENDING이니까요)
 		List<ClubMemberEntity> pendingEntities = clubMemberRepository.findByMember_MemberIdAndStatus(memberId, "PENDING");
 		myClubsMap.put("pendingClubs", pendingEntities.stream()
-				.map(this::convertToDTO).toList());
+				.map(this::convertToDetailResponse)
+				.toList());
 		
 		return myClubsMap;
 	}
 	
 	/**
-	 * 가입 신청 현황 페이징 조회
+	 * 가입 신청 현황 페이징 조회 (수정안)
 	 */
-	public Page<ClubDTO> getPendingClubs(String loginId, int page) {
+	public Page<ClubDetailResponse> getPendingClubs(String loginId, int page) {
 		
-		Pageable pageable = PageRequest.of(page, 10, Sort.by("joinDate").descending());
+		// Sort 기준 필드명이 Entity의 필드명과 일치하는지 확인 (예: appliedAt 또는 createdAt)
+		Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
 		
 		Page<ClubMemberEntity> pendingEntities = clubMemberRepository
 				.findByMember_MemberIdAndStatus(loginId, "PENDING", pageable);
 		
-		return pendingEntities.map(this::convertToDTO);
+		// ✅ 엔티티를 상세 Response DTO로 변환하여 리턴
+		return pendingEntities.map(this::convertToDetailResponse);
 	}
 	
 	
 	/** * entity -> DTO 변환 (인원수 로직 보완)
 	 */
-	private ClubDTO convertToDTO(ClubMemberEntity entity) {
+	private ClubDetailResponse convertToDetailResponse(ClubMemberEntity entity) {
 		
 		ClubEntity club = entity.getClub();
 		
@@ -91,7 +97,7 @@ public class ClubMemberService {
 				.count();
 		
 		// 2. DTO에 필요한 정보만 쏙쏙 뽑아서 빌더 또는 생성자로 세팅
-		return ClubDTO.builder()
+		return ClubDetailResponse.builder()
 				.clubId(club.getClubId())
 				.name(club.getName())
 				.description(club.getDescription())
@@ -130,26 +136,26 @@ public class ClubMemberService {
 	/**
 	 * 특정 멤버의 중요 이력(탈퇴, 제명)만 필터링하여 조회
 	 */
-	public List<ClubMemberHistoryDTO> getMemberImportantHistory(Integer clubId, String memberId) {
+	public List<ClubMemberHistoryResponse> getMemberImportantHistory(Integer clubId, String memberId) {
 		List<ClubMemberHistoryEntity> historyEntities = clubMemberHistoryRepository
 				.findByClub_ClubIdAndTargetMember_MemberIdOrderByCreatedAtDesc(clubId, memberId);
 		
 		return historyEntities.stream()
 				.filter(h -> java.util.Arrays.asList("EXIT", "BANNED").contains(h.getActionType()))
-				.map(ClubMemberHistoryDTO::fromEntity)
+				.map(ClubMemberHistoryResponse::fromEntity)
 				.toList();
 	}
 	
 	/**
 	 * 특정 멤버의 전체 이력만 필터링하여 조회
 	 */
-	public List<ClubMemberHistoryDTO> getMemberAllHistory(Integer clubId, String memberId) {
+	public List<ClubMemberHistoryResponse> getMemberAllHistory(Integer clubId, String memberId) {
 		// 1. 해당 유저의 모든 이력을 최신순으로 조회
 		List<ClubMemberHistoryEntity> historyEntities = clubMemberHistoryRepository
 				.findByClub_ClubIdAndTargetMember_MemberIdOrderByCreatedAtDesc(clubId, memberId);
 		
 		return historyEntities.stream()
-				.map(ClubMemberHistoryDTO::fromEntity)
+				.map(ClubMemberHistoryResponse::fromEntity)
 				.toList();
 	}
 }

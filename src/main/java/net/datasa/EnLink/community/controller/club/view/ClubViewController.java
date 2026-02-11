@@ -5,16 +5,19 @@ import lombok.extern.slf4j.Slf4j;
 import net.datasa.EnLink.common.error.BusinessException;
 import net.datasa.EnLink.common.error.ErrorCode;
 import net.datasa.EnLink.common.security.MemberDetails;
-import net.datasa.EnLink.community.dto.ClubDTO;
+import net.datasa.EnLink.community.dto.request.ClubCreateRequest;
 import net.datasa.EnLink.community.repository.ClubMemberRepository;
 import net.datasa.EnLink.community.service.ClubManageService;
 import net.datasa.EnLink.community.service.ClubService;
+import net.datasa.EnLink.topic.service.TopicService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -25,6 +28,7 @@ public class ClubViewController {
 	private final ClubService clubService;
 	private final ClubManageService clubManageService;
 	private final ClubMemberRepository clubMemberRepository;
+	private final TopicService topicService;
 	
 	/** 모임 생성 폼 이동 */
 	@GetMapping("/create")
@@ -32,22 +36,28 @@ public class ClubViewController {
 		if (loginUser == null) return "redirect:/auth/login";
 		
 		
-		long totalActiveCount = clubMemberRepository.countByMember_MemberIdAndStatus(loginUser.getMemberId(), "ACTIVE");
-		if (totalActiveCount >= 5) {
-			log.info("가입 제한 초과 확인됨! 에러 발생시킵니다.");
-			throw new BusinessException(ErrorCode.JOIN_LIMIT_EXCEEDED);
+		long ownerCount = clubMemberRepository.countOwnerQuota(loginUser.getUsername());
+		
+		if (ownerCount >= 5) {
+			throw new BusinessException(ErrorCode.OWNER_LIMIT_EXCEEDED);
 		}
 		
-		model.addAttribute("clubDTO", new ClubDTO());
+		model.addAttribute("topics", topicService.getListAll());
+		
+		ClubCreateRequest clubCreateRequest = new ClubCreateRequest();
+		
+		model.addAttribute("clubCreateRequest", clubCreateRequest);
+		
 		return "club/createClubForm";
 	}
 	
 	/** 모임 목록 조회 */
 	@GetMapping("/list")
 	public String list(Model model, @AuthenticationPrincipal MemberDetails loginUser) {
-		String loginId = (loginUser != null) ? loginUser.getUsername() : null;
+		String loginMemberId = (loginUser != null) ? loginUser.getUsername() : null;
+		
 		model.addAttribute("clubs", clubService.getClubList());
-		model.addAttribute("loginId", loginId);
+		model.addAttribute("loginMemberId", loginMemberId);
 		return "club/clubList";
 	}
 	
@@ -61,8 +71,13 @@ public class ClubViewController {
 		model.addAttribute("loginMember", clubManageService.getMemberInfo(id, loginId));
 		model.addAttribute("applyStatus", clubManageService.getApplyStatus(id, loginId));
 		
-		long totalActiveCount = (loginId != null) ? clubMemberRepository.countByMember_MemberIdAndStatus(loginId, "ACTIVE") : 0;
-		model.addAttribute("totalActiveCount", totalActiveCount);
+		long myJoinCount = 0;
+		if (loginId != null) {
+			myJoinCount = clubMemberRepository.countByMember_MemberIdAndRoleInAndStatus(
+					loginId, List.of("MEMBER", "MANAGER"), "ACTIVE");
+		}
+		
+		model.addAttribute("canJoin", myJoinCount < 5);
 		
 		return "club/clubDetail";
 	}

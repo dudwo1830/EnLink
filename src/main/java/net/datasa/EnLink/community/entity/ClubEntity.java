@@ -40,8 +40,8 @@ public class ClubEntity {
 
 	private String description;
 	
-	@Builder.Default //
-	@Column(nullable = false) //
+	@Builder.Default
+	@Column(nullable = false)
 	private String imageUrl = "/images/default_club.jpg";
 	
 	@Column(nullable = false)
@@ -60,7 +60,13 @@ public class ClubEntity {
 	private LocalDateTime updatedAt;
 
 	private LocalDateTime deletedAt;
-
-	@OneToMany(mappedBy = "club", cascade = CascadeType.ALL)
+	
+	@Builder.Default
+	@OneToMany(mappedBy = "club", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<ClubMemberEntity> members = new ArrayList<>();
+	
+	public void addMember(ClubMemberEntity member) {
+		this.members.add(member);
+		member.setClub(this);
+	}
 }

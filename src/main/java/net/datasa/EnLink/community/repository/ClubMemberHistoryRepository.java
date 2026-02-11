@@ -16,4 +16,6 @@ public interface ClubMemberHistoryRepository extends JpaRepository<ClubMemberHis
 	
 	// 특정 유저의 모든 활동 이력을 최신순으로 리스트업 ✅
 	List<ClubMemberHistoryEntity> findByClub_ClubIdAndTargetMember_MemberIdOrderByCreatedAtDesc(Integer clubId, String memberId);
+	
+	void deleteByClub_ClubId(Integer clubId);
 }

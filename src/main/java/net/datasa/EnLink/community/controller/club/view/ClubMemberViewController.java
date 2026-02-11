@@ -2,15 +2,13 @@ package net.datasa.EnLink.community.controller.club.view;
 
 import lombok.RequiredArgsConstructor;
 import net.datasa.EnLink.common.security.MemberDetails;
-import net.datasa.EnLink.community.service.ClubMemberHistoryService;
-import net.datasa.EnLink.community.service.ClubMemberService;
+import net.datasa.EnLink.community.dto.request.ClubJoinRequest;
 import net.datasa.EnLink.community.service.ClubService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -19,13 +17,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class ClubMemberViewController {
 	
 	private final ClubService clubService;
-	private final ClubMemberService clubMemberService;
-	private final ClubMemberHistoryService clubMemberHistoryService;
+	
 	
 	/** 클럽 가입 신청 */
 	@PostMapping("/apply")
 	public String apply(@PathVariable("clubId") Integer clubId,
-						@RequestParam("answer") String answer,
+						ClubJoinRequest joinRequest,
 						@AuthenticationPrincipal MemberDetails userDetails,
 						RedirectAttributes rttr) {
 		
@@ -33,7 +30,7 @@ public class ClubMemberViewController {
 		
 		
 		String loginId = userDetails.getUsername();
-		clubService.applyToClub(clubId, loginId, answer);
+		clubService.applyToClub(clubId, loginId, joinRequest.getAnswerText());
 		
 		rttr.addFlashAttribute("message", "가입 신청이 완료되었습니다.");
 		return "redirect:/club/" + clubId;

@@ -1,63 +1,47 @@
 document.addEventListener('DOMContentLoaded', function() {
+    const submitBtn = document.getElementById('submitBtn');
     const createForm = document.getElementById('createClubForm');
 
-    if (createForm) {
-        createForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+    if (submitBtn) {
+        submitBtn.addEventListener('click', function() {
+            // 1. 중복 클릭 방지 (즉시 잠금)
+            if (this.disabled) return;
+            this.disabled = true;
 
-            const submitBtn = this.querySelector('.btn-submit');
-            submitBtn.disabled = true;
+            // 2. 유효성 검사
+            if (!createForm.checkValidity()) {
+                createForm.reportValidity();
+                this.disabled = false;
+                return;
+            }
 
-            const formData = new FormData(this);
+            const formData = new FormData(createForm);
 
+            // 3. AJAX 요청
             fetch('/api/club/create', {
                 method: 'POST',
                 body: formData
             })
             .then(async response => {
-                // 💡 [수정] 응답 결과(ID 혹은 에러메시지)를 딱 한 번만 변수에 담습니다.
-                const resultData = await response.text();
-
+                const resultData = await response.json();
                 if (response.ok) {
-                    // ✅ 이미 위에서 읽은 resultData가 바로 newClubId입니다.
-                    const newClubId = resultData;
-
                     Swal.fire({
                         title: '개설 완료!',
-                        text: '새로운 모임이 성공적으로 만들어졌습니다.',
+                        text: resultData.message,
                         icon: 'success',
-                        confirmButtonText: '확인',
-                        buttonsStyling: false,
-                        customClass: { confirmButton: 'btn-primary-custom' }
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            location.href = `/club/detail/${newClubId}`; // 💡 경로 확인 필요
-                        }
+                        confirmButtonText: '확인'
+                    }).then(() => {
+                        location.href = "/club/list";
                     });
-                    return;
+                } else {
+                    Swal.fire('개설 실패', resultData.message || '알 수 없는 오류', 'warning');
+                    this.disabled = false;
                 }
-
-                // ❌ 실패 케이스
-                let errorMsg = resultData;
-                try {
-                    const errorJson = JSON.parse(resultData);
-                    errorMsg = errorJson.defaultMessage || errorJson.message || resultData;
-                } catch(e) { }
-
-                Swal.fire({
-                    title: '개설 실패',
-                    text: errorMsg,
-                    icon: 'warning',
-                    confirmButtonText: '확인',
-                    buttonsStyling: false,
-                    customClass: { confirmButton: 'btn-primary-custom' }
-                });
-                submitBtn.disabled = false;
             })
             .catch(error => {
-                console.error('Fetch Error:', error);
-                Swal.fire('오류', '서버 통신 중 오류가 발생했습니다.', 'error');
-                submitBtn.disabled = false;
+                console.error('Error:', error);
+                Swal.fire('오류 발생', '서버와의 통신 중 문제가 발생했습니다.', 'error');
+                this.disabled = false;
             });
         });
     }
