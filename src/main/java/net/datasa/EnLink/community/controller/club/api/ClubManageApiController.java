@@ -58,6 +58,10 @@ public class ClubManageApiController {
 		}
 		
 	}
+	
+	/**
+	 * 모임 즉시 복구
+	 */
 	@PostMapping("/restore")
 	public ResponseEntity<String> restore(@PathVariable Integer clubId,
 										 @AuthenticationPrincipal MemberDetails userDetails) {
@@ -104,7 +108,7 @@ public class ClubManageApiController {
 	 * 멤버 제명
 	 */
 	@PostMapping("/members/kick")
-	public ResponseEntity<?> kickMember(@PathVariable Integer clubId,
+	public ResponseEntity<String> kickMember(@PathVariable Integer clubId,
 										@RequestParam String memberId,
 										@RequestParam String description,
 										@AuthenticationPrincipal MemberDetails userDetails) {

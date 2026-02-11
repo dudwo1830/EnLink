@@ -13,10 +13,6 @@ import net.datasa.EnLink.community.entity.ClubMemberHistoryEntity;
 import net.datasa.EnLink.community.repository.ClubMemberHistoryRepository;
 import net.datasa.EnLink.community.repository.ClubMemberRepository;
 import net.datasa.EnLink.member.repository.MemberRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,21 +66,6 @@ public class ClubMemberService {
 		return myClubsMap;
 	}
 	
-	/**
-	 * 가입 신청 현황 페이징 조회 (수정안)
-	 */
-	public Page<ClubDetailResponse> getPendingClubs(String loginId, int page) {
-		
-		// Sort 기준 필드명이 Entity의 필드명과 일치하는지 확인 (예: appliedAt 또는 createdAt)
-		Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
-		
-		Page<ClubMemberEntity> pendingEntities = clubMemberRepository
-				.findByMember_MemberIdAndStatus(loginId, "PENDING", pageable);
-		
-		// ✅ 엔티티를 상세 Response DTO로 변환하여 리턴
-		return pendingEntities.map(this::convertToDetailResponse);
-	}
-	
 	
 	/** * entity -> DTO 변환 (인원수 로직 보완)
 	 */
@@ -131,8 +112,6 @@ public class ClubMemberService {
 		log.info("[모임 탈퇴 성공] 모임: {}, 유저: {}, 권한 초기화 완료", clubId, memberId);
 	}
 	
-	
-	
 	/**
 	 * 특정 멤버의 중요 이력(탈퇴, 제명)만 필터링하여 조회
 	 */
@@ -142,19 +121,6 @@ public class ClubMemberService {
 		
 		return historyEntities.stream()
 				.filter(h -> java.util.Arrays.asList("EXIT", "BANNED").contains(h.getActionType()))
-				.map(ClubMemberHistoryResponse::fromEntity)
-				.toList();
-	}
-	
-	/**
-	 * 특정 멤버의 전체 이력만 필터링하여 조회
-	 */
-	public List<ClubMemberHistoryResponse> getMemberAllHistory(Integer clubId, String memberId) {
-		// 1. 해당 유저의 모든 이력을 최신순으로 조회
-		List<ClubMemberHistoryEntity> historyEntities = clubMemberHistoryRepository
-				.findByClub_ClubIdAndTargetMember_MemberIdOrderByCreatedAtDesc(clubId, memberId);
-		
-		return historyEntities.stream()
 				.map(ClubMemberHistoryResponse::fromEntity)
 				.toList();
 	}

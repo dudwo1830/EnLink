@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.List;
-
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/club")
@@ -63,7 +61,10 @@ public class ClubViewController {
 	
 	/** 클럽 상세조회 */
 	@GetMapping("/{id}")
-	public String detail(@PathVariable("id") Integer id, @AuthenticationPrincipal MemberDetails loginUser, Model model) {
+	public String detail(@PathVariable("id") Integer id,
+						 @AuthenticationPrincipal MemberDetails loginUser,
+						 Model model) {
+		
 		String loginId = (loginUser != null) ? loginUser.getMemberId() : null;
 		
 		model.addAttribute("club", clubService.getClubDetail(id));
@@ -71,13 +72,12 @@ public class ClubViewController {
 		model.addAttribute("loginMember", clubManageService.getMemberInfo(id, loginId));
 		model.addAttribute("applyStatus", clubManageService.getApplyStatus(id, loginId));
 		
-		long myJoinCount = 0;
+		long myParticipantCount = 0;
 		if (loginId != null) {
-			myJoinCount = clubMemberRepository.countByMember_MemberIdAndRoleInAndStatus(
-					loginId, List.of("MEMBER", "MANAGER"), "ACTIVE");
+			myParticipantCount = clubMemberRepository.countParticipantQuota(loginId);
 		}
 		
-		model.addAttribute("canJoin", myJoinCount < 5);
+		model.addAttribute("canJoin", myParticipantCount < 5);
 		
 		return "club/clubDetail";
 	}
