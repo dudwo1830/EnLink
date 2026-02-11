@@ -1,0 +1,367 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>채팅방</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+      #chat-container {
+        width: 500px;
+        margin: 0 auto;
+        border: 1px solid #ccc;
+      }
+      #message-area {
+        height: 400px;
+        overflow-y: auto;
+        border-bottom: 1px solid #ccc;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+      }
+      .message {
+        margin-bottom: 10px;
+        padding: 8px;
+        border-radius: 5px;
+        max-width: 70%;
+      }
+      .my-message {
+        align-self: flex-end;
+        background-color: #dcf8c6;
+      }
+      .other-message {
+        align-self: flex-start;
+        background-color: #f1f0f0;
+      }
+      .sender-name {
+        font-size: 0.8em;
+        color: #555;
+        display: block;
+      }
+      #input-area {
+        padding: 10px;
+        display: flex;
+      }
+      #message-input {
+        flex-grow: 1;
+      }
+
+      /* 채팅 내역 이미지에 마우스 포인터 표시 */
+      .message img {
+        cursor: pointer;
+      }
+
+      /* 이미지 상세보기(LightBox) 스타일 */
+      #image-viewer {
+        display: none; /* 평소에는 숨김 */
+        position: fixed;
+        z-index: 1000;
+        padding-top: 100px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.9); /* 검은색 반투명 배경 */
+      }
+      #full-image {
+        margin: auto;
+        display: block;
+        max-width: 80%;
+        max-height: 80%; /* 화면 크기의 80% 제한 */
+      }
+      /* 닫기 버튼 스타일 */
+      #image-viewer span {
+        position: absolute;
+        top: 15px;
+        right: 35px;
+        color: #f1f1f1;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      /* 날짜 구분선 스타일 */
+      .date-divider {
+        text-align: center;
+        background-color: #bbbbbb;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 15px;
+        margin: 15px auto;
+        font-size: 0.85em;
+        width: fit-content;
+        clear: both;
+      } /* 다른 요소와 겹치지 않게 */
+    </style>
+  </head>
+  <body>
+    <div id="chat-container">
+      <h3 th:text="'모임 채팅 - ' + ${clubId}">채팅방</h3>
+
+      <div id="message-area"></div>
+
+      <div id="image-viewer">
+        <span onclick="closeImage()">&times;</span>
+        <img id="full-image" />
+      </div>
+
+      <div id="input-area">
+        <input
+          type="file"
+          id="file-input"
+          accept="image/*"
+          style="display: none"
+        />
+        <button id="file-btn">📎</button>
+        <input
+          type="text"
+          id="message-input"
+          placeholder="메시지를 입력하세요..."
+        />
+        <button id="send-btn">전송</button>
+      </div>
+    </div>
+
+    <script th:inline="javascript">
+      // 컨트롤러에서 넘겨준 변수들을 JS에서 사용
+      const clubId = /*[[${clubId}]]*/ 1; // 1은 JS가 이해할 수 있는 기본값
+      const userId = /*[[${userId}]]*/ 'default';
+
+      let stompClient = null;
+      let page = 0; // 무한 스크롤용 페이지 번호
+      let isLastPage = false; // 마지막 페이지 여부
+      let lastRenderedDate = null; // 날짜 구분선 관리를 위한 변수
+
+      $(document).ready(function () {
+        // 1. 페이지 로드 시 실행
+        connect(); // 웹소켓 연결
+        loadChatHistory(); // 과거 내역 첫 페이지 로드
+
+        // 전송 버튼 클릭 이벤트
+        $('#send-btn').click(sendMessage);
+
+        // 엔터키 이벤트
+        $('#message-input').keypress(function (e) {
+          if (e.which == 13) sendMessage();
+        });
+
+        // 무한 스크롤 (스크롤이 천장에 닿으면 이전 메시지 로드)
+        $('#message-area').scroll(function () {
+          if ($('#message-area').scrollTop() == 0 && !isLastPage) {
+            loadChatHistory();
+          }
+        });
+
+        // --- 파일 첨부 관련 이벤트 ---
+
+        // 1. 파일 버튼 클릭 시 파일 input 클릭 유도
+        $('#file-btn').click(() => $('#file-input').click());
+
+        // 2. 파일 선택 시 즉시 서버로 업로드 (AJAX)
+        $('#file-input').change(function () {
+          const file = this.files[0];
+          if (!file) return;
+
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('clubId', clubId); // 어떤 채팅방인지 정보
+
+          $.ajax({
+            url: '/api/chat/upload', // 파일 업로드 API
+            type: 'POST',
+            data: formData,
+            processData: false, // 필수
+            contentType: false, // 필수
+            success: function (fileUrl) {
+              // 업로드 성공 시, 받은 파일 URL을 채팅 메시지로 전송
+              const chatDTO = {
+                clubId: clubId,
+                senderId: userId,
+                content: fileUrl, // 내용 대신 파일 URL 전송
+                type: 'IMAGE', // 메시지 타입 추가
+              };
+              console.log('전송할 DTO:', chatDTO);
+              stompClient.send(
+                '/pub/chat/message',
+                {},
+                JSON.stringify(chatDTO),
+              );
+              $('#file-input').val(''); // 파일 input 초기화
+            },
+            error: function () {
+              alert('파일 업로드 실패');
+            },
+          });
+        });
+      });
+
+      // [연결] 웹소켓 연결 및 구독
+      function connect() {
+        const socket = new SockJS('/ws-chat'); // WebSocketConfig에서 설정한 엔드포인트
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect(
+          {},
+          function (frame) {
+            console.log('Connected: ' + frame);
+
+            // 특정 모임의 채팅방 구독
+            stompClient.subscribe(
+              '/sub/chat/room/' + clubId,
+              function (response) {
+                const message = JSON.parse(response.body);
+                displayMessage(message, false); // 수신된 메시지 화면에 표시
+              },
+            );
+          },
+          function (error) {
+            alert('연결에 실패했습니다. 새로고침 후 다시 시도해주세요.');
+          },
+        );
+      }
+
+      // [발행] 메시지 전송
+      function sendMessage() {
+        const content = $('#message-input').val();
+        if (!content || !stompClient) return;
+
+        const chatDTO = {
+          clubId: clubId,
+          senderId: userId, // 이 값은 서버 컨트롤러에서 Principal로 검증/교체됩니다.
+          content: content,
+        };
+
+        // WebSocketConfig에서 설정한 Prefix(/pub) + ChatController의 Mapping(/chat/message)
+        stompClient.send('/pub/chat/message', {}, JSON.stringify(chatDTO));
+        $('#message-input').val(''); // 입력창 초기화
+      }
+
+      // [조회] 과거 내역 불러오기 (API 호출) - [중요] 수정된 부분
+      function loadChatHistory() {
+        if (isLastPage) return;
+
+        $.ajax({
+          url: `/api/chat/history/${clubId}?page=${page}&size=20`,
+          method: 'GET',
+          success: function (data) {
+            const messages = data.content; // Desc (최신순)
+            isLastPage = data.last;
+
+            if (messages.length > 0) {
+              // 1. [중요] 데이터를 거꾸로(Asc) 뒤집습니다.
+              messages.reverse();
+
+              // 2. [핵심] 렌더링 함수를 하나씩 부르지 않고,
+              // 데이터를 묶어서 전체 HTML을 만들어서
+              // 한 번에 prepend 하겠습니다.
+              let historyHtml = '';
+              messages.forEach((msg) => {
+                historyHtml += getMessageHtml(msg);
+              });
+
+              const $area = $('#message-area');
+              const currentScrollHeight = $area[0].scrollHeight;
+
+              // 한 번에 삽입
+              $area.prepend(historyHtml);
+
+              // 스크롤 위치 유지
+              $area.scrollTop($area[0].scrollHeight - currentScrollHeight);
+
+              page++;
+            }
+          },
+        });
+      }
+
+      // [추가] 이미지 보기 함수
+      function openImage(imgSrc) {
+        $('#image-viewer').show();
+        $('#full-image').attr('src', imgSrc);
+      }
+
+      // [추가] 이미지 닫기 함수
+      function closeImage() {
+        $('#image-viewer').hide();
+      }
+
+      // [핵심] 메시지 HTML만 반환하는 함수 (구분선 + AM/PM 포함)
+      function getMessageHtml(message) {
+        if (!message.sentAt) return '';
+
+        const sentAtParts = message.sentAt.split(' ');
+        if (sentAtParts.length < 2) return '';
+        const messageDate = sentAtParts[0];
+        const rawTime = sentAtParts[1]; // HH:mm:ss 형태
+
+        // 1. --- [시간 포맷 로직 (AM/PM)] ---
+        const timeParts = rawTime.split(':');
+        let hours = parseInt(timeParts[0]);
+        const minutes = timeParts[1];
+
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // 0시는 12시로 표시
+
+        // 최종 시간 형식: "PM 3:05"
+        const formattedTime = `${ampm} ${hours}:${minutes}`;
+
+        // 2. 메시지 HTML 생성
+        const isMine = message.senderId === userId;
+        const messageClass = isMine ? 'my-message' : 'other-message';
+
+        // --- [이미지 타입 체크 로직 추가] ---
+        let contentHtml = '';
+        // message 객체에 type 필드가 있다고 가정합니다.
+        if (
+          message.type === 'IMAGE' ||
+          message.content.startsWith('/chatImg/')
+        ) {
+          contentHtml = `<img src="${message.content}" onclick="openImage('${message.content}')" style="max-width: 200px; border-radius: 10px;" />`;
+        } else {
+          contentHtml = `<div class="content">${message.content}</div>`;
+        }
+
+        const messageHtml = `
+        <div class="message ${messageClass}">
+            <span class="sender-name">${message.senderName}</span>
+            ${contentHtml} <span style="font-size: 0.7em; color: #999;">${formattedTime}</span>
+        </div>
+    `;
+
+        // 3. --- [날짜 구분선 로직 (이전 데이터와 비교)] ---
+        let totalHtml = messageHtml;
+
+        // 이전 렌더링된 날짜와 비교
+        if (messageDate !== lastRenderedDate) {
+          const dateObj = new Date(messageDate);
+          const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][
+            dateObj.getDay()
+          ];
+          const formattedDate = `${dateObj.getFullYear()}년 ${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일 ${dayOfWeek}요일`;
+          const dividerHtml = `<div class="date-divider">${formattedDate}</div>`;
+
+          totalHtml = dividerHtml + messageHtml;
+          lastRenderedDate = messageDate; // 날짜 업데이트
+        }
+
+        return totalHtml;
+      }
+
+      // [화면 표시] 실시간 메시지 렌더링
+      function displayMessage(message, isHistory) {
+        // 실시간 메시지만 처리하도록 수정 (isHistory가 false일 때만)
+        if (isHistory) return;
+
+        const html = getMessageHtml(message);
+
+        // 실시간 메시지는 아래로 쌓음
+        $('#message-area').append(html);
+        $('#message-area').scrollTop($('#message-area')[0].scrollHeight);
+      }
+    </script>
+  </body>
+</html>

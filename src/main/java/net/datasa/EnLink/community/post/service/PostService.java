@@ -6,12 +6,14 @@ import lombok.RequiredArgsConstructor;
 import net.datasa.EnLink.community.entity.ClubEntity;
 import net.datasa.EnLink.community.entity.ClubMemberEntity;
 import net.datasa.EnLink.community.post.dto.PostDTO;
+import net.datasa.EnLink.community.post.dto.PostDetailResponseDTO;
 import net.datasa.EnLink.community.post.entity.PostEntity;
 import net.datasa.EnLink.community.post.repository.PostRepository;
 import net.datasa.EnLink.community.repository.ClubMemberRepository;
 import net.datasa.EnLink.community.repository.ClubRepository;
 import net.datasa.EnLink.member.entity.MemberEntity;
 import net.datasa.EnLink.member.repository.MemberRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Service
@@ -33,39 +36,43 @@ public class PostService {
 	private final MemberRepository memberRepository;
 	private final ClubMemberRepository clubMemberRepository;
 	
-	// 이미지가 실제로 저장될 내 컴퓨터 폴더 경로 (미리 폴더 만들 것!!)
-	private final String uploadPath = "C:/enlink_storage/";
+	// application.properties에서 경로를 가져옴
+	@Value("${file.upload.path}")
+	private String rootPath;
+	
+	// 게시판 전용 하위 폴더명
+	private final String POST_SUB_DIR = "post/";
+	
+	// 실제 저장할 전체 경로 조합 (root + sub)
+	private String getFullUploadPath() {
+		return rootPath + POST_SUB_DIR;
+	}
 	
 	// 1. 게시글 저장하기 (PostDTO를 받도록 수정)
 	@Transactional
 	public void savePost(PostDTO postDTO) throws IOException {
 		validatePost(postDTO);
 		
-		// [추가] ID로 실제 엔티티 객체를 찾아옵니다.
-		ClubEntity club = clubRepository.findById(postDTO.getClubId())
-				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 모임입니다."));
+		// 모임 소속 여부 및 역할 확인 추가
+		ClubMemberEntity clubMember = clubMemberRepository.findByClub_ClubIdAndMember_MemberId(postDTO.getClubId(), postDTO.getMemberId())
+				.orElseThrow(() -> new IllegalArgumentException("해당 모임의 멤버가 아닙니다."));
 		
-		MemberEntity member = memberRepository.findById(postDTO.getMemberId())
-				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+		// 가입 상태 확인
+		if (!"ACTIVE".equals(clubMember.getStatus())) {
+			throw new IllegalArgumentException("가입 대기 중이거나 탈퇴한 멤버입니다.");
+		}
 		
-		// 공지사항으로 등록하려고 하는 경우
+		// 공지사항 등록 권한 체크 (OWNER, MANAGER만 가능)
 		if (postDTO.getIsNotice() != null && postDTO.getIsNotice()) {
-			// 이미 만들어두신 1번 메서드 활용!
-			ClubMemberEntity clubMember = clubMemberRepository.findByClub_ClubIdAndMember_MemberId(postDTO.getClubId(), postDTO.getMemberId())
-					.orElseThrow(() -> new IllegalArgumentException("해당 모임의 멤버가 아닙니다."));
-			
-			// 가입 상태 확인 및 역할(Role) 확인
 			boolean isManager = "OWNER".equals(clubMember.getRole()) || "MANAGER".equals(clubMember.getRole());
-			boolean isActive = "ACTIVE".equals(clubMember.getStatus());
 			
-			if (!isActive || !isManager) {
+			if (!isManager) {
 				throw new IllegalArgumentException("공지사항은 모임 운영진(방장/매니저)만 작성할 수 있습니다.");
 			}
 		}
 		
-		
+		// 파일 저장 로직
 		String savedFileName = null;
-		
 		// 추가 이미지가 있다면 물리적으로 저장하는 로직
 		if (postDTO.getImage() != null && !postDTO.getImage().isEmpty()) {
 			MultipartFile imageFile = postDTO.getImage();
@@ -74,12 +81,21 @@ public class PostService {
 			String uuid = UUID.randomUUID().toString();
 			savedFileName = uuid + "_" + imageFile.getOriginalFilename();
 			
+			// [추가] 폴더 경로 조합 및 폴더 생성
+			File uploadDir = new File(getFullUploadPath());
+			if (!uploadDir.exists()) {
+				uploadDir.mkdirs(); // 폴더가 없으면 생성
+			}
+			
 			// 파일 저장 실행
-			File saveFile = new File(uploadPath, savedFileName);
-			imageFile.transferTo(saveFile);
+				File saveFile = new File(uploadDir, savedFileName);
+				imageFile.transferTo(saveFile);
 		}
 		
-		// DTO의 데이터를 Entity로 옮겨담기 (Builder 방식)
+		ClubEntity club = clubRepository.findById(postDTO.getClubId()).orElseThrow();
+		MemberEntity member = memberRepository.findById(postDTO.getMemberId()).orElseThrow();
+		
+		// DTO의 데이터를 Entity로 옮겨담기
 		PostEntity postEntity = PostEntity.builder()
 				.club(club)
 				.member(member)
@@ -92,7 +108,7 @@ public class PostService {
 		postRepository.save(postEntity);
 	}
 	
-	// [추가] 공통 검증 메서드 (중복 코드를 줄이기 위해 별도로 뺍니다)
+	// [추가] 공통 검증 메서드 (중복 코드를 줄이기 위해 별도로 뺌)
 	private void validatePost(PostDTO dto) {
 		if (dto.getTitle() == null || dto.getTitle().trim().isEmpty()) {
 			throw new IllegalArgumentException("제목을 입력해주세요.");
@@ -120,50 +136,105 @@ public class PostService {
 		return entities.map(this::convertToDTO);
 	}
 	
-	// 3. 게시글 상세 내용 하나 가져오기
-	public PostDTO getPostById(Integer postId) {
-		// 1. DB에서 엔티티를 찾습니다.
-		PostEntity entity = postRepository.findById(postId)
+	// 3. 게시글 상세 내용 하나 가져오기 (PostDetailResponseDTO 리턴하도록 수정)
+	public PostDetailResponseDTO getPostDetail(Integer postId, String currentMemberId) {
+		// 1. DB에서 엔티티 조회
+		PostEntity post = postRepository.findById(postId)
 				.orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다. ID: " + postId));
 		
-		// 2. 엔티티의 데이터를 DTO로 옮깁니다. (빌더 패턴 사용)
-		return PostDTO.builder()
+		// 2. 운영진 여부 조회 (권한 계산용)
+		// 로그인하지 않은 경우(null)는 일반 멤버로 처리
+		boolean isManager = false;
+		if (currentMemberId != null) {
+			isManager = clubMemberRepository.findByClub_ClubIdAndMember_MemberId(
+							post.getClub().getClubId(), currentMemberId)
+					.map(cm -> "OWNER".equals(cm.getRole()) || "MANAGER".equals(cm.getRole()))
+					.orElse(false);
+		}
+		
+		// 3. 권한 계산
+		boolean canEdit = false;
+		boolean canDelete = false;
+		if (currentMemberId != null) {
+			// 작성자 본인인가?
+			canEdit = post.getMember().getMemberId().equals(currentMemberId);
+			// 작성자 본인이거나, 운영진인가?
+			canDelete = canEdit || isManager;
+		}
+		
+		// 4. DTO로 변환하여 리턴 (권한 정보 담기)
+		return convertToDetailDTO(post, canEdit, canDelete);
+	}
+	
+	// Entity -> DetailDTO 변환 메서드 (새로 만들기 또는 수정)
+	private PostDetailResponseDTO convertToDetailDTO(PostEntity entity, boolean canEdit, boolean canDelete) {
+		return PostDetailResponseDTO.builder()
 				.postId(entity.getPostId())
-				.clubId(entity.getClub().getClubId())       // 객체 참조에서 ID 추출
-				.memberId(entity.getMember().getMemberId()) // 객체 참조에서 ID 추출
 				.title(entity.getTitle())
 				.content(entity.getContent())
+				.clubId(entity.getClub().getClubId())
+				.memberId(entity.getMember().getMemberId())
 				.imageUrl(entity.getImageUrl())
-				.createdAt(entity.getCreatedAt())
+				.isNotice(entity.getIsNotice())
+				// 날짜 포맷팅: T -> 공백
+				.createdAt(entity.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+				.canEdit(canEdit)
+				.canDelete(canDelete)
 				.build();
 	}
 	
 	// 4. 게시글 삭제
 	@Transactional
-	public void deletePost(Integer postId) {
-		postRepository.deleteById(postId);
+	public void deletePost(Integer postId, String currentMemberId) {
+		PostEntity post = postRepository.findById(postId)
+				.orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다."));
+		
+		// 운영진 여부 조회
+		ClubMemberEntity clubMember = clubMemberRepository.findByClub_ClubIdAndMember_MemberId(post.getClub().getClubId(), currentMemberId)
+				.orElseThrow(() -> new IllegalArgumentException("해당 모임의 멤버가 아닙니다."));
+		
+		// 권한 체크: 작성자 본인 OR 운영진(OWNER/MANAGER)
+		boolean isAuthor = post.getMember().getMemberId().equals(currentMemberId);
+		boolean isManager = "OWNER".equals(clubMember.getRole()) || "MANAGER".equals(clubMember.getRole());
+		
+		if (isAuthor || isManager) {
+			postRepository.delete(post);
+		} else {
+			throw new IllegalArgumentException("삭제 권한이 없습니다.");
+		}
 	}
 	
 	// 5. 게시글 수정
 	@Transactional
-	public void updatePost(Integer postId, PostDTO updatedPostDto) throws IOException {
+	public void updatePost(Integer postId, PostDTO updatedPostDto, String currentMemberId) throws IOException {
 		// 기존 게시글 엔티티를 DB에서 조회
 		PostEntity post = postRepository.findById(postId)
 				.orElseThrow(() -> new EntityNotFoundException("게시글이 없습니다."));
 		
-		// [수정] 수정 시에도 제목/내용 빈 값 체크
+		// 수정 권한 체크: 작성자 본인만 가능
+		if (!post.getMember().getMemberId().equals(currentMemberId)) {
+			throw new IllegalArgumentException("수정 권한이 없습니다.");
+		}
+		
+		// 수정 시에도 제목/내용 빈 값 체크
 		validatePost(updatedPostDto);
 		
 		// 제목과 내용만 수정 가능하도록 설정
 		post.setTitle(updatedPostDto.getTitle());
 		post.setContent(updatedPostDto.getContent());
 		
-		// [추가] 새로운 이미지가 들어왔다면 교체
+		// 새로운 이미지가 들어왔다면 교체
 		if (updatedPostDto.getImage() != null && !updatedPostDto.getImage().isEmpty()) {
 			String uuid = UUID.randomUUID().toString();
 			String savedFileName = uuid + "_" + updatedPostDto.getImage().getOriginalFilename();
 			
-			File saveFile = new File(uploadPath, savedFileName);
+			// 폴더 생성 로직 추가
+			File uploadDir = new File(getFullUploadPath());
+			if (!uploadDir.exists()) {
+				uploadDir.mkdirs();
+			}
+			
+			File saveFile = new File(uploadDir, savedFileName);
 			updatedPostDto.getImage().transferTo(saveFile);
 			
 			post.setImageUrl(savedFileName); // 새 이미지 경로로 업데이트
@@ -183,7 +254,6 @@ public class PostService {
 		// 2. 페이징 설정: (요청 페이지 번호, 한 페이지당 개수, 정렬 정보)
 		// 주의: JPA의 페이지는 0부터 시작합니다!
 		Pageable pageable = PageRequest.of(page, 10, sort);
-		
 		Page<PostEntity> entities;
 		
 		// 3. 검색어 유무에 따른 분기 처리

@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.datasa.EnLink.common.error.BusinessException;
 import net.datasa.EnLink.common.error.ErrorCode;
 import net.datasa.EnLink.community.dto.request.ClubUpdateRequest;
-import net.datasa.EnLink.community.dto.response.ClubDetailResponse;
 import net.datasa.EnLink.community.dto.response.ClubJoinResponse;
 import net.datasa.EnLink.community.dto.response.ClubMemberResponse;
 import net.datasa.EnLink.community.entity.ClubEntity;
@@ -32,7 +31,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -177,35 +175,6 @@ public class ClubManageService {
 		clubMemberHistoryService.leaveHistory(clubId, loginId, loginId, "CLUB_RESTORE", "모임 삭제 취소 및 복구");
 		
 		log.info("[모임 복구 완료] 모임ID: {}, 요청자: {}", clubId, loginId);
-	}
-
-	/**
-	 * 가입 신청 대기자 목록 조회 (PENDING 상태인 유저들)
-	 */
-	@Transactional(readOnly = true)
-	public List<ClubJoinResponse> getPendingRequests(Integer clubId) {
-		// 1. 해당 모임의 멤버들 중 상태가 'PENDING'인 엔티티들만 조회
-		List<ClubMemberEntity> pendingEntities = clubMemberRepository.findByClub_ClubIdAndStatusOrderByRoleAsc(clubId,
-				"PENDING");
-
-		// 2. 엔티티 리스트를 DTO 리스트로 변환하면서 '답변 내용'을 채워줌
-		return pendingEntities.stream().map(entity -> {
-			String memberId = entity.getMember().getMemberId();
-
-			// 3. club_join_answers 테이블에서 해당 유저의 답변을 찾아옴
-			String answer = clubAnswerRepository.findByClubIdAndMemberId(clubId, memberId)
-					.map(ClubJoinAnswerEntity::getAnswerText)
-					.orElse("답변이 없습니다."); // 만약 답변이 없을 경우를 대비한 기본값
-
-			// 4. 화면(HTML)에 뿌려줄 가방(DTO)에 담기
-			return ClubJoinResponse.builder()
-					.memberId(memberId)
-					.memberName(entity.getMember().getName())
-					.answerText(answer)
-					.appliedAt(entity.getAppliedAt())
-					.status(entity.getStatus())
-					.build();
-		}).collect(Collectors.toList());
 	}
 
 	/**
@@ -386,39 +355,8 @@ public class ClubManageService {
 		// 3. 상태(PENDING, EXIT, ACTIVE 등)가 담긴 DTO를 그대로 반환합니다.
 		return new ClubMemberResponse(entity);
 	}
-
-	/**
-	 * 모임 엔티티를 DTO로 변환하며, 특히 '삭제 대기' 상태일 때 남은 시간을 계산하는 핵심 로직을 포함
-	 */
-	private ClubDetailResponse convertToDetailResponse(ClubEntity entity) {
-		// 1. 빌더로 기본 정보 채우기
-		ClubDetailResponse response = ClubDetailResponse.builder()
-				.clubId(entity.getClubId())
-				.name(entity.getName())
-				.description(entity.getDescription())
-				.maxMember(entity.getMaxMember())
-				.topicId(entity.getTopic().getTopicId())
-				.cityId(entity.getCity().getCityId())
-				.imageUrl(entity.getImageUrl())
-				.status(entity.getStatus())
-				.joinQuestion(entity.getJoinQuestion())
-				.createdAt(entity.getCreatedAt())
-				.build();
-		
-		// 2. 삭제 대기 남은 시간 계산 (기존 로직 그대로 이식)
-		if ("DELETED_PENDING".equals(entity.getStatus()) && entity.getDeletedAt() != null) {
-			LocalDateTime expiryDate = entity.getDeletedAt().plusDays(7);
-			Duration duration = Duration.between(LocalDateTime.now(), expiryDate);
-			
-			if (duration.isNegative()) {
-				response.setRemainingTime("삭제 처리 중...");
-			} else {
-				response.setRemainingTime(duration.toDays() + "일 " + duration.toHoursPart() + "시간 남음");
-			}
-		}
-		return response;
-	}
-
+	
+	
 	/** 권한 체크 */
 	public void checkAuthority(Integer clubId, String memberId, String requiredRole) {
 		ClubMemberEntity member = clubMemberRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId)

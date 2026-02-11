@@ -17,6 +17,9 @@ public enum ErrorCode {
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "사용자를 찾을 수 없습니다.", "error.user.not_found"),
 	USER_PASSWORD_NOT_MATCH(HttpStatus.BAD_REQUEST, "USER_PASSWORD_NOT_MATCH", "비밀번호 재입력이 일치하지 않습니다.",
 			"error.user.password_not_match"),
+
+	SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE_NOT_FOUND", "message", ""),
+
 	// 컨텐츠(게시글 등)
 	CONTENT_NOT_FOUND(HttpStatus.NOT_FOUND, "CONTENT_NOT_FOUND", "컨텐츠를 찾을 수 없습니다.", "error.content.not_found"),
 	// 요청 값 검증

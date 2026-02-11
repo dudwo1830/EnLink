@@ -52,6 +52,11 @@ public class ClubService {
 	private final ClubMemberRepository clubMemberRepository;
 	private final ClubMemberHistoryRepository clubMemberHistoryRepository;
 	private final ClubAnswerRepository clubAnswerRepository;
+	
+	/**
+	 * 모임생성
+	 * */
+	private final ClubManageService clubManageService;
 	private final MemberRepository memberRepository;
 	private final TopicRepository topicRepository;
 	private final CityRepository cityRepository;
@@ -105,26 +110,10 @@ public class ClubService {
 		
 		
 		return clubRepository.findByStatus("ACTIVE").stream()
-				.map(this::convertToListResponse) // ✅ 별도 메서드로 분리
+				.map(this::convertToListResponse)
 				.collect(Collectors.toList());
 	}
 	
-	private ClubListResponse convertToListResponse(ClubEntity entity) {
-		int currentCount = clubMemberRepository.countByClub_ClubIdAndStatus(entity.getClubId(), "ACTIVE");
-		
-		return ClubListResponse.builder()
-				.clubId(entity.getClubId())
-				.name(entity.getName())
-				.description(entity.getDescription()) // 목록에도 설명이 필요하다면 유지
-				.imageUrl(entity.getImageUrl())
-				.currentMemberCount(currentCount)
-				.maxMember(entity.getMaxMember())
-				.topicId(entity.getTopic().getTopicId())
-				.cityId(entity.getCity().getCityId()) // 시티 맵 로직 유지
-				.status(entity.getStatus())
-				.build();
-	}
-
 	/**
 	 * 모임 상세 조회
 	 */
@@ -172,24 +161,21 @@ public class ClubService {
 	}
 
 	/**
-	 * 가입 신청 처리 (재가입 로직 포함)
+	 * 신규 가입 신청을 처리합니다. (5+5 참여 쿼터제 적용)
+	 * 탈퇴/제명 이력이 있는 경우 기존 데이터를 'PENDING' 상태로 갱신하여 재신청 처리합니다.
 	 */
 	public void applyToClub(Integer clubId, String memberId, String answerText) {
-		
-		// ✅ 1. 수정: 새로 만든 '참여 쿼터 체크' 수문장 호출
-		// 내 멤버 상태가 ACTIVE이면서, 모임 상태가 ACTIVE나 DELETED_PENDING인 것들을 모두 카운트함
-		long participantCount = clubMemberRepository.countParticipantQuota(memberId);
-		
-		if (participantCount >= 5) {
+		// 1. [정책] 참여 쿼터 체크 (최대 5개, 삭제 대기 모임 포함)
+		if (clubMemberRepository.countParticipantQuota(memberId) >= 5) {
 			throw new BusinessException(ErrorCode.JOIN_LIMIT_EXCEEDED);
 		}
 		
 		ClubEntity club = clubRepository.findById(clubId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.CLUB_NOT_FOUND));
 		
-		// ✅ 2. 모임 자체가 이미 삭제 대기 중이라면 가입 신청을 막는 게 좋습니다.
+		// 2. [정책] 삭제 진행 중인 모임은 신규 가입 불가
 		if ("DELETED_PENDING".equals(club.getStatus())) {
-			throw new BusinessException(ErrorCode.CLUB_NOT_FOUND); // 혹은 전용 에러코드
+			throw new BusinessException(ErrorCode.CLUB_NOT_FOUND);
 		}
 		
 		MemberEntity member = memberRepository.findById(memberId)
@@ -198,32 +184,12 @@ public class ClubService {
 		Optional<ClubMemberEntity> existingMember = clubMemberRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId);
 		
 		if (existingMember.isPresent()) {
-			ClubMemberEntity clubMember = existingMember.get();
-			String currentStatus = clubMember.getStatus();
-			
-			if ("ACTIVE".equals(currentStatus) || "PENDING".equals(currentStatus)) {
-				throw new BusinessException(ErrorCode.ALREADY_JOINED_OR_PENDING);
-			}
-			
-			// ✅ 재가입 시 상태 업데이트
-			if ("EXIT".equals(currentStatus) || "BANNED".equals(currentStatus)) {
-				clubMember.setStatus("PENDING");
-				clubMember.setRole("MEMBER");
-				// joinedAt은 여기서 넣지 않고, 나중에 '승인' 시점에 넣는 것을 추천합니다.
-				clubMember.setAppliedAt(LocalDateTime.now()); // 신청일자 필드가 있다면 활용
-			}
-			
+			updateExistingMemberStatus(existingMember.get());
 		} else {
-			clubMemberRepository.save(ClubMemberEntity.builder()
-					.club(club)
-					.member(member)
-					.role("MEMBER")
-					.status("PENDING")
-					.appliedAt(LocalDateTime.now()) // 빌더에 신청일 추가 권장
-					.build());
+			createNewMemberApplication(club, member);
 		}
 		
-		// 답변 저장 (기존 로직 유지)
+		// 신청 답변 갱신 (기존 답변 삭제 후 재생성)
 		clubAnswerRepository.deleteByClubIdAndMemberId(clubId, memberId);
 		clubAnswerRepository.save(ClubJoinAnswerEntity.builder()
 				.clubId(clubId).memberId(memberId).answerText(answerText).build());
@@ -284,10 +250,11 @@ public class ClubService {
 		throw new BusinessException(ErrorCode.INVALID_MAX_MEMBER);
 	}
 		
-		long totalActiveCount = clubMemberRepository.countByMember_MemberIdAndStatus(loginMemberId, "ACTIVE");
-		if (totalActiveCount >= 5) {
-			throw new BusinessException(ErrorCode.JOIN_LIMIT_EXCEEDED);
-	}
+		long ownedClubCount = clubMemberRepository.countOwnerQuota(loginMemberId);
+		
+		if (ownedClubCount >= 5) {
+			throw new BusinessException(ErrorCode.OWNER_LIMIT_EXCEEDED);
+		}
 }
 	
 	/**
@@ -324,7 +291,49 @@ public class ClubService {
 				.actionType("JOIN_APPROVE").description("모임 생성 및 모임장 등록").build());
 	}
 
-		/**
+
+	
+	private ClubListResponse convertToListResponse(ClubEntity entity) {
+		int currentCount = clubMemberRepository.countByClub_ClubIdAndStatus(entity.getClubId(), "ACTIVE");
+		
+		return ClubListResponse.builder()
+				.clubId(entity.getClubId())
+				.name(entity.getName())
+				.description(entity.getDescription()) // 목록에도 설명이 필요하다면 유지
+				.imageUrl(entity.getImageUrl())
+				.currentMemberCount(currentCount)
+				.maxMember(entity.getMaxMember())
+				.topicId(entity.getTopic().getTopicId())
+				.cityId(entity.getCity().getCityId()) // 시티 맵 로직 유지
+				.status(entity.getStatus())
+				.build();
+	}
+	
+	private void updateExistingMemberStatus(ClubMemberEntity clubMember) {
+		String currentStatus = clubMember.getStatus();
+		
+		if ("ACTIVE".equals(currentStatus) || "PENDING".equals(currentStatus)) {
+			throw new BusinessException(ErrorCode.ALREADY_JOINED_OR_PENDING);
+		}
+		
+		if ("EXIT".equals(currentStatus) || "BANNED".equals(currentStatus)) {
+			clubMember.setStatus("PENDING");
+			clubMember.setRole("MEMBER");
+			clubMember.setAppliedAt(LocalDateTime.now());
+		}
+	}
+	
+	private void createNewMemberApplication(ClubEntity club, MemberEntity member) {
+		clubMemberRepository.save(ClubMemberEntity.builder()
+				.club(club)
+				.member(member)
+				.role("MEMBER")
+				.status("PENDING")
+				.appliedAt(LocalDateTime.now())
+				.build());
+	}
+
+	/**
 	 * 모임 리스트 조회 및 페이징 처리, 검색
 	 * 
 	 * @param pageable

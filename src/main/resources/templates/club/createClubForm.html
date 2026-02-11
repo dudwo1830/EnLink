@@ -5,72 +5,88 @@
     <script th:src="@{/js/common/search-select.js}" defer></script>
     <script th:src="@{/js/club/create-club-form.js}" defer></script>
 </head>
-<body>
+<body class="bg-light">
 <div class="grid-container">
-    <header th:replace="~{fragments/header :: header}" class="header"></header>
 
-    <main class="main">
-        <div class="create-content-container">
-            <h1>새로운 모임 만들기</h1>
+    <header th:replace="~{fragments/header :: header}" class="header shadow-sm"></header>
 
+    <aside th:replace="~{fragments/aside :: aside}" class="aside"></aside>
 
-            <form id="createClubForm" th:object="${clubCreateRequest}" enctype="multipart/form-data" class="create-form" method="post" th:action="@{/club/create}">
+    <main class="main overflow-auto py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-white py-3 border-bottom">
+                            <h3 class="card-title fw-bold mb-0 text-primary">
+                                <i class="bi bi-plus-circle-fill me-2"></i>새로운 모임 만들기
+                            </h3>
+                        </div>
+                        <div class="card-body p-4 p-md-5">
+                            <form id="createClubForm" th:object="${clubCreateRequest}" enctype="multipart/form-data" method="post" th:action="@{/club/create}">
 
-                <div class="form-group">
-                    <label>모임 이름:</label>
-                    <input type="text" th:field="*{name}" placeholder="모임명을 입력하세요" required>
-                </div>
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">모임 이름</label>
+                                    <input type="text" th:field="*{name}" class="form-control form-control-lg" placeholder="모임명을 입력하세요" required>
+                                </div>
 
-                <div class="form-group">
-                    <label>모임 이미지 업로드</label>
-                    <input type="file" th:field="*{uploadFile}" accept="image/*">
-                    <p class="help-text">* 이미지를 선택하지 않으면 기본 이미지가 등록됩니다.</p>
-                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">관심사 카테고리</label>
+                                        <div class="select-search topics" data-name="topicId">
+                                            <input type="text" class="select-input form-control" autocomplete="false" />
+                                            <input type="hidden" class="select-hidden" th:field="*{topicId}"/>
+                                            <ul class="select-options"></ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">최대 인원</label>
+                                        <input type="number" th:field="*{maxMember}" class="form-control" min="2" max="100">
+                                    </div>
+                                </div>
 
-                <div class="form-group">
-                    <label>관심사 카테고리:</label>
-                    <div class="select-search topics" data-name="topicId">
-                        <input type="text" class="select-input" autocomplete="false" />
-                        <input type="hidden" class="select-hidden" />
-                        <ul class="select-options"></ul>
+                                <label class="mb-2 fw-bold">상세 지역 선택</label>
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <div class="select-search regions" data-name="regionId">
+                                            <input type="text" class="select-input form-control" autocomplete="false" />
+                                            <input type="hidden" class="select-hidden"/>
+                                            <ul class="select-options"></ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <div class="select-search cities" data-name="cityId">
+                                            <input type="text" class="select-input form-control" autocomplete="false" />
+                                            <input type="hidden" class="select-hidden" th:field="*{cityId}"/>
+                                            <ul class="select-options"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">모임 소개</label>
+                                    <textarea th:field="*{description}" class="form-control" rows="4" placeholder="모임을 소개해 주세요"></textarea>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">가입 질문</label>
+                                    <input type="text" th:field="*{joinQuestion}" class="form-control" placeholder="가입 신청자에게 물어볼 질문">
+                                </div>
+
+                                <div class="mb-5">
+                                    <label class="form-label fw-bold">대표 이미지</label>
+                                    <input type="file" th:field="*{uploadFile}" class="form-control" accept="image/*">
+                                </div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end pt-3">
+                                    <a th:href="@{/}" class="btn btn-light px-4 me-md-2">취소</a>
+                                    <button type="button" id="submitBtn" class="btn btn-primary px-5 fw-bold">모임 개설하기</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-
-                <div class="form-group">
-                    <label>상세 지역 (구/군)</label>
-                    <div class="select-search regions" data-name="regionId">
-                        <input type="text" class="select-input" autocomplete="false" />
-                        <input type="hidden" class="select-hidden" />
-                        <ul class="select-options"></ul>
-                    </div>
-                    <div class="select-search cities" data-name="cityId">
-                        <input type="text" class="select-input" autocomplete="false" />
-                        <input type="hidden" class="select-hidden" />
-                        <ul class="select-options"></ul>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>최대 인원:</label>
-                    <input type="number" th:field="*{maxMember}" min="2" max="100">
-                </div>
-
-                <div class="form-group">
-                    <label>모임 소개:</label>
-                    <textarea th:field="*{description}" rows="5" placeholder="모임을 소개해 주세요"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>가입 질문:</label>
-                    <input type="text" th:field="*{joinQuestion}" placeholder="가입 신청자에게 물어볼 질문">
-                </div>
-
-                <div class="form-actions">
-                    <!-- JS 이벤트 사용 중이면 type="button" 그대로 가능 -->
-                    <button type="button" id="submitBtn" class="btn-submit">모임 개설하기</button>
-                    <a th:href="@{/}" class="btn-cancel">취소</a>
-                </div>
-            </form>
+            </div>
         </div>
     </main>
 

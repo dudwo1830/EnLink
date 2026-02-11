@@ -11,20 +11,24 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface ClubRepository extends JpaRepository<ClubEntity, Integer> {
-
-	// 모임 이름 중복 체크를 위해 유용하게 쓰일 메서드
+	
+	/**
+	 * 모임 이름의 중복 여부를 확인합니다.
+	 */
 	boolean existsByName(String name);
-
-	// 모임 이름을 통해 정보를 찾을 때 사용
-	Optional<ClubEntity> findByName(String name);
-
+	
+	/**
+	 * 삭제 유예 기간(7일)이 경과한 '삭제 대기' 상태의 모임들을 조회합니다.
+	 * (Batch 작업이나 스케줄러를 통한 영구 삭제 시 활용)
+	 */
 	List<ClubEntity> findByStatusAndDeletedAtBefore(String status, LocalDateTime dateTime);
-
-	// 상태가 'ACTIVE'인 모임들만 리스트로 가져오는 메서드 추가
+	
+	/**
+	 * 특정 상태(ACTIVE, DELETED_PENDING 등)의 모임 목록을 조회합니다.
+	 */
 	List<ClubEntity> findByStatus(String status);
 
 	// 모임 리스트 조회 및 페이징 처리, 검색
