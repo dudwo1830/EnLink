@@ -13,7 +13,8 @@ async function signup(e) {
   if (!res.ok) {
     const data = await res.json();
     const msg = `
-    ${data.messageCode != null ? data.messageCode : data.defaultMessage}
+    ${data.messageCode}
+    ${data.defaultMessage}
     Code: ${data.code}
     `;
     alert(msg);

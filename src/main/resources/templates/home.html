@@ -11,22 +11,24 @@
       <header th:replace="~{fragments/header :: header}"></header>
       <aside th:replace="~{fragments/aside :: aside}"></aside>
       <main class="main">
-        <div class="select-search topics" data-name="topicId">
-          <input type="text" class="select-input" autocomplete="false" />
-          <input type="hidden" class="select-hidden" />
-          <ul class="select-options"></ul>
+        <div class="flex">
+          <div class="select-search topics" data-name="topicId">
+            <input type="text" class="select-input" autocomplete="false" />
+            <input type="hidden" class="select-hidden" />
+            <ul class="select-options"></ul>
+          </div>
+          <div class="select-search regions" data-name="regionId">
+            <input type="text" class="select-input" autocomplete="false" />
+            <input type="hidden" class="select-hidden" />
+            <ul class="select-options"></ul>
+          </div>
+          <div class="select-search cities" data-name="cityId">
+            <input type="text" class="select-input" autocomplete="false" />
+            <input type="hidden" class="select-hidden" />
+            <ul class="select-options"></ul>
+          </div>
         </div>
-        <div class="select-search regions" data-name="regionId">
-          <input type="text" class="select-input" autocomplete="false" />
-          <input type="hidden" class="select-hidden" />
-          <ul class="select-options"></ul>
-        </div>
-        <div class="select-search cities" data-name="cityId">
-          <input type="text" class="select-input" autocomplete="false" />
-          <input type="hidden" class="select-hidden" />
-          <ul class="select-options"></ul>
-        </div>
-        <input type="text" id="searchInput" />
+        <input type="text" id="searchInput" placeholder="검색할 내용"/>
         <h1>HELLO ENLINK</h1>
         <nav class="member-navigation">
           <h2>👤 회원 관련 메뉴 (팀원 작업 확인용)</h2>

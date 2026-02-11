@@ -17,7 +17,7 @@ class SearchSelect {
     // hidden의 name설정
     this.hidden.name = root.dataset.name;
 
-    //onload
+    // 로딩 처리
     this.isReady = false;
     this.readyCallbacks = [];
 
@@ -114,7 +114,7 @@ class SearchSelect {
     });
 
     this.isReady = true;
-    this.readyCallbacks.forEach(cb => cb(this));
+    this.readyCallbacks.forEach((cb) => cb(this));
   }
 
   setDefaultOption(label = '전체', value = '') {

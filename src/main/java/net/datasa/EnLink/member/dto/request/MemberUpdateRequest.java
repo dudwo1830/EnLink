@@ -26,12 +26,10 @@ public class MemberUpdateRequest {
 	@Size(min = 2, max = 100)
 	private String password;
 
-	@NotBlank
-	@Size(min = 2, max = 100)
+	@Size(min = 0, max = 100)
 	private String newPassword;
 
-	@NotBlank
-	@Size(min = 2, max = 100)
+	@Size(min = 0, max = 100)
 	private String rePassword;
 
 	@NotBlank

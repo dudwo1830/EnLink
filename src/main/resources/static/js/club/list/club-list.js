@@ -10,7 +10,10 @@ const clubListMoreBtn = document.querySelector('#clubListMore');
 clubListMoreBtn.onclick = () => clubListRender();
 // 검색어 요소
 const searchInput = document.querySelector('#searchInput');
-searchInput.oninput = () => changeSearch(searchInput.value);
+searchInput.oninput = () => handleSearchInput(searchInput.value);
+const handleSearchInput = debounce((value) => {
+  changeSearch(value);
+}, 200);
 // 도/시 요소
 const regionTarget = document.querySelector('.select-search.regions');
 // 지역 요소
@@ -95,7 +98,7 @@ function makeClubElement(club) {
   template.innerHTML = `
 		<div class="card">
 			<a href="/club/${club.clubId}">
-				<img th:src="@{${club.imageUrl}}" alt="모임 대표 이미지">
+				<img src="${club.imageUrl}" alt="모임 대표 이미지">
 				<p class="club-title">${club.name}</p>
 				<p class="club-description">${club.description}</p>
 				<p class="club-info">
@@ -144,4 +147,12 @@ function resetAndRender() {
   clubListTarget.innerHTML = '';
   clubListMoreBtn.style.display = 'block';
   clubListRender();
+}
+
+function debounce(fn, delay = 300) {
+  let timer = null;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
 }
