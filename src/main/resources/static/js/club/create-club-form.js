@@ -11,21 +11,18 @@ regionSelect.load(`/api/location/regions`, {
   labelKey: 'nameLocal',
   includeAll: true,
   allLabel: '도/시 선택',
-  allValue: null
 });
 citySelect.load(`/api/location/cities`, {
   valueKey: 'cityId',
   labelKey: 'fullNameLocal',
   includeAll: true,
   allLabel: '구/군 선택',
-  allValue: null
 });
 topicSelect.load(`/api/topics`, {
   valueKey: 'topicId',
   labelKey: 'name',
   includeAll: true,
   allLabel: '관심사 선택',
-  allValue: null
 });
 regionTarget.addEventListener('change', (e) => {
   changeRegion(regionSelect.getValue());
