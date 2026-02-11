@@ -1,13 +1,17 @@
 package net.datasa.EnLink.community.post.controller;
 
 import lombok.RequiredArgsConstructor;
+import net.datasa.EnLink.common.security.MemberDetails;
 import net.datasa.EnLink.community.post.dto.PostDTO;
+import net.datasa.EnLink.community.post.dto.PostDetailResponseDTO;
 import net.datasa.EnLink.community.post.dto.ReplyDTO;
 import net.datasa.EnLink.community.post.service.PostService;
 import net.datasa.EnLink.community.post.service.ReplyService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -36,20 +40,25 @@ public class PostApiController {
 	}
 	
 	// 게시글 상세 내용 가져오기 (예: /api/posts/10)
-	@GetMapping("/{postId}")
-	public ResponseEntity<PostDTO> getPostDetail(@PathVariable(name = "postId") Integer postId) {
-		PostDTO postDTO = postService.getPostById(postId);
-		return ResponseEntity.ok(postDTO);
+	@GetMapping("/detail/{postId}")
+	public PostDetailResponseDTO getPostDetail(@PathVariable Integer postId, Authentication authentication) {
+		String memberId = (authentication != null) ? authentication.getName() : null;
+		return postService.getPostDetail(postId, memberId);
 	}
 	
 	// 게시글 작성(응답 본문 없이 상태 코드로만 성공 전달)
 	@PostMapping
-	public ResponseEntity<?> createPost(@ModelAttribute PostDTO postDTO) {
+	public ResponseEntity<?> createPost(@ModelAttribute PostDTO postDTO,
+										@AuthenticationPrincipal MemberDetails memberDetails) {
+		
+		// memberDetails 객체에서 ID 가져오기
+		postDTO.setMemberId(memberDetails.getMemberId());
+		
 		try {
 			postService.savePost(postDTO);
 			return ResponseEntity.status(HttpStatus.CREATED).build();    // 201 Created
 		} catch (IllegalArgumentException e) {
-			// [수정] 서비스에서 던진 "제목을 입력해주세요" 메시지를 400 에러와 함께 보냄
+			// 서비스에서 던진 "제목을 입력해주세요" 메시지를 400 에러와 함께 보냄
 			return ResponseEntity.badRequest().body(e.getMessage());
 		} catch (IOException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 저장 중 오류가 발생했습니다.");
@@ -58,17 +67,21 @@ public class PostApiController {
 	
 	// 게시글 삭제
 	@DeleteMapping("/{postId}")
-	public ResponseEntity<Void> deletePost(@PathVariable(name = "postId") Integer postId) {
-		postService.deletePost(postId); // 서비스에 삭제 로직 구현 필요
-		return ResponseEntity.noContent().build();    // 204 No Content(성공했지만 줄 데이터 없음)
+	public ResponseEntity<Void> deletePost(@PathVariable(name = "postId") Integer postId,
+										   @AuthenticationPrincipal MemberDetails memberDetails) {
+		// [수정] memberDetails 객체에서 ID 전달
+		postService.deletePost(postId, memberDetails.getMemberId());
+		return ResponseEntity.noContent().build();
 	}
 	
 	// 게시글 수정
 	@PutMapping("/{postId}")
-	public ResponseEntity<?> updatedPost(@PathVariable(name = "postId") Integer postId, @ModelAttribute PostDTO updatedPostDto) {
+	public ResponseEntity<?> updatedPost(@PathVariable(name = "postId") Integer postId,
+										 @ModelAttribute PostDTO updatedPostDto,
+										 @AuthenticationPrincipal MemberDetails memberDetails) {
 		try {
 			// 서비스의 파라미터 타입(PostDTO)과 맞춤
-			postService.updatePost(postId, updatedPostDto);
+			postService.updatePost(postId, updatedPostDto, memberDetails.getMemberId());
 			return ResponseEntity.ok().build();    // 200 OK
 		} catch (IllegalArgumentException e) {
 			// [수정] 수정 시 빈 값 검증 실패 처리
@@ -82,13 +95,13 @@ public class PostApiController {
 	@PostMapping("/{postId}/replies")
 	public ResponseEntity<?> saveReply(
 			@PathVariable(name = "postId") Integer postId,
-			@RequestParam(name = "content") String content
-			/*@AuthenticationPrincipal AuthenticatedUser user 로그인 완성될 때까지 일단 제외*/
+			@RequestParam(name = "content") String content,
+			@AuthenticationPrincipal MemberDetails memberDetails
 	) {
 		try {
 			// 실제로는 세션이나 Security에서 memberId를 가져와야 합니다.
 			// 현재는 테스트를 위해 "testUser"로 고정하거나 파라미터로 받으세요.
-			String memberId = "user01";
+			String memberId = memberDetails.getMemberId();
 			
 			// ReplyDTO를 만들어 서비스로 전달 (서비스 규격에 맞춤)
 			ReplyDTO replyDTO = ReplyDTO.builder()
@@ -109,10 +122,11 @@ public class PostApiController {
 	
 	// 댓글 삭제
 	@DeleteMapping("/replies/{replyId}")
-	public ResponseEntity<?> deleteReply(@PathVariable(name = "replyId") Integer replyId) {
+	public ResponseEntity<?> deleteReply(@PathVariable(name = "replyId") Integer replyId,
+										 @AuthenticationPrincipal MemberDetails memberDetails) {
 		try {
 			// 테스트용 아이디 (DB에 실제 존재하는 아이디여야 함)
-			String memberId = "user01";
+			String memberId = memberDetails.getMemberId();
 			
 			// 서비스 규격에 맞게 DTO 생성
 			ReplyDTO replyDTO = ReplyDTO.builder()
@@ -134,9 +148,10 @@ public class PostApiController {
 	@PutMapping("/replies/{replyId}")
 	public ResponseEntity<?> updateReply(
 			@PathVariable(name = "replyId") Integer replyId,
-			@RequestParam(name = "content") String content) {
+			@RequestParam(name = "content") String content,
+			@AuthenticationPrincipal MemberDetails memberDetails) {
 		try {
-			String memberId = "user01";
+			String memberId = memberDetails.getMemberId();
 			
 			// 서비스 규격에 맞게 DTO 생성
 			ReplyDTO replyDTO = ReplyDTO.builder()
@@ -157,8 +172,12 @@ public class PostApiController {
 	
 	// 댓글 목록
 	@GetMapping("/{postId}/replies")
-	public ResponseEntity<List<ReplyDTO>> getReplies(@PathVariable(name = "postId") Integer postId) {
-		List<ReplyDTO> replies = replyService.getRepliesByPostId(postId);
+	public ResponseEntity<List<ReplyDTO>> getReplies(@PathVariable(name = "postId") Integer postId, Authentication authentication) {
+		
+		// 로그인한 사용자 ID 가져오기 (비로그인시 null)
+		String currentUserId = (authentication != null) ? authentication.getName() : null;
+		
+		List<ReplyDTO> replies = replyService.getRepliesByPostId(postId, currentUserId);
 		return ResponseEntity.ok(replies);
 	}
 }

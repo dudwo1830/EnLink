@@ -24,7 +24,9 @@
     <br>
 
     <label>
-    <input type="checkbox" id="isNotice"> 이 글을 공지사항으로 등록
+    <th:block th:if="${role == 'OWNER' || role == 'MANAGER'}">
+        <input type="checkbox" id="isNotice"> 이 글을 공지사항으로 등록
+    </th:block>
 </label><br>
 
     <button type="button" onclick="savePost()" style="padding: 10px 20px;">등록</button>
@@ -99,7 +101,7 @@
     .then(response => {
         if(response.ok) {
             alert('글이 성공적으로 등록되었습니다!');
-            location.href = '/community/post/list?clubId=' + clubId;
+            location.href = '/community/post/list/' + clubId;
         } else {
             // 서버에서 보낸 에러 메시지가 있다면 출력
             response.text().then(msg => alert('등록 실패: ' + msg));

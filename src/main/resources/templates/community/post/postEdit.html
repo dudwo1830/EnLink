@@ -50,7 +50,7 @@
 
       function fetchExistingPost() {
         // 상세조회 API와 똑같은 주소를 사용합니다.
-        fetch(`/api/posts/${postId}`)
+        fetch(`/api/posts/detail/${postId}`)
           .then((response) => response.json())
           .then((post) => {
             // 서버에서 받은 데이터를 입력창(input, textarea)에 쏙 집어넣습니다.
@@ -60,7 +60,7 @@
             // 기존 이미지가 있다면 미리보기에 표시
             if (post.imageUrl) {
               const preview = document.getElementById('preview');
-              preview.src = `/images/${post.imageUrl}`;
+              preview.src = `/postImg/${post.imageUrl}`;
               document.getElementById('imagePreviewContainer').style.display =
                 'block';
             }

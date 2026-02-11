@@ -15,8 +15,12 @@ public class WebConfig implements WebMvcConfigurer {
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		String rootPath = uploadPath.endsWith("/") ? uploadPath : uploadPath + "/";
 		
-		registry.addResourceHandler("/images/**")
-				.addResourceLocations("file:///" + uploadPath, "classpath:/static/images/");
+		// 1. ✨ 게시글 미디어 파일 설정
+		// URL 패턴을 /images/** 로 하고,
+		// 💡 실제 저장 경로: C:/enlink_storage/post/
+		String postPath = uploadPath + "post/";
+		registry.addResourceHandler("/postImg/**")
+				.addResourceLocations("file:///" + postPath);
 		
 		// 2. 팀원의 갤러리(Gallery) 이미지 설정 (기존 설정 유지)
 		registry.addResourceHandler("/galleryImg/**")
@@ -24,9 +28,9 @@ public class WebConfig implements WebMvcConfigurer {
 		
 		// 3. ✨ 추가: 채팅 미디어 파일 설정
 		// URL 패턴을 /chatImg/** 로 하고,
-		// 💡 실제 저장 경로: C:/enrink_storage/chat/
-		String absolutePath = uploadPath + "chat/";
+		// 💡 실제 저장 경로: C:/enlink_storage/chat/
+		String chatPath = uploadPath + "chat/";
 		registry.addResourceHandler("/chatImg/**")
-				.addResourceLocations("file:///" + absolutePath);
+				.addResourceLocations("file:///" + chatPath);
 	}
 }

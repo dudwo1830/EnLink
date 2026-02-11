@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface ScheduleRepository extends JpaRepository<ScheduleEntity, Integer> {
 	// 특정 모임의 모든 일정을 일시 순으로 가져오기
-	List<ScheduleEntity> findByClub_ClubIdOrderByEventDateAsc(Integer clubId);
+	List<ScheduleEntity> findByClub_ClubIdOrderByEventDateDesc(Integer clubId);
 }

@@ -22,9 +22,10 @@
 
             <nav class="club-tabs">
                 <a th:href="@{/club/{id}(id=${club.clubId})}">홈</a>
-                <a th:href="@{/club/{id}/post/list(id=${club.clubId})}">게시판</a>
-                <a th:href="@{/club/{id}/album(id=${club.clubId})}">사진첩</a>
-                <a th:href="@{/club/{id}/chat(id=${club.clubId})}">채팅</a>
+                <a th:href="@{/community/post/list/{id}(id=${club.clubId})}">게시판</a>
+                <a th:href="@{/community/gallery/{id}(id=${club.clubId})}">사진첩</a>
+                <a th:href="@{/community/schedule/list/{id}(id=${club.clubId})}">일정</a>
+                <a th:href="@{/community/chat/room/{id}(id=${club.clubId})}">채팅</a>
                 <th:block th:if="${loginMember != null && (loginMember.role == 'OWNER' || loginMember.role == 'MANAGER')}">
                     <a th:href="@{/club/{id}/manage/requests(id=${club.clubId})}">모임관리</a>
                 </th:block>

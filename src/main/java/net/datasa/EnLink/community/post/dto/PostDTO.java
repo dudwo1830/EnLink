@@ -9,6 +9,9 @@ import java.time.LocalDateTime;
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+/**
+ * 입력용 (작성/수정)
+ */
 public class PostDTO {
 	private Integer postId;
 	private String title;
@@ -16,7 +19,7 @@ public class PostDTO {
 	private Integer clubId;
 	private String memberId;
 	private LocalDateTime createdAt;
-	private MultipartFile image;	// 등록할 때 받는 이미지 파일
+	private MultipartFile image;	// 등록 수정용
 	private String imageUrl;		// 화면에 보여줄 때 사용하는 이미지 경로(이름)
 	private Boolean isNotice;
 }

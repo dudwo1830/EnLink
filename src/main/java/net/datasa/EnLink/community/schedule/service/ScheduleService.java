@@ -69,7 +69,7 @@ public class ScheduleService {
 				("OWNER".equals(membership.getRole()) || "MANAGER".equals(membership.getRole()));
 		
 		// 해당 모임의 일정 리스트 (날짜순 정렬)
-		List<ScheduleEntity> entities = scheduleRepository.findByClub_ClubIdOrderByEventDateAsc(clubId);
+		List<ScheduleEntity> entities = scheduleRepository.findByClub_ClubIdOrderByEventDateDesc(clubId);
 		
 		// Entity 리스트를 DTO 리스트로 변환하면서 각 일정마다 현재 참여자 수를 계산
 		return entities.stream().map(entity -> {

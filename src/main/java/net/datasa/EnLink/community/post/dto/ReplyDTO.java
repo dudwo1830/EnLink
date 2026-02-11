@@ -14,8 +14,9 @@ import java.time.LocalDateTime;
 public class ReplyDTO {
 	private Integer replyId;
 	private Integer postId;
-	private String memberId;
+	private String memberId;	// 댓글 작성자
 	private String content;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
+	private boolean canEdit;	// canEdit;
 }
