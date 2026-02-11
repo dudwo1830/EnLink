@@ -1,13 +1,16 @@
 package net.datasa.EnLink.community.controller.club.api;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.datasa.EnLink.common.security.MemberDetails;
-import net.datasa.EnLink.community.dto.ClubDTO;
+import net.datasa.EnLink.community.dto.request.ClubUpdateRequest;
 import net.datasa.EnLink.community.service.ClubManageService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/club/{clubId}/manage")
 @RequiredArgsConstructor
@@ -20,14 +23,14 @@ public class ClubManageApiController {
 	 */
 	@PostMapping("/edit")
 	public ResponseEntity<String> editClub(@PathVariable Integer clubId,
-									  @ModelAttribute ClubDTO clubDTO,
+									  @ModelAttribute ClubUpdateRequest request,
 									  @AuthenticationPrincipal MemberDetails userDetails) {
-		clubManageService.updateClub(clubId, clubDTO, userDetails.getUsername());
+		clubManageService.updateClub(clubId, request, userDetails.getUsername());
 		return ResponseEntity.ok("모임 정보가 수정되었습니다.");
 	}
 	
 	/**
-	 * 모임 삭제 (논리 삭제)
+	 * 기본 모임 삭제 (논리 삭제) 7일 유예기간
 	 */
 	@PostMapping("/delete")
 	public ResponseEntity<String> delete(@PathVariable Integer clubId,
@@ -36,6 +39,29 @@ public class ClubManageApiController {
 		return ResponseEntity.ok("모임이 삭제요청이 완료되었습니다.");
 	}
 	
+	/**
+	 * 모임 즉시(영구) 삭제
+	 * - DB 레코드를 삭제하고 저장된 이미지 파일도 함께 제거함
+	 */
+	@DeleteMapping("/hard-delete")
+	public ResponseEntity<String> hardDeleteClub(@PathVariable("clubId") Integer clubId,
+												 @AuthenticationPrincipal MemberDetails userDetails) {
+		log.info("모임 즉시 삭제 요청 접수 - 모임 ID: {}", clubId);
+		
+		try {
+			clubManageService.hardDeleteClub(clubId, userDetails.getUsername());
+			return ResponseEntity.ok("모임이 성공적으로 영구 삭제되었습니다.");
+		} catch (Exception e) {
+			log.error("모임 삭제 중 오류 발생: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("삭제 처리 중 서버 오류가 발생했습니다.");
+		}
+		
+	}
+	
+	/**
+	 * 모임 즉시 복구
+	 */
 	@PostMapping("/restore")
 	public ResponseEntity<String> restore(@PathVariable Integer clubId,
 										 @AuthenticationPrincipal MemberDetails userDetails) {
@@ -82,7 +108,7 @@ public class ClubManageApiController {
 	 * 멤버 제명
 	 */
 	@PostMapping("/members/kick")
-	public ResponseEntity<?> kickMember(@PathVariable Integer clubId,
+	public ResponseEntity<String> kickMember(@PathVariable Integer clubId,
 										@RequestParam String memberId,
 										@RequestParam String description,
 										@AuthenticationPrincipal MemberDetails userDetails) {

@@ -2,10 +2,13 @@ package net.datasa.EnLink.community.chat.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import net.datasa.EnLink.common.error.BusinessException;
+import net.datasa.EnLink.common.error.ErrorCode;
 import net.datasa.EnLink.community.chat.dto.ChatMessageDTO;
 import net.datasa.EnLink.community.chat.entity.ChatMessageEntity;
 import net.datasa.EnLink.community.chat.repository.ChatMessageRepository;
 import net.datasa.EnLink.community.entity.ClubEntity;
+import net.datasa.EnLink.community.entity.ClubMemberEntity;
 import net.datasa.EnLink.community.repository.ClubMemberRepository;
 import net.datasa.EnLink.community.repository.ClubRepository;
 import net.datasa.EnLink.member.entity.MemberEntity;
@@ -73,12 +76,8 @@ public class ChatService {
 	@Transactional(readOnly = true)
 	public void checkChatAccess(Integer clubId, String memberId) {
 		// 1. 해당 유저가 모임에 가입되어 있는지 확인하는 로직 (예시)
-		boolean isMember = clubMemberRepository.existsByClub_ClubIdAndMember_MemberId(clubId, memberId);
+		ClubMemberEntity isMember = clubMemberRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId).orElseThrow(()->new BusinessException((ErrorCode.NOT_CLUB_MEMBER)));
 		
-		if (!isMember) {
-			// 가입되지 않았다면 예외를 발생시킴
-			throw new AccessDeniedException("모임 멤버만 채팅방에 입장할 수 있습니다.");
-		}
 	}
 	
 	@Transactional(readOnly = true)

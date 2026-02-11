@@ -1,4 +1,4 @@
-package net.datasa.EnLink.community.dto;
+package net.datasa.EnLink.community.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class ClubJoinRequestDTO {
+public class ClubJoinResponse {
 	private String memberId;
 	private String memberName;
 	private String answerText; // 가입 답변

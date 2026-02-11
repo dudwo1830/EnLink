@@ -2,7 +2,7 @@ package net.datasa.EnLink.community.post.controller;
 
 import lombok.RequiredArgsConstructor;
 import net.datasa.EnLink.common.security.MemberDetails;
-import net.datasa.EnLink.community.dto.ClubMemberDTO;
+import net.datasa.EnLink.community.dto.response.ClubMemberResponse;
 import net.datasa.EnLink.community.service.ClubManageService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -36,8 +36,8 @@ public class PostViewController {
 		
 		// 2. 작성자 정보 전달 (현재는 임시로 user01, 나중에 세션/시큐리티로 대체)
 		model.addAttribute("memberId", member.getMemberId());
-		ClubMemberDTO clubMemberDTO = clubManageService.getMemberInfo(clubId, member.getMemberId());
-		model.addAttribute("role", clubMemberDTO.getRole());
+		ClubMemberResponse clubMember = clubManageService.getMemberInfo(clubId, member.getMemberId());
+		model.addAttribute("role", clubMember.getRole());
 		
 		return "community/post/postWrite";
 	}

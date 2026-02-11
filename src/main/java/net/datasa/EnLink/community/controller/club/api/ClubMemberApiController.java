@@ -2,7 +2,7 @@ package net.datasa.EnLink.community.controller.club.api;
 
 import lombok.RequiredArgsConstructor;
 import net.datasa.EnLink.common.security.MemberDetails;
-import net.datasa.EnLink.community.dto.ClubMemberHistoryDTO;
+import net.datasa.EnLink.community.dto.response.ClubMemberHistoryResponse;
 import net.datasa.EnLink.community.service.ClubMemberService;
 import net.datasa.EnLink.community.service.ClubService;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +24,7 @@ public class ClubMemberApiController {
 	 * 특정 멤버의 전체 활동 이력 조회
 	 */
 	@GetMapping("/{memberId}/history")
-	public List<ClubMemberHistoryDTO> getMemberHistory(
+	public List<ClubMemberHistoryResponse> getMemberHistory(
 			@PathVariable("clubId") Integer clubId,
 			@PathVariable("memberId") String memberId) {
 		return clubMemberService.getMemberImportantHistory(clubId, memberId);
