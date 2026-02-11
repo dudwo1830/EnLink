@@ -1,7 +1,10 @@
 package net.datasa.EnLink.topic.dto.response;
 
-import lombok.*;
-import net.datasa.EnLink.topic.entity.TopicEntity;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Builder
 @Getter
@@ -11,13 +14,4 @@ import net.datasa.EnLink.topic.entity.TopicEntity;
 public class TopicDetailResponse {
 	private int topicId;
 	private String name;
-	
-	public static TopicDetailResponse fromEntity(TopicEntity entity) {
-		if (entity == null) return null; // 혹시라도 토픽이 없을 경우를 대비한 방어 코드
-		
-		return TopicDetailResponse.builder()
-				.topicId(entity.getTopicId())
-				.name(entity.getName())
-				.build();
-	}
 }

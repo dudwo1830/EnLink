@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.datasa.EnLink.city.entity.CityEntity;
 import net.datasa.EnLink.topic.entity.TopicEntity;
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -24,16 +26,18 @@ public class ClubEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "club_id")
 	private Integer clubId;
-	
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "topic_id")
 	private TopicEntity topic;
-	
-	private Integer cityId;
-	
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "city_id")
+	private CityEntity city;
+
 	@Column(unique = true, nullable = false)
 	private String name;
-	
+
 	private String description;
 	
 	@Builder.Default
@@ -42,19 +46,19 @@ public class ClubEntity {
 	
 	@Column(nullable = false)
 	private Integer maxMember = 10;
-	
+
 	private String joinQuestion;
-	
+
 	@Builder.Default
 	@Column(nullable = false)
 	private String status = "ACTIVE";
-	
+
 	@CreationTimestamp
 	private LocalDateTime createdAt;
-	
+
 	@UpdateTimestamp
 	private LocalDateTime updatedAt;
-	
+
 	private LocalDateTime deletedAt;
 	
 	@Builder.Default

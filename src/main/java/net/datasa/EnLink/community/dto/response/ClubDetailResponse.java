@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.datasa.EnLink.topic.dto.response.TopicDetailResponse;
 
 import java.time.LocalDateTime;
 
@@ -15,7 +14,7 @@ import java.time.LocalDateTime;
 public class ClubDetailResponse {
 	private Integer clubId;
 	private String name;
-	private TopicDetailResponse topic;
+	private Integer topicId;
 	private Integer cityId;
 	private String cityName;
 	private Integer maxMember;

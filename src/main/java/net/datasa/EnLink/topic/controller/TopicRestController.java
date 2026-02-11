@@ -4,10 +4,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import net.datasa.EnLink.common.security.MemberDetails;
 import net.datasa.EnLink.topic.dto.request.TopicCreateRequest;
 import net.datasa.EnLink.topic.dto.request.TopicUpdateRequest;
-import net.datasa.EnLink.topic.dto.response.TopicWithCheckResponse;
 import net.datasa.EnLink.topic.dto.response.TopicDetailResponse;
 import net.datasa.EnLink.topic.service.TopicService;
 
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
@@ -58,13 +55,4 @@ public class TopicRestController {
 		return topicService.getListAll();
 	}
 
-	/**
-	 * 회원의 설정을 포함한 주제 조회
-	 * 
-	 * @return
-	 */
-	@GetMapping("me")
-	public List<TopicWithCheckResponse> getCheckListAll(@AuthenticationPrincipal MemberDetails member) {
-		return topicService.getCheckListAll(member.getMemberId());
-	}
 }

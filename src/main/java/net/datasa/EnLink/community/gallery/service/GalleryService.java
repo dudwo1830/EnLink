@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -71,8 +72,8 @@ public class GalleryService {
 		// 2. DB 저장
 		ClubEntity club = clubRepository.findById(clubId)
 				.orElseThrow(() -> new RuntimeException("모임 정보를 찾을 수 없습니다."));
-//		MemberEntity member = memberRepository.findById(memberId)
-		MemberEntity member = memberRepository.findById("user01")
+		MemberEntity member = memberRepository.findById(memberId)
+		//MemberEntity member = memberRepository.findById("user01")
 				.orElseThrow(() -> new RuntimeException("회원 정보를 찾을 수 없습니다."));
 		
 		GalleryEntity entity = GalleryEntity.builder()
@@ -117,6 +118,7 @@ public class GalleryService {
 	}
 	
 	// 사진 삭제
+	@PreAuthorize("#memberId == principal.memberId")
 	public void delete(Integer photoId, String memberId) {
 		// 1. DB에서 사진 정보 조회
 		GalleryEntity entity = galleryRepository.findById(photoId)

@@ -73,7 +73,7 @@
         <button type="submit" style="padding: 5px 15px">검색</button>
 
         <a
-          th:href="@{/community/post/list(clubId=${clubId})}"
+          th:href="@{/community/post/list/{id}(id=${clubId})}"
           style="
             text-decoration: none;
             font-size: 0.9em;
@@ -100,7 +100,10 @@
     <div id="pagination" style="text-align: center; margin-top: 20px;">
     </div>
 
-    <script>
+    <script th:inline="javascript">
+      // 타임리프로 clubId 가져오기
+      const clubId = /*[[${clubId}]]*/ 1;
+
       // 페이지 로드 시 실행
       document.addEventListener('DOMContentLoaded', function () {
         loadPage();
@@ -109,7 +112,7 @@
       // 1. URL에서 파라미터(clubId, searchType, searchKeyword) 모두 추출
       function loadPage() {
         const urlParams = new URLSearchParams(window.location.search);
-        const clubId = urlParams.get('clubId') || 1;
+        
         const searchType = urlParams.get('searchType') || 'all';
         const searchKeyword = urlParams.get('searchKeyword') || '';
         const page = urlParams.get('page') || 0; // 페이지 번호 읽기 (기본값 0)
@@ -186,7 +189,7 @@
 
           btn.onclick = function () {
             // 클릭 시 해당 페이지로 이동 (URL 파라미터 변경)
-            location.href = `/community/post/list?clubId=${clubId}&searchType=${searchType}&searchKeyword=${searchKeyword}&page=${i}`;
+            location.href = `/community/post/list/${clubId}?searchType=${searchType}&searchKeyword=${searchKeyword}&page=${i}`;
           };
           paginationElement.appendChild(btn);
         }

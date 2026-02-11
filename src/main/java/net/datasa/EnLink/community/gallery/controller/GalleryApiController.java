@@ -1,12 +1,12 @@
 package net.datasa.EnLink.community.gallery.controller;
 
 import lombok.RequiredArgsConstructor;
+import net.datasa.EnLink.common.security.MemberDetails;
 import net.datasa.EnLink.community.gallery.DTO.GalleryDTO;
 import net.datasa.EnLink.community.gallery.service.GalleryService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,14 +39,14 @@ public class GalleryApiController {
 	public ResponseEntity<String> uploadImage(
 			@RequestParam("image") MultipartFile image,
 			@RequestParam("clubId") Integer clubId,
-			@AuthenticationPrincipal UserDetails user) { // 로그인 통합을 고려한 스텁
+			@AuthenticationPrincipal MemberDetails member) { // 로그인 통합을 고려한 스텁
 		
 		// TODO: 로그인 기능 병합 전까지는 테스트용 아이디를 수동으로 입력하거나
 		// 시큐리티 설정 전이라면 String memberId = "testUser"; 로 대체 가능
-		String memberId = (user != null) ? user.getUsername() : "user01";
+//		String memberId = (user != null) ? user.getUsername() : "user01";
 		
 		try {
-			galleryService.upload(image, clubId, memberId);
+			galleryService.upload(image, clubId, member.getMemberId());
 			return ResponseEntity.ok("업로드 성공");
 		} catch (Exception e) {
 			return ResponseEntity.internalServerError().body("업로드 실패: " + e.getMessage());
@@ -56,13 +56,10 @@ public class GalleryApiController {
 	@DeleteMapping("/{photoId}")
 	public ResponseEntity<String> deleteImage(
 			@PathVariable("photoId") Integer photoId,
-			@AuthenticationPrincipal UserDetails user) {
+			@AuthenticationPrincipal MemberDetails member) {
 		
 		try {
-			// 현재 로그인한 사용자 정보 가져오기 (없으면 테스트용 스텁)
-			String memberId = (user != null) ? user.getUsername() : "user01";
-			
-			galleryService.delete(photoId, memberId);
+			galleryService.delete(photoId, member.getMemberId());
 			return ResponseEntity.ok("사진이 삭제되었습니다.");
 		} catch (Exception e) {
 			e.printStackTrace();

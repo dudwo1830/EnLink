@@ -1,37 +1,60 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head th:replace="~{fragments/head :: head('HOME', ~{::link}, ~{::script})}">
-    <link rel="stylesheet" href="#" th:if="${false}" />
-    <script src="#" th:if="${false}"></script>
+    <link rel="stylesheet" th:href="@{/css/search-select.css}" />
+    <link rel="stylesheet" th:href="@{/css/card-layout.css}" />
+    <script type="module" th:src="@{/js/club/list/club-list.js}"></script>
+    <script th:src="@{/js/common/search-select.js}"></script>
   </head>
   <body>
     <div class="grid-container">
       <header th:replace="~{fragments/header :: header}"></header>
       <aside th:replace="~{fragments/aside :: aside}"></aside>
       <main class="main">
+        <div class="flex">
+          <div class="select-search topics" data-name="topicId">
+            <input type="text" class="select-input" autocomplete="false" />
+            <input type="hidden" class="select-hidden" />
+            <ul class="select-options"></ul>
+          </div>
+          <div class="select-search regions" data-name="regionId">
+            <input type="text" class="select-input" autocomplete="false" />
+            <input type="hidden" class="select-hidden" />
+            <ul class="select-options"></ul>
+          </div>
+          <div class="select-search cities" data-name="cityId">
+            <input type="text" class="select-input" autocomplete="false" />
+            <input type="hidden" class="select-hidden" />
+            <ul class="select-options"></ul>
+          </div>
+        </div>
+        <input type="text" id="searchInput" placeholder="검색할 내용"/>
         <h1>HELLO ENLINK</h1>
-          <nav class="member-navigation">
-              <h2>👤 회원 관련 메뉴 (팀원 작업 확인용)</h2>
-              <ul>
-                  <li><a th:href="@{/members/}">회원가입</a></li>
-                  <li><a th:href="@{/member/login}">로그인</a></li>
-              </ul>
-          </nav>
+        <nav class="member-navigation">
+          <h2>👤 회원 관련 메뉴 (팀원 작업 확인용)</h2>
+          <ul>
+            <li><a th:href="@{/members/}">회원가입</a></li>
+            <li><a th:href="@{/member/login}">로그인</a></li>
+          </ul>
+        </nav>
+        <hr>
+        <nav class="test-navigation">
+            <h2>🚀 커뮤니티 기능 테스트 메뉴</h2>
+            <ul>
+                <li><a th:href="@{/club/list}">모임 목록 보기</a></li>
 
-          <hr>
-          <nav class="test-navigation">
-              <h2>🚀 커뮤니티 기능 테스트 메뉴</h2>
-              <ul>
-                  <li><a th:href="@{/club/list}">모임 목록 보기</a></li>
+                <li><a th:href="@{/club/create}">새 모임 만들기</a></li>
 
-                  <li><a th:href="@{/club/create}">새 모임 만들기</a></li>
-
-                  <li><a th:href="@{/members/mypage/clubs}">내 모임 정보</a></li>
+                <li><a th:href="@{/members/mypage/clubs}">내 모임 정보</a></li>
 
 
-              </ul>
-          </nav>
-
+            </ul>
+        </nav>
+        <hr />
+        <div>
+          <div class="card-container" id="clubList"></div>
+          <button type="button" id="clubListMore">모임 더보기</button>
+        </div>
       </main>
       <footer th:replace="~{fragments/footer :: footer}"></footer>
     </div>

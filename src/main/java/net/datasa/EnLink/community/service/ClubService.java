@@ -2,8 +2,11 @@ package net.datasa.EnLink.community.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.datasa.EnLink.city.entity.CityEntity;
+import net.datasa.EnLink.city.repository.CityRepository;
 import net.datasa.EnLink.common.error.BusinessException;
 import net.datasa.EnLink.common.error.ErrorCode;
+import net.datasa.EnLink.community.dto.ClubSummaryResponse;
 import net.datasa.EnLink.community.dto.request.ClubCreateRequest;
 import net.datasa.EnLink.community.dto.response.ClubDetailResponse;
 import net.datasa.EnLink.community.dto.response.ClubListResponse;
@@ -22,6 +25,8 @@ import net.datasa.EnLink.topic.dto.response.TopicDetailResponse;
 import net.datasa.EnLink.topic.entity.TopicEntity;
 import net.datasa.EnLink.topic.repository.TopicRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,17 +47,23 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 public class ClubService {
-	
+
 	private final ClubRepository clubRepository;
 	private final ClubMemberRepository clubMemberRepository;
 	private final ClubMemberHistoryRepository clubMemberHistoryRepository;
 	private final ClubAnswerRepository clubAnswerRepository;
+	
+	/**
+	 * 모임생성
+	 * */
+	private final ClubManageService clubManageService;
 	private final MemberRepository memberRepository;
 	private final TopicRepository topicRepository;
+	private final CityRepository cityRepository;
 	
 	@Value("${file.upload.path}")
 	private String uploadPath;
-	
+
 	/**
 	 * 모임 생성 (이미지 처리 포함)
 	 */
@@ -68,17 +79,18 @@ public class ClubService {
 		if (imageUrl == null) {
 			imageUrl = "/images/default_club.jpg";
 		}
-		
+
 		TopicEntity topic = topicRepository.findById(clubCreateDTO.getTopicId())
 				.orElseThrow(() -> new BusinessException(ErrorCode.TOPIC_NOT_FOUND));
-
+		CityEntity city = cityRepository.findById(clubCreateDTO.getCityId())
+				.orElseThrow(() -> new BusinessException(ErrorCode.CONTENT_NOT_FOUND));
 
 		ClubEntity club = ClubEntity.builder()
 				.name(clubCreateDTO.getName())
 				.description(clubCreateDTO.getDescription())
 				.maxMember(clubCreateDTO.getMaxMember())
 				.topic(topic)
-				.cityId(clubCreateDTO.getCityId())
+				.city(city)
 				.joinQuestion(clubCreateDTO.getJoinQuestion())
 				.imageUrl(imageUrl)
 				.status("ACTIVE")
@@ -89,7 +101,7 @@ public class ClubService {
 		
 		return club.getClubId();
 	}
-	
+
 	/**
 	 * 활성화된 모임 목록 조회 (인원수 카운트 포함)
 	 */
@@ -98,24 +110,8 @@ public class ClubService {
 		
 		
 		return clubRepository.findByStatus("ACTIVE").stream()
-				.map(this::convertToListResponse) // ✅ 별도 메서드로 분리
+				.map(this::convertToListResponse)
 				.collect(Collectors.toList());
-	}
-	
-	private ClubListResponse convertToListResponse(ClubEntity entity) {
-		int currentCount = clubMemberRepository.countByClub_ClubIdAndStatus(entity.getClubId(), "ACTIVE");
-		
-		return ClubListResponse.builder()
-				.clubId(entity.getClubId())
-				.name(entity.getName())
-				.description(entity.getDescription()) // 목록에도 설명이 필요하다면 유지
-				.imageUrl(entity.getImageUrl())
-				.currentMemberCount(currentCount)
-				.maxMember(entity.getMaxMember())
-				.topic(TopicDetailResponse.fromEntity(entity.getTopic()))
-				.cityName("종로구") // 시티 맵 로직 유지
-				.status(entity.getStatus())
-				.build();
 	}
 	
 	/**
@@ -147,31 +143,15 @@ public class ClubService {
 			remainingTime = duration.isNegative() ? "삭제 처리 중..." :
 					duration.toDays() + "일 " + duration.toHoursPart() + "시간 남음";
 		}
-		
-		// ✅ 토픽 정보 안전하게 가져오기
-		TopicDetailResponse topicDto = null;
-		if (entity.getTopic() != null) {
-			try {
-				// 이 메서드 안에서 실제 DB 조회가 일어날 때 터질 수 있으므로 감싸줍니다.
-				topicDto = TopicDetailResponse.fromEntity(entity.getTopic());
-			} catch (Exception e) {
-				log.warn("모임 [{}]의 토픽 데이터를 불러올 수 없습니다. 유령 ID 가능성.", entity.getClubId());
-				// 기본값 설정 (화면이 깨지지 않게)
-				topicDto = TopicDetailResponse.builder().topicId(0).name("카테고리 없음").build();
-			}
-		} else {
-			// 토픽 자체가 null인 경우
-			topicDto = TopicDetailResponse.builder().topicId(0).name("없음").build();
-		}
-		
+
 		return ClubDetailResponse.builder()
 				.clubId(entity.getClubId())
 				.name(entity.getName())
 				.description(entity.getDescription())
 				.maxMember(entity.getMaxMember())
-				.topic(topicDto) // ✅ 안전해진 DTO 주입
-				.cityId(entity.getCityId())
-				.cityName(entity.getCityId() != null && entity.getCityId() == 2 ? "강남구" : "종로구")
+				.topicId(entity.getTopic().getTopicId())
+				.cityId(entity.getCity().getCityId())
+				.cityName(entity.getCity().getNameLocal())
 				.imageUrl(entity.getImageUrl())
 				.status(entity.getStatus())
 				.joinQuestion(entity.getJoinQuestion())
@@ -179,26 +159,23 @@ public class ClubService {
 				.createdAt(entity.getCreatedAt())
 				.build();
 	}
-	
+
 	/**
-	 * 가입 신청 처리 (재가입 로직 포함)
+	 * 신규 가입 신청을 처리합니다. (5+5 참여 쿼터제 적용)
+	 * 탈퇴/제명 이력이 있는 경우 기존 데이터를 'PENDING' 상태로 갱신하여 재신청 처리합니다.
 	 */
 	public void applyToClub(Integer clubId, String memberId, String answerText) {
-		
-		// ✅ 1. 수정: 새로 만든 '참여 쿼터 체크' 수문장 호출
-		// 내 멤버 상태가 ACTIVE이면서, 모임 상태가 ACTIVE나 DELETED_PENDING인 것들을 모두 카운트함
-		long participantCount = clubMemberRepository.countParticipantQuota(memberId);
-		
-		if (participantCount >= 5) {
+		// 1. [정책] 참여 쿼터 체크 (최대 5개, 삭제 대기 모임 포함)
+		if (clubMemberRepository.countParticipantQuota(memberId) >= 5) {
 			throw new BusinessException(ErrorCode.JOIN_LIMIT_EXCEEDED);
 		}
 		
 		ClubEntity club = clubRepository.findById(clubId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.CLUB_NOT_FOUND));
 		
-		// ✅ 2. 모임 자체가 이미 삭제 대기 중이라면 가입 신청을 막는 게 좋습니다.
+		// 2. [정책] 삭제 진행 중인 모임은 신규 가입 불가
 		if ("DELETED_PENDING".equals(club.getStatus())) {
-			throw new BusinessException(ErrorCode.CLUB_NOT_FOUND); // 혹은 전용 에러코드
+			throw new BusinessException(ErrorCode.CLUB_NOT_FOUND);
 		}
 		
 		MemberEntity member = memberRepository.findById(memberId)
@@ -207,32 +184,12 @@ public class ClubService {
 		Optional<ClubMemberEntity> existingMember = clubMemberRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId);
 		
 		if (existingMember.isPresent()) {
-			ClubMemberEntity clubMember = existingMember.get();
-			String currentStatus = clubMember.getStatus();
-			
-			if ("ACTIVE".equals(currentStatus) || "PENDING".equals(currentStatus)) {
-				throw new BusinessException(ErrorCode.ALREADY_JOINED_OR_PENDING);
-			}
-			
-			// ✅ 재가입 시 상태 업데이트
-			if ("EXIT".equals(currentStatus) || "BANNED".equals(currentStatus)) {
-				clubMember.setStatus("PENDING");
-				clubMember.setRole("MEMBER");
-				// joinedAt은 여기서 넣지 않고, 나중에 '승인' 시점에 넣는 것을 추천합니다.
-				clubMember.setAppliedAt(LocalDateTime.now()); // 신청일자 필드가 있다면 활용
-			}
-			
+			updateExistingMemberStatus(existingMember.get());
 		} else {
-			clubMemberRepository.save(ClubMemberEntity.builder()
-					.club(club)
-					.member(member)
-					.role("MEMBER")
-					.status("PENDING")
-					.appliedAt(LocalDateTime.now()) // 빌더에 신청일 추가 권장
-					.build());
+			createNewMemberApplication(club, member);
 		}
 		
-		// 답변 저장 (기존 로직 유지)
+		// 신청 답변 갱신 (기존 답변 삭제 후 재생성)
 		clubAnswerRepository.deleteByClubIdAndMemberId(clubId, memberId);
 		clubAnswerRepository.save(ClubJoinAnswerEntity.builder()
 				.clubId(clubId).memberId(memberId).answerText(answerText).build());
@@ -268,10 +225,14 @@ public class ClubService {
 						.build())
 				// 2. 직급 순서 정렬 (OWNER -> MANAGER -> MEMBER 순)
 				.sorted((m1, m2) -> {
-					if (m1.getRole().equals("OWNER")) return -1;
-					if (m2.getRole().equals("OWNER")) return 1;
-					if (m1.getRole().equals("MANAGER")) return -1;
-					if (m2.getRole().equals("MANAGER")) return 1;
+					if (m1.getRole().equals("OWNER"))
+						return -1;
+					if (m2.getRole().equals("OWNER"))
+						return 1;
+					if (m1.getRole().equals("MANAGER"))
+						return -1;
+					if (m2.getRole().equals("MANAGER"))
+						return 1;
 					return 0;
 				})
 				.collect(Collectors.toList());
@@ -289,10 +250,11 @@ public class ClubService {
 		throw new BusinessException(ErrorCode.INVALID_MAX_MEMBER);
 	}
 		
-		long totalActiveCount = clubMemberRepository.countByMember_MemberIdAndStatus(loginMemberId, "ACTIVE");
-		if (totalActiveCount >= 5) {
-			throw new BusinessException(ErrorCode.JOIN_LIMIT_EXCEEDED);
-	}
+		long ownedClubCount = clubMemberRepository.countOwnerQuota(loginMemberId);
+		
+		if (ownedClubCount >= 5) {
+			throw new BusinessException(ErrorCode.OWNER_LIMIT_EXCEEDED);
+		}
 }
 	
 	/**
@@ -327,5 +289,70 @@ public class ClubService {
 		clubMemberHistoryRepository.save(ClubMemberHistoryEntity.builder()
 				.club(club).targetMember(owner).actorMember(owner)
 				.actionType("JOIN_APPROVE").description("모임 생성 및 모임장 등록").build());
+	}
+
+
+	
+	private ClubListResponse convertToListResponse(ClubEntity entity) {
+		int currentCount = clubMemberRepository.countByClub_ClubIdAndStatus(entity.getClubId(), "ACTIVE");
+		
+		return ClubListResponse.builder()
+				.clubId(entity.getClubId())
+				.name(entity.getName())
+				.description(entity.getDescription()) // 목록에도 설명이 필요하다면 유지
+				.imageUrl(entity.getImageUrl())
+				.currentMemberCount(currentCount)
+				.maxMember(entity.getMaxMember())
+				.topicId(entity.getTopic().getTopicId())
+				.cityId(entity.getCity().getCityId()) // 시티 맵 로직 유지
+				.status(entity.getStatus())
+				.build();
+	}
+	
+	private void updateExistingMemberStatus(ClubMemberEntity clubMember) {
+		String currentStatus = clubMember.getStatus();
+		
+		if ("ACTIVE".equals(currentStatus) || "PENDING".equals(currentStatus)) {
+			throw new BusinessException(ErrorCode.ALREADY_JOINED_OR_PENDING);
+		}
+		
+		if ("EXIT".equals(currentStatus) || "BANNED".equals(currentStatus)) {
+			clubMember.setStatus("PENDING");
+			clubMember.setRole("MEMBER");
+			clubMember.setAppliedAt(LocalDateTime.now());
+		}
+	}
+	
+	private void createNewMemberApplication(ClubEntity club, MemberEntity member) {
+		clubMemberRepository.save(ClubMemberEntity.builder()
+				.club(club)
+				.member(member)
+				.role("MEMBER")
+				.status("PENDING")
+				.appliedAt(LocalDateTime.now())
+				.build());
+	}
+
+	/**
+	 * 모임 리스트 조회 및 페이징 처리, 검색
+	 * 
+	 * @param pageable
+	 * @param search   검색할 내용
+	 * @param topicId  주제 PK
+	 * @param cityId   지역 PK
+	 * @return
+	 */
+	public Slice<ClubSummaryResponse> getClubListBySlice(Pageable pageable, Integer cityId, Integer topicId,
+			String search, Integer regionId) {
+		return clubRepository.searchClubs(pageable, cityId, topicId, search, regionId).map(club -> {
+			return ClubSummaryResponse.builder()
+					.clubId(club.getClubId())
+					.name(club.getName())
+					.topicName(club.getTopic().getName())
+					.cityName(club.getCity().getRegion().getNameLocal() + " " + club.getCity().getNameLocal())
+					.imageUrl(club.getImageUrl())
+					.description(club.getDescription())
+					.build();
+		});
 	}
 }
