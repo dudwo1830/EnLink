@@ -12,4 +12,6 @@ public class ClubSummaryResponse {
 	private String cityName;
 	private String description;
 	private String imageUrl;
+	private int currentMemberCount;
+	private int maxMemberCount;
 }

@@ -31,6 +31,11 @@ public interface ClubRepository extends JpaRepository<ClubEntity, Integer> {
 	 */
 	List<ClubEntity> findByStatus(String status);
 
+	/**
+	 * 특정 상태와 주제를 포함한 모임 목록을 조회합니다.
+	 */
+	List<ClubEntity> findByStatusAndTopic_TopicId(String status, Integer topicId);
+
 	// 모임 리스트 조회 및 페이징 처리, 검색
 	@Query("""
 			select cb from ClubEntity cb
@@ -49,6 +54,8 @@ public interface ClubRepository extends JpaRepository<ClubEntity, Integer> {
 				(:search is null
 					or cb.name like %:search%
 					or cb.description like %:search%)
+			and
+				 (cb.status like "ACTIVE")
 			""")
 	Slice<ClubEntity> searchClubs(Pageable pageable,
 			@Param("cityId") Integer cityId,

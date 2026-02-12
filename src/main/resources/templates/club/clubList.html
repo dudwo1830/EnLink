@@ -61,10 +61,10 @@
                             <p th:if="${club.description != null}" th:text="${club.description}" class="club-desc text-muted small mb-3">모임 설명...</p>
 
                             <div class="club-meta small text-secondary">
-                                <span class="badge bg-light text-dark border me-1" th:text="${club.topic?.name}">주제명</span>
+                                <span class="badge bg-light text-dark border me-1" th:text="${club.topicName}">주제명</span>
                                 <i class="bi bi-geo-alt-fill ms-2 me-1"></i><span th:text="${club.cityName}">지역명</span>
                                 <i class="bi bi-people-fill ms-3 me-1"></i>
-                                <span>멤버 <span class="fw-bold text-primary" th:text="${club.currentMemberCount}">0</span> / <span th:text="${club.maxMember}">10</span></span>
+                                <span>멤버 <span class="fw-bold text-primary" th:text="${club.currentMemberCount}">0</span> / <span th:text="${club.maxMemberCount}">10</span></span>
                             </div>
                         </div>
                     </a>

@@ -345,6 +345,7 @@ public class ClubService {
 	public Slice<ClubSummaryResponse> getClubListBySlice(Pageable pageable, Integer cityId, Integer topicId,
 			String search, Integer regionId) {
 		return clubRepository.searchClubs(pageable, cityId, topicId, search, regionId).map(club -> {
+			int currentCount = clubMemberRepository.countByClub_ClubIdAndStatus(club.getClubId(), "ACTIVE");
 			return ClubSummaryResponse.builder()
 					.clubId(club.getClubId())
 					.name(club.getName())
@@ -352,7 +353,28 @@ public class ClubService {
 					.cityName(club.getCity().getRegion().getNameLocal() + " " + club.getCity().getNameLocal())
 					.imageUrl(club.getImageUrl())
 					.description(club.getDescription())
+					.currentMemberCount(currentCount)
+					.maxMemberCount(club.getMaxMember())
 					.build();
 		});
+	}
+
+	public List<ClubSummaryResponse> getListByTopicId(Integer topicId){
+		List<ClubEntity> entities = (topicId != null) ?
+			clubRepository.findByStatusAndTopic_TopicId("ACTIVE", topicId) :
+			clubRepository.findByStatus("ACTIVE");
+		return entities.stream().map(club -> {
+				int currentCount = clubMemberRepository.countByClub_ClubIdAndStatus(club.getClubId(), "ACTIVE");
+				return ClubSummaryResponse.builder()
+								.clubId(club.getClubId())
+								.name(club.getName())
+								.topicName(club.getTopic().getName())
+								.cityName(club.getCity().getRegion().getNameLocal() + " " + club.getCity().getNameLocal())
+								.imageUrl(club.getImageUrl())
+								.description(club.getDescription())
+								.currentMemberCount(currentCount)
+								.maxMemberCount(club.getMaxMember())
+								.build();
+		}).toList();
 	}
 }

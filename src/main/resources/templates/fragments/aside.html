@@ -2,11 +2,21 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <link rel="stylesheet" th:href="@{/css/fragments/aside.css}" />
   <aside class="aside" th:fragment="aside">
-    <nav class="nav">
+    <nav>
       <ul>
-        <li>메인 메뉴 1</li>
-        <li>메인 메뉴 2</li>
-        <li>메인 메뉴 3</li>
+        <th:block sec:authorize="not isAuthenticated()">
+          <li><a th:href="@{/auth/login}" th:classappend="${currentURI.startsWith('/auth/login')} ? 'active'">로그인</a></li>
+          <li><a th:href="@{/members/signup}" th:classappend="${currentURI.startsWith('/members/signup')} ? 'active'">회원가입</a></li>
+        </th:block>
+        <th:block sec:authorize="isAuthenticated()">
+          <li><a th:href="@{/auth/logout}">로그아웃</a></li>
+          <li><a th:href="@{/members/me}" th:classappend="${currentURI.startsWith('/members/me')} ? 'active'">회원 정보</a></li>
+        </th:block>
+      </ul>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{/club/list?(topicId=${topic.topicId})}" th:text="${topic.name}"></a>
+        </li>
       </ul>
     </nav>
   </aside>
