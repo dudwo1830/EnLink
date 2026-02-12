@@ -1,0 +1,9 @@
+footer {
+	grid-area: footer;
+  background: var(--color-surface);
+  text-align: center;
+  padding: 16px;
+  font-size: 14px;
+  color: var(--color-subtext);
+  border-top: 1px solid var(--color-border);
+}
