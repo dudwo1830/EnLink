@@ -10,7 +10,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.datasa.EnLink.topic.dto.request.TopicCreateRequest;
 import net.datasa.EnLink.topic.dto.request.TopicUpdateRequest;
-import net.datasa.EnLink.topic.dto.response.TopicWithCheckResponse;
 import net.datasa.EnLink.topic.dto.response.TopicDetailResponse;
 import net.datasa.EnLink.topic.entity.TopicEntity;
 import net.datasa.EnLink.topic.repository.TopicRepository;
@@ -46,10 +45,6 @@ public class TopicService {
 							.build());
 		}
 		return topics;
-	}
-
-	public List<TopicWithCheckResponse> getCheckListAll(String memberId) {
-		return topicRepository.findAllWithCheck(memberId);
 	}
 
 }

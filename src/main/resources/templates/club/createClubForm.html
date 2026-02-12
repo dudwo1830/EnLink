@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('새로운 모임 만들기', ~{::link}, ~{::script})}">
-    <link rel="stylesheet" href="#" th:if="${false}"/>
-    <script src="#" th:if="${false}"></script>
+    <link rel="stylesheet" th:href="@{/css/search-select.css}" />
+    <script th:src="@{/js/common/search-select.js}" defer></script>
+    <script th:src="@{/js/club/create-club-form.js}" defer></script>
 </head>
 <body class="bg-light">
 <div class="grid-container">
@@ -32,10 +33,11 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-4">
                                         <label class="form-label fw-bold">관심사 카테고리</label>
-                                        <select th:field="*{topicId}" class="form-select" required>
-                                            <option value="">-- 선택 --</option>
-                                            <option th:each="topic : ${topics}" th:value="${topic.topicId}" th:text="${topic.name}">운동</option>
-                                        </select>
+                                        <div class="select-search topics" data-name="topicId">
+                                            <input type="text" class="select-input form-control" autocomplete="false" />
+                                            <input type="hidden" class="select-hidden" th:field="*{topicId}"/>
+                                            <ul class="select-options"></ul>
+                                        </div>
                                     </div>
                                     <div class="col-md-6 mb-4">
                                         <label class="form-label fw-bold">최대 인원</label>
@@ -44,14 +46,23 @@
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="form-label fw-bold">상세 지역 (구/군)</label>
-                                    <select th:field="*{cityId}" class="form-select" required>
-                                        <option value="">-- 상세 지역 선택 --</option>
-                                        <option value="1">종로구</option>
-                                        <option value="2">중구</option>
-                                        <option value="3">강남구</option>
-                                        <option value="4">송파구</option>
-                                    </select>
+                                    <label class="mb-2 fw-bold">상세 지역 선택</label>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-4">
+                                            <div class="select-search regions" data-name="regionId">
+                                                <input type="text" class="select-input form-control" autocomplete="false" />
+                                                <input type="hidden" class="select-hidden"/>
+                                                <ul class="select-options"></ul>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-4">
+                                            <div class="select-search cities" data-name="cityId">
+                                                <input type="text" class="select-input form-control" autocomplete="false" />
+                                                <input type="hidden" class="select-hidden" th:field="*{cityId}"/>
+                                                <ul class="select-options"></ul>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="mb-4">

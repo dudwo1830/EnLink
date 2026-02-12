@@ -58,8 +58,7 @@ public class ClubManageService {
 		return clubRepository.findById(clubId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.CLUB_NOT_FOUND));
 	}
-	
-	
+
 	/**
 	 * 모임의 기본 정보(이름, 설명, 인원, 질문)와 업로드된 파일을 처리하여 정보를 업데이트합니다.
 	 */
@@ -96,7 +95,7 @@ public class ClubManageService {
 			club.setTopic(topic);
 		}
 	}
-	
+
 	/**
 	 * 모임 상태를 'DELETED_PENDING'으로 변경하고 삭제 시간을 기록하여 7일 유예 기간을 시작합니다.
 	 */
@@ -148,7 +147,7 @@ public class ClubManageService {
 	
 	/**
 	 * 삭제 대기 중인 모임의 상태를 'ACTIVE'로 되돌리고 삭제 예정 시간을 초기화합니다.
-	 * */
+	 */
 	@Transactional
 	public void restoreClub(Integer clubId, String loginId) {
 		checkAuthority(clubId, loginId, "OWNER_ONLY");
@@ -178,7 +177,6 @@ public class ClubManageService {
 		log.info("[모임 복구 완료] 모임ID: {}, 요청자: {}", clubId, loginId);
 	}
 	
-	
 	/**
 	 * 가입 신청 대기자 목록 조회 (페이징 버전)
 	 */
@@ -186,13 +184,13 @@ public class ClubManageService {
 	public Page<ClubJoinResponse> getPendingRequestsPaging(Integer clubId, int page) {
 		// 1. 10개씩, 신청일시(appliedAt) 내림차순 정렬 설정
 		Pageable pageable = PageRequest.of(page, 10, Sort.by("appliedAt").descending());
-		
+
 		Page<ClubMemberEntity> pendingPage = clubMemberRepository.findByClub_ClubIdAndStatus(clubId, "PENDING", pageable);
-		
+
 		// 3. Page 안의 엔티티들을 DTO로 변환 (기존 로직 그대로 활용)
 		return pendingPage.map(entity -> {
 			String memberId = entity.getMember().getMemberId();
-			
+
 			// 가입 답변 찾아오기
 			String answer = clubAnswerRepository.findByClubIdAndMemberId(clubId, memberId)
 					.map(ClubJoinAnswerEntity::getAnswerText)
@@ -216,10 +214,10 @@ public class ClubManageService {
 			return dto;
 		});
 	}
-	
+
 	/**
 	 * 가입 승인 로직
-	 * */
+	 */
 	@Transactional
 	public void approveMember(Integer clubId, String memberId, String loginId) {
 		
@@ -237,7 +235,7 @@ public class ClubManageService {
 		if (activeParticipantCount >= 5) {
 			throw new BusinessException(ErrorCode.JOIN_LIMIT_EXCEEDED);
 		}
-		
+
 		ClubEntity club = member.getClub();
 		int currentMemberCount = clubMemberRepository.countByClub_ClubIdAndStatus(clubId, "ACTIVE");
 		if (currentMemberCount >= club.getMaxMember()) {
@@ -250,7 +248,7 @@ public class ClubManageService {
 		clubAnswerRepository.deleteByClubIdAndMemberId(clubId, memberId);
 		clubMemberHistoryService.leaveHistory(clubId, memberId,loginId, "JOIN_APPROVE", "모임 가입 승인");
 	}
-	
+
 	/**
 	 * 가입 거절
 	 */
@@ -267,7 +265,7 @@ public class ClubManageService {
 		
 		clubMemberRepository.delete(member);
 	}
-	
+
 	/**
 	 * 현재 모임에 정식 가입(ACTIVE)된 멤버들을 직급 순서대로 정렬하여 리스트로 반환
 	 * */
@@ -314,12 +312,12 @@ public class ClubManageService {
 		// 1. 요청자와 대상자 정보 가져오기
 		ClubMemberEntity requester = findMember(clubId, requesterId);
 		ClubMemberEntity target = findMember(clubId, targetId);
-		
+
 		// 2. 본인 제명 방지
 		if (requesterId.equals(targetId)) {
 			throw new BusinessException(ErrorCode.SELF_ACTION_NOT_ALLOWED);
 		}
-		
+
 		// 3. 권한별 필터링
 		if ("MANAGER".equals(requester.getRole())) {
 			if (!"MEMBER".equals(target.getRole())) {
@@ -332,7 +330,7 @@ public class ClubManageService {
 		target.setStatus("BANNED");
 		clubMemberHistoryService.leaveHistory(clubId, targetId, requesterId, "BANNED", description);
 	}
-	
+
 	/**
 	 * 멤버 조회 공통 메서드
 	 */
@@ -340,7 +338,7 @@ public class ClubManageService {
 		return clubMemberRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.NOT_CLUB_MEMBER));
 	}
-	
+
 	/**
 	 * 특정 모임에서 특정 유저의 상세 멤버 정보(권한, 가입일 등)를 DTO로 반환합니다.
 	 */
@@ -348,12 +346,12 @@ public class ClubManageService {
 		// 1. 데이터를 가져옵니다.
 		ClubMemberEntity entity = clubMemberRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId)
 				.orElse(null);
-		
+
 		// 2. 데이터가 아예 없을 때만 null을 반환합니다.
 		if (entity == null) {
 			return null;
 		}
-		
+
 		// 3. 상태(PENDING, EXIT, ACTIVE 등)가 담긴 DTO를 그대로 반환합니다.
 		return new ClubMemberResponse(entity);
 	}

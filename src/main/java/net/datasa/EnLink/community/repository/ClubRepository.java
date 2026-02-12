@@ -1,7 +1,12 @@
 package net.datasa.EnLink.community.repository;
 
 import net.datasa.EnLink.community.entity.ClubEntity;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -25,5 +30,29 @@ public interface ClubRepository extends JpaRepository<ClubEntity, Integer> {
 	 * 특정 상태(ACTIVE, DELETED_PENDING 등)의 모임 목록을 조회합니다.
 	 */
 	List<ClubEntity> findByStatus(String status);
-}
 
+	// 모임 리스트 조회 및 페이징 처리, 검색
+	@Query("""
+			select cb from ClubEntity cb
+			join cb.city c
+			join cb.topic t
+			where
+				(:cityId is null
+					or c.cityId = :cityId)
+			and
+				(:regionId is null
+					or c.region.regionId = :regionId)
+			and
+				(:topicId is null
+					or t.topicId = :topicId)
+			and
+				(:search is null
+					or cb.name like %:search%
+					or cb.description like %:search%)
+			""")
+	Slice<ClubEntity> searchClubs(Pageable pageable,
+			@Param("cityId") Integer cityId,
+			@Param("topicId") Integer topicId,
+			@Param("search") String search,
+			@Param("regionId") Integer regionId);
+}

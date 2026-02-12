@@ -36,7 +36,6 @@ body {
   color: rgb(160, 160, 160);
 }
 
-
 .aside {
   grid-area: aside;
   background-color: #838383;
@@ -44,4 +43,15 @@ body {
 .nav {
   background-color: #545454;
   color: white;
+}
+
+.flex {
+  display: flex;
+}
+
+.ul-reset {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  gap: 2vh;
 }

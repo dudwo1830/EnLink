@@ -8,6 +8,20 @@ document.addEventListener('DOMContentLoaded', function() {
             if (this.disabled) return;
             this.disabled = true;
 
+            /* 주제, 지역 선택 여부 검사 */
+            const topicId = createForm.querySelector('input[name="topicId"]').value;
+            const cityId = createForm.querySelector('input[name="cityId"]').value;
+            if (topicId == null || topicId == ''){
+                Swal.fire('요청 오류', '관심사를 선택해 주세요', 'warning')
+                this.disabled = false;
+                return;
+            }
+            if (cityId == null || cityId == ''){
+                Swal.fire('요청 오류', '지역(구/군)을 선택해 주세요', 'warning')
+                this.disabled = false;
+                return;
+            }
+
             // 2. 유효성 검사
             if (!createForm.checkValidity()) {
                 createForm.reportValidity();
