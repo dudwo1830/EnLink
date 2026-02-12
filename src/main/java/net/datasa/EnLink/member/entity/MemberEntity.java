@@ -12,6 +12,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.datasa.EnLink.city.entity.CityEntity;
+import net.datasa.EnLink.membercity.entity.MemberCityEntity;
 import net.datasa.EnLink.membertopic.entity.MemberTopicEntity;
 
 import java.time.LocalDate;
@@ -88,5 +90,23 @@ public class MemberEntity {
 	}
 
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-	private final List<MemberTopicEntity> topicInterests = new ArrayList<>();
+	private List<MemberTopicEntity> memberTopics = new ArrayList<>();
+
+	// 현재 member당 city는 하나씩 연결 하도록 되어 있음
+	// 하지만 members_city 조인테이블이 존재하기에 그에 대한 처리
+	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<MemberCityEntity> memberCities = new ArrayList<>();
+
+	public CityEntity getCity() {
+		if (memberCities.isEmpty()) {
+			return null;
+		}
+		return memberCities.get(0).getCity();
+	}
+
+	public void changeCity(CityEntity city) {
+		memberCities.clear();
+		MemberCityEntity mc = new MemberCityEntity(this, city);
+		memberCities.add(mc);
+	}
 }

@@ -5,10 +5,10 @@
       <a th:href="@{/}">메인 페이지</a>
     </div>
     <nav class="nav">
-      <ul>
+      <ul class="flex ul-reset">
         <th:block sec:authorize="not isAuthenticated()">
-          <li><a th:href="@{/members/signup}">회원가입</a></li>
           <li><a th:href="@{/auth/login}">로그인</a></li>
+          <li><a th:href="@{/members/signup}">회원가입</a></li>
         </th:block>
         <th:block sec:authorize="isAuthenticated()">
           <li><a th:href="@{/auth/logout}">로그아웃</a></li>

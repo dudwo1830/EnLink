@@ -46,18 +46,26 @@ public class ReplyService {
 	/**
 	 * 특정 게시글의 댓글 목록 조회 (Entity -> DTO 변환)
 	 */
-	public List<ReplyDTO> getRepliesByPostId(Integer postId) {
+	public List<ReplyDTO> getRepliesByPostId(Integer postId, String currentUserId) {
 		List<ReplyEntity> entityList = replyRepository.findByPost_PostIdOrderByReplyIdAsc(postId);
 		
-		return entityList.stream().map(entity -> ReplyDTO.builder()
-				.replyId(entity.getReplyId())
-				.postId(entity.getPost().getPostId())
-				.memberId(entity.getMemberId())
-				.content(entity.getContent())
-				.createdAt(entity.getCreatedAt())
-				.updatedAt(entity.getUpdatedAt())
-				.build()
-		).collect(Collectors.toList());
+		return entityList.stream().map(entity -> {
+			// 핵심: 현재 로그인한 사용자와 댓글 작성자가 같은지 비교
+			boolean canEdit = false;
+			if (currentUserId != null) {
+				canEdit = entity.getMemberId().equals(currentUserId);
+			}
+			
+			return ReplyDTO.builder()
+					.replyId(entity.getReplyId())
+					.postId(entity.getPost().getPostId())
+					.memberId(entity.getMemberId())
+					.content(entity.getContent())
+					.createdAt(entity.getCreatedAt())
+					.updatedAt(entity.getUpdatedAt())
+					.canEdit(canEdit)
+					.build();
+		}).collect(Collectors.toList());
 	}
 	
 	/**
