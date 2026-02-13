@@ -1,23 +1,87 @@
-<!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
-  <link rel="stylesheet" th:href="@{/css/fragments/aside.css}" />
-  <aside class="aside" th:fragment="aside">
-    <nav>
-      <ul>
-        <th:block sec:authorize="not isAuthenticated()">
-          <li><a th:href="@{/auth/login}" th:classappend="${currentURI.startsWith('/auth/login')} ? 'active'">로그인</a></li>
-          <li><a th:href="@{/members/signup}" th:classappend="${currentURI.startsWith('/members/signup')} ? 'active'">회원가입</a></li>
-        </th:block>
-        <th:block sec:authorize="isAuthenticated()">
-          <li><a th:href="@{/auth/logout}">로그아웃</a></li>
-          <li><a th:href="@{/members/me}" th:classappend="${currentURI.startsWith('/members/me')} ? 'active'">회원 정보</a></li>
-        </th:block>
-      </ul>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{/club/list?(topicId=${topic.topicId})}" th:text="${topic.name}"></a>
-        </li>
-      </ul>
+<aside class="aside" th:fragment="aside" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <div class="aside-action">
+        <a th:href="@{/club/create}" class="btn-create-club" id="menu-create">
+            <i class="bi bi-plus-lg"></i>
+            <span>새 모임 만들기</span>
+        </a>
+    </div>
+
+    <nav class="aside-nav">
+        <div class="menu-group" sec:authorize="isAuthenticated()">
+            <h3 class="menu-title">My Activity</h3>
+            <ul class="my-menu-list">
+                <li>
+                    <a th:href="@{/members/mypage/clubs(type='owned')}"
+                       th:classappend="${param.type != null && param.type[0] == 'owned'} ? 'active' : ''">
+                        <i class="bi bi-patch-check-fill"></i>
+                        <span>내가 만든 모임</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/members/mypage/clubs(type='active')}"
+                       th:classappend="${param.type != null && param.type[0] == 'active'} ? 'active' : ''">
+                        <i class="bi bi-people-fill"></i>
+                        <span>참여 중인 모임</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/members/mypage/clubs(type='pending')}"
+                       th:classappend="${param.type != null && param.type[0] == 'pending'} ? 'active' : ''">
+                        <i class="bi bi-hourglass-split"></i>
+                        <span>가입 신청 현황</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="menu-group">
+            <h3 class="menu-title">Explore</h3>
+            <ul>
+                <li>
+                    <a th:href="@{/club/list}" id="menu-all">
+                        <i class="bi bi-grid"></i>
+                        <span>전체 모임 보기</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="menu-group">
+            <h3 class="menu-title">Categories</h3>
+            <ul class="category-list">
+                <li th:each="topic : ${topics}">
+                    <a th:href="@{/club/list(topicId=${topic.topicId})}"
+                       th:classappend="${param.topicId != null && param.topicId[0] == topic.topicId.toString()} ? 'active' : ''">
+                        <i class="category-dot"></i>
+                        <span th:text="${topic.name}">카테고리명</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
     </nav>
-  </aside>
-</html>
+
+    <script th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", function() {
+            const path = window.location.pathname;
+            const params = new URLSearchParams(window.location.search);
+
+            // 1. 전체 모임 보기 활성화
+            if (path === '/club/list' && !params.has('topicId') && !params.has('type')) {
+                const menuAll = document.getElementById('menu-all');
+                if (menuAll) {
+                    menuAll.classList.add('active');
+                    const icon = menuAll.querySelector('i');
+                    if (icon) icon.className = 'bi bi-grid-fill';
+                }
+            }
+
+            // 2. 새 모임 만들기 활성화
+            if (path === '/club/create') {
+                const menuCreate = document.getElementById('menu-create');
+                if (menuCreate) {
+                    menuCreate.classList.add('active-create');
+                }
+            }
+        });
+    </script>
+</aside>

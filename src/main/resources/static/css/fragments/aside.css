@@ -1,57 +1,146 @@
-aside {
+.aside {
   grid-area: aside;
   width: 240px;
-  background: var(--color-secondary);
-  padding: 24px 0;
+  background-color: #f8f7ff;
   border-right: 1px solid var(--color-border);
+  height: calc(100vh - 75px);
+  position: sticky;
+  top: 75px;
+  padding: 30px 0;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-aside h3 {
-  margin: 0 24px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-subtext);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.aside::-webkit-scrollbar {
+  display: none;
 }
 
-/* ul 기본 정리 */
-aside ul {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 24px 0;
+.aside-action {
+  padding: 0 15px 20px;
 }
 
-/* 구분선 */
-aside ul + ul {
-  border-top: 1px solid var(--color-border);
-  padding-top: 16px;
-}
-
-/* 링크 스타일 */
-aside li a {
-  display: block;
-  padding: 10px 24px;
-  color: var(--color-subtext);
+.btn-create-club {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: var(--color-primary);
+  color: white !important;
   text-decoration: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 700;
   font-size: 14px;
   transition: all 0.2s ease;
-  border-left: 3px solid transparent;
 }
 
-/* hover 효과 */
-aside li a:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: var(--color-primary);
-  border-left: 3px solid var(--color-primary);
+.btn-create-club:hover {
+  background-color: #6c63ff;
+  transform: translateY(-1px);
 }
 
-/* active 상태 */
-aside li a.active {
-  background: rgba(0, 0, 0, 0.08);
-  color: var(--color-primary);
+.btn-create-club.active-create {
+  background-color: #6c63ff !important;
+  box-shadow: 0 4px 15px rgba(108, 99, 255, 0.4);
+}
+
+.aside-nav {
+  padding: 0 15px;
+}
+
+.menu-group {
+  margin-bottom: 30px;
+}
+
+.menu-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #aaa;
+  letter-spacing: 1px;
+  margin: 0 15px 12px;
+}
+
+/* ★ My Activity 전용 리스트 스타일 */
+.my-menu-list {
+  margin-bottom: 10px;
+}
+
+.my-menu-list li a {
+  background-color: #ffffff; /* 흰색 카드로 강조 */
+  border: 1px solid rgba(142, 140, 216, 0.1);
+  margin-bottom: 6px;
+  box-shadow: 0 2px 4px rgba(142, 140, 216, 0.05);
+}
+
+.my-menu-list li a i {
+  color: var(--color-primary); /* 아이콘 보라색 강조 */
+}
+
+.aside ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.aside li {
+  margin-bottom: 4px;
+}
+
+.aside li a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  text-decoration: none;
+  color: #555;
+  font-size: 14px;
   font-weight: 500;
-  border-left: 3px solid var(--color-primary);
+  border-radius: 10px;
+  transition: all 0.25s ease;
+}
+
+.aside li a:hover {
+  background-color: rgba(142, 140, 216, 0.1);
+  color: var(--color-primary);
+}
+
+.aside li a.active {
+  background-color: var(--color-primary) !important;
+  color: white !important;
+  box-shadow: 0 4px 10px rgba(142, 140, 216, 0.3);
+}
+
+.aside li a.active i {
+  color: white !important;
+}
+
+.category-dot {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #ddd;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  transition: all 0.2s ease;
+  margin-right: 10px;
+}
+
+.aside li a.active .category-dot {
+  background-color: #ffffff !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+.aside li a.active .category-dot::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px; height: 6px;
+  background-color: var(--color-primary);
+  border-radius: 50%;
 }

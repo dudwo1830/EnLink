@@ -21,7 +21,6 @@ import net.datasa.EnLink.community.repository.ClubMemberRepository;
 import net.datasa.EnLink.community.repository.ClubRepository;
 import net.datasa.EnLink.member.entity.MemberEntity;
 import net.datasa.EnLink.member.repository.MemberRepository;
-import net.datasa.EnLink.topic.dto.response.TopicDetailResponse;
 import net.datasa.EnLink.topic.entity.TopicEntity;
 import net.datasa.EnLink.topic.repository.TopicRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,11 +51,6 @@ public class ClubService {
 	private final ClubMemberRepository clubMemberRepository;
 	private final ClubMemberHistoryRepository clubMemberHistoryRepository;
 	private final ClubAnswerRepository clubAnswerRepository;
-	
-	/**
-	 * 모임생성
-	 * */
-	private final ClubManageService clubManageService;
 	private final MemberRepository memberRepository;
 	private final TopicRepository topicRepository;
 	private final CityRepository cityRepository;

@@ -1,21 +1,49 @@
-<!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
-  <link rel="stylesheet" th:href="@{/css/fragments/header.css}" />
-  <header class="header" th:fragment="header">
-    <div>
-      <a th:href="@{/}">메인 페이지</a>
+<header class="header" th:fragment="header" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <div class="header-container">
+        <div class="logo-area">
+            <a th:href="@{/}" class="logo-text">EnLink</a>
+        </div>
+
+        <div class="search-area">
+            <div class="header-search-bar">
+                <div class="header-filter-group">
+                    <div class="fake-select">
+                        <span class="label">관심사</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="fake-select">
+                        <span class="label">도/시 전체</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="fake-select">
+                        <span class="label">상세 지역</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                </div>
+
+                <div class="header-input-wrapper">
+                    <input type="text" placeholder="검색어 입력" readonly>
+                    <button type="button" class="search-circle-btn">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <nav class="user-nav">
+            <ul class="user-actions">
+                <th:block sec:authorize="not isAuthenticated()">
+                    <li><a th:href="@{/auth/login}" class="btn-login">로그인</a></li>
+                    <li><a th:href="@{/members/signup}" class="btn-signup">회원가입</a></li>
+                </th:block>
+                <th:block sec:authorize="isAuthenticated()">
+                    <li><span class="user-name" th:text="${#authentication.name} + '님'">배경호님</span></li>
+                    <li><a th:href="@{/members/me}" class="btn-info">내 정보</a></li>
+                    <li><a th:href="@{/auth/logout}" class="btn-logout">로그아웃</a></li>
+                </th:block>
+            </ul>
+        </nav>
     </div>
-    <nav class="nav">
-      <ul class="flex ul-reset">
-        <th:block sec:authorize="not isAuthenticated()">
-          <li><a th:href="@{/auth/login}">로그인</a></li>
-          <li><a th:href="@{/members/signup}">회원가입</a></li>
-        </th:block>
-        <th:block sec:authorize="isAuthenticated()">
-          <li><a th:href="@{/auth/logout}">로그아웃</a></li>
-          <li><a th:href="@{/members/me}">회원 정보</a></li>
-        </th:block>
-      </ul>
-    </nav>
-  </header>
-</html>
+</header>
