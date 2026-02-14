@@ -14,16 +14,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 
 @Controller
-@RequestMapping("/community/post")
+@RequestMapping("community/post")
 @RequiredArgsConstructor
 public class PostViewController {
 	private final ClubManageService clubManageService;
 	// 게시글 목록 (주소: /community/post/list?clubId=1)
-	@GetMapping("/list/{clubId}")
+	@GetMapping("list/{clubId}")
 	public String list(@PathVariable(name = "clubId") Integer clubId,
 					   Model model) {
 		
 		model.addAttribute("clubId", clubId);
+		System.out.println("======================================================================" +clubId);
 		return "community/post/postList";
 	}
 	

@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/head :: head('EnLink - 내 모임 활동', ~{::link}, ~{::script})}">
     <link rel="stylesheet" th:href="@{/css/clubList.css}">
-    <script th:src="@{/js/clubMember.js}"></script>
+<!--    <script th:src="@{/js/clubMember.js}"></script>-->
 </head>
 <body>
 <style>
+    /* 기존 스타일 유지 */
     .club-section { margin-bottom: 50px; }
-    .club-section h2 { border-left: 5px solid #007bff; padding-left: 15px; margin-bottom: 20px; }
+    .club-section h2 { border-left: 5px solid #6c63ff; padding-left: 15px; margin-bottom: 20px; }
 
     .club-img-wrapper {
         width: 150px !important;
@@ -22,10 +23,16 @@
     }
     .btn-cancel { background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
     .btn-manage { background-color: #28a745; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9em; }
+
+    /* 레이아웃 보정: 푸터가 바닥에 붙도록 */
+    .main { display: flex; flex-direction: column; min-height: calc(100vh - 75px); }
+    .list-content-container { flex: 1; padding: 40px; }
 </style>
 
 <div class="grid-container">
     <header th:replace="~{fragments/header :: header}" class="header"></header>
+
+    <aside th:replace="~{fragments/aside :: aside}"></aside>
 
     <main class="main">
         <div class="list-content-container">
@@ -38,7 +45,9 @@
                 <a th:href="@{/members/mypage/clubs(type='pending')}" th:classappend="${currentType == 'pending'} ? 'active'">신청 현황</a>
             </div>
 
-            <div th:if="${#lists.isEmpty(clubs)}" class="empty-msg"><p>표시할 내역이 없습니다. 새로운 모임에 참여해보세요!</p></div>
+            <div th:if="${#lists.isEmpty(clubs)}" class="empty-msg">
+                <p>표시할 내역이 없습니다. 새로운 모임에 참여해보세요!</p>
+            </div>
 
             <div class="club-list" th:if="${not #lists.isEmpty(clubs)}">
                 <div th:each="club : ${clubs}" class="club-item-card">
@@ -53,8 +62,8 @@
                             <span th:text="${club.name}">모임 이름</span>
                             <span th:if="${club.status == 'DELETED_PENDING'}"
                                   style="background-color: #fff4e5; color: #ffa117; border: 1px solid #ffa117; font-size: 11px; padding: 1px 6px; border-radius: 4px; white-space: nowrap;">
-            삭제 대기
-        </span>
+                                삭제 대기
+                            </span>
                         </h3>
 
                         <div class="club-meta">
@@ -73,7 +82,6 @@
 
                             <th:block th:if="${currentType == 'pending'}">
                                 <p class="text-muted" style="font-size: 0.9em;">운영진의 승인을 기다리고 있습니다.</p>
-
                                 <button type="button" class="btn-action btn-cancel"
                                         th:onclick="|cancelApply(${club.clubId})|">
                                     신청 취소
@@ -84,8 +92,9 @@
                 </div>
             </div>
         </div>
+
+        <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
     </main>
-    <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

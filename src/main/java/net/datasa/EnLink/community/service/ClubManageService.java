@@ -176,7 +176,7 @@ public class ClubManageService {
 		
 		log.info("[모임 복구 완료] 모임ID: {}, 요청자: {}", clubId, loginId);
 	}
-	
+
 	/**
 	 * 가입 신청 대기자 목록 조회 (페이징 버전)
 	 */

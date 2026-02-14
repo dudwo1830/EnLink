@@ -16,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -51,10 +52,12 @@ public class ClubViewController {
 	
 	/** 모임 목록 조회 */
 	@GetMapping("/list")
-	public String list(Model model, @AuthenticationPrincipal MemberDetails loginUser) {
-		String loginMemberId = (loginUser != null) ? loginUser.getUsername() : null;
+	public String list(Model model,
+						@AuthenticationPrincipal MemberDetails loginUser,
+						@RequestParam(name="topicId", required = false, defaultValue = "") Integer topicId) {
+						String loginMemberId = (loginUser != null) ? loginUser.getUsername() : null;
 		
-		model.addAttribute("clubs", clubService.getClubList());
+		model.addAttribute("clubs", clubService.getListByTopicId(topicId));
 		model.addAttribute("loginMemberId", loginMemberId);
 		return "club/clubList";
 	}

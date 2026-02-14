@@ -51,11 +51,6 @@ public class ClubService {
 	private final ClubMemberRepository clubMemberRepository;
 	private final ClubMemberHistoryRepository clubMemberHistoryRepository;
 	private final ClubAnswerRepository clubAnswerRepository;
-	
-	/**
-	 * 모임생성
-	 * */
-	private final ClubManageService clubManageService;
 	private final MemberRepository memberRepository;
 	private final TopicRepository topicRepository;
 	private final CityRepository cityRepository;
@@ -289,6 +284,7 @@ public class ClubService {
 				.club(club).targetMember(owner).actorMember(owner)
 				.actionType("JOIN_APPROVE").description("모임 생성 및 모임장 등록").build());
 	}
+
 	
 	private ClubListResponse convertToListResponse(ClubEntity entity) {
 		int currentCount = clubMemberRepository.countByClub_ClubIdAndStatus(entity.getClubId(), "ACTIVE");
@@ -342,6 +338,7 @@ public class ClubService {
 	public Slice<ClubSummaryResponse> getClubListBySlice(Pageable pageable, Integer cityId, Integer topicId,
 			String search, Integer regionId) {
 		return clubRepository.searchClubs(pageable, cityId, topicId, search, regionId).map(club -> {
+			int currentCount = clubMemberRepository.countByClub_ClubIdAndStatus(club.getClubId(), "ACTIVE");
 			return ClubSummaryResponse.builder()
 					.clubId(club.getClubId())
 					.name(club.getName())
@@ -349,7 +346,29 @@ public class ClubService {
 					.cityName(club.getCity().getRegion().getNameLocal() + " " + club.getCity().getNameLocal())
 					.imageUrl(club.getImageUrl())
 					.description(club.getDescription())
+					.currentMemberCount(currentCount)
+					.maxMemberCount(club.getMaxMember())
 					.build();
 		});
+	}
+
+
+	public List<ClubSummaryResponse> getListByTopicId(Integer topicId){
+		List<ClubEntity> entities = (topicId != null) ?
+			clubRepository.findByStatusAndTopic_TopicId("ACTIVE", topicId) :
+			clubRepository.findByStatus("ACTIVE");
+		return entities.stream().map(club -> {
+				int currentCount = clubMemberRepository.countByClub_ClubIdAndStatus(club.getClubId(), "ACTIVE");
+				return ClubSummaryResponse.builder()
+								.clubId(club.getClubId())
+								.name(club.getName())
+								.topicName(club.getTopic().getName())
+								.cityName(club.getCity().getRegion().getNameLocal() + " " + club.getCity().getNameLocal())
+								.imageUrl(club.getImageUrl())
+								.description(club.getDescription())
+								.currentMemberCount(currentCount)
+								.maxMemberCount(club.getMaxMember())
+								.build();
+		}).toList();
 	}
 }

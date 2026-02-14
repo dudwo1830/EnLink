@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head('모임 정보 수정', ~{::link}, ~{::script})}">
+<head th:replace="~{fragments/head :: head('EnLink - 모임 정보 수정', ~{::link}, ~{::script})}">
     <link rel="stylesheet" th:href="@{/css/search-select.css}" />
     <link rel="stylesheet" th:href="@{/css/manage.css}">
     <script th:inline="javascript">
@@ -12,11 +12,15 @@
 </head>
 <body>
 <div class="grid-container">
-    <header th:replace="~{fragments/header :: header}" class="header"></header>
+    <header th:replace="~{fragments/header :: header}"></header>
+
+    <aside th:replace="~{fragments/aside :: aside}"></aside>
 
     <main class="main">
         <div class="manage-main-container">
-            <aside th:replace="~{fragments/manageSidebar :: sidebar('edit')}"></aside>
+            <aside class="manage-sidebar-area">
+                <div th:replace="~{fragments/manageSidebar :: sidebar('edit')}"></div>
+            </aside>
 
             <section class="manage-content-area">
                 <h1>모임 정보 수정</h1>
@@ -43,16 +47,11 @@
                         <label>모임 이미지 변경:</label>
                         <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
                             <input type="file" name="uploadFile" accept="image/*" id="fileInput">
-
                             <div class="reset-checkbox" style="display: flex; align-items: center; gap: 5px;">
                                 <input type="checkbox" name="defaultImage" id="defaultImage" value="true">
                                 <label for="defaultImage" style="font-size: 0.9rem; color: #d9534f; cursor: pointer; margin: 0;">기본 이미지로 변경</label>
                             </div>
                         </div>
-                        <p class="help-text" style="font-size: 0.85rem; color: #666;">
-                            * 이미지를 선택하지 않으면 기존 이미지가 유지됩니다.
-                            * '기본 이미지로 변경'을 체크하면 등록한 사진이 삭제되고 기본 로고로 바뀝니다.
-                        </p>
                     </div>
 
                     <div class="form-group">
@@ -66,45 +65,48 @@
 
                     <div class="form-group">
                         <label>상세 지역 (구/군):</label>
-                        <div class="select-search regions" data-name="regionId">
-                            <input type="text" class="select-input" autocomplete="false" />
-                            <input type="hidden" class="select-hidden" />
-                            <ul class="select-options"></ul>
-                        </div>
-                        <div class="select-search cities" data-name="cityId">
-                            <input type="text" class="select-input" autocomplete="false" />
-                            <input type="hidden" class="select-hidden" />
-                            <ul class="select-options"></ul>
+                        <div style="display: flex; gap: 10px;">
+                            <div class="select-search regions" data-name="regionId" style="flex:1;">
+                                <input type="text" class="select-input" autocomplete="false" />
+                                <input type="hidden" class="select-hidden" />
+                                <ul class="select-options"></ul>
+                            </div>
+                            <div class="select-search cities" data-name="cityId" style="flex:1;">
+                                <input type="text" class="select-input" autocomplete="false" />
+                                <input type="hidden" class="select-hidden" />
+                                <ul class="select-options"></ul>
+                            </div>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label>최대 인원:</label>
                         <input type="number" name="maxMember" th:value="${clubDTO.maxMember}" min="10" step="10">
-                        <p class="help-text" style="font-size: 0.85rem; color: #d9534f;">* 정원은 10명 단위로 설정 가능합니다.</p>
                     </div>
 
                     <div class="form-group">
                         <label>모임 소개:</label>
-                        <textarea name="description" th:text="${clubDTO.description}" rows="5" style="width: 100%;"></textarea>
+                        <textarea name="description" th:text="${clubDTO.description}" rows="5" style="width: 100%; border-radius: 8px; border: 1px solid #ddd; padding: 10px;"></textarea>
                     </div>
 
-                    <div class="form-group">
-                        <label>가입 질문:</label>
-                        <input type="text" name="joinQuestion" th:value="${clubDTO.joinQuestion}" placeholder="가입 신청 질문">
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="button" class="btn-submit" th:onclick="|updateClubInfo(${clubDTO.clubId})|">수정 완료</button>
-                        <a th:href="@{/club/{id}(id=${clubDTO.clubId})}" class="btn-cancel">취소</a>
+                    <div class="form-actions" style="margin-top: 30px; display: flex; gap: 10px;">
+                        <button type="button" class="btn-submit" th:onclick="|updateClubInfo(${clubDTO.clubId})|"
+                                style="background: var(--color-primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer;">
+                            수정 완료
+                        </button>
+                        <a th:href="@{/club/{id}(id=${clubDTO.clubId})}" class="btn-cancel"
+                           style="background: #eee; color: #666; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                            취소
+                        </a>
                     </div>
                 </form>
             </section>
         </div>
-    </main>
 
-    <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
+        <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
+    </main>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script th:src="@{/js/club/manage.js}"></script>
 </body>

@@ -1,9 +1,84 @@
-footer {
-	grid-area: footer;
-  background: var(--color-surface);
-  text-align: center;
-  padding: 16px;
-  font-size: 14px;
-  color: var(--color-subtext);
+.footer {
+  grid-area: footer;
+  background-color: #fafafa; /* 세련된 아주 연한 그레이 */
   border-top: 1px solid var(--color-border);
+  padding: 30px 50px; /* 높이를 확 줄임 */
+}
+
+.footer-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* 가로 한 줄 정렬 */
+}
+
+.footer-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.footer-logo {
+  font-size: 18px;
+  font-weight: 800;
+  color: #bbb; /* 푸터 로고는 차분하게 */
+  margin: 0;
+}
+
+.footer-desc {
+  color: #999;
+  font-size: 13px;
+  border-left: 1px solid #ddd;
+  padding-left: 20px;
+  margin: 0;
+}
+
+/* 링크 영역 가로 배치 */
+.footer-links {
+  display: flex;
+  gap: 30px;
+}
+
+.link-group h4 {
+  display: none; /* 슬림 푸터에서는 제목 생략 */
+}
+
+.link-group a {
+  text-decoration: none;
+  color: #777;
+  font-size: 13px;
+  transition: 0.2s;
+}
+
+.link-group a:hover {
+  color: var(--color-primary);
+}
+
+/* 하단 영역 통합 */
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.footer-bottom p {
+  font-size: 12px;
+  color: #bbb;
+  margin: 0;
+}
+
+.social-icons {
+  display: flex;
+  gap: 15px;
+  font-size: 16px;
+  color: #ccc;
+}
+
+.social-icons i:hover {
+  color: var(--color-primary);
+  cursor: pointer;
 }
