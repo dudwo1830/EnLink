@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -35,18 +36,11 @@ public class CityService {
 				.toList();
 	}
 
-	public List<CityDetailResponse> getCityList(Integer regionId) {
-		List<CityEntity> cities = cityRepository.findByRegion_regionId(regionId);
-		return cities.stream()
-				.map(city -> new CityDetailResponse(city.getCityId(), city.getNameLocal(),
-						city.getRegion().getNameLocal() + " " + city.getNameLocal()))
-				.toList();
-	}
-
+	@Cacheable("cityListByRegionAndLocale")
 	public List<CityDetailResponse> getCityList(Integer regionId, LanguageType lang) {
 		List<CityEntity> cities = (regionId == null)
 				? cityRepository.findByRegion_Country_CodeOrderByNameLocalAsc(lang.getCode())
-				: cityRepository.findByRegion_Country_CodeAndRegion_RegionIdOrderByNameLocalAsc(lang.getCode(), regionId);
+				: cityRepository.findByRegion_RegionIdOrderByNameLocalAsc(regionId);
 		return cities.stream()
 				.map(city -> new CityDetailResponse(city.getCityId(), city.getNameLocal(),
 						city.getRegion().getNameLocal() + " " + city.getNameLocal()))

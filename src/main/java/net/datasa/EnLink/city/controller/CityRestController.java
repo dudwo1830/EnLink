@@ -30,7 +30,7 @@ public class CityRestController {
 
 	@GetMapping("")
 	public List<CityDetailResponse> getCityList(
-			@RequestParam(required = false) Integer regionId,
+			@RequestParam(name = "regionId", required = false) Integer regionId,
 			Locale locale) {
 		return cityService.getCityList(regionId, LanguageType.from(locale));
 	}
