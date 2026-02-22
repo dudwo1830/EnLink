@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/club/{clubId}/member") // {clubId}를 공통 경로로 사용
+@RequestMapping("{locale}/club/{clubId}/member") // {clubId}를 공통 경로로 사용
 @RequiredArgsConstructor
 public class ClubMemberViewController {
 	

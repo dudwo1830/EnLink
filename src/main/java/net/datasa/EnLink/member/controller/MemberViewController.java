@@ -20,7 +20,7 @@ import net.datasa.EnLink.member.service.MemberService;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-@RequestMapping("members")
+@RequestMapping("{locale}/members")
 @RequiredArgsConstructor
 public class MemberViewController {
 	private final String TEMPLATE_PATH = "member/";

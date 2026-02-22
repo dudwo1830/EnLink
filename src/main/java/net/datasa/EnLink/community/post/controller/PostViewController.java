@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 
 @Controller
-@RequestMapping("community/post")
+@RequestMapping("{locale}/community/post")
 @RequiredArgsConstructor
 public class PostViewController {
 	private final ClubManageService clubManageService;

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/community/gallery")
+@RequestMapping("{locale}/community/gallery")
 @RequiredArgsConstructor
 public class GalleryViewController {
 	
