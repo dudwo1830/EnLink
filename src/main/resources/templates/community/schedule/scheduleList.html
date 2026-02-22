@@ -247,7 +247,7 @@
                   adminButtons = `
                     <div>
                         <button class="btn btn-outline-warning btn-sm" onclick='openUpdateModal(${JSON.stringify(item)})'>수정</button>
-                        <button class="btn btn-outline-danger btn-sm" onclick="deleteSchedule(${item.schedId})">삭제</button>
+                        <button class="btn btn-outline-danger btn-sm" onclick="deleteSchedule(${item.schedId})" th:text="#{button.delete}">삭제</button>
                     </div>
                     `;
                 }

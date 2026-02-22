@@ -33,17 +33,17 @@
         <nav class="member-navigation">
           <h2>👤 회원 관련 메뉴 (팀원 작업 확인용)</h2>
           <ul>
-            <li><a th:href="@{/members/signup}">회원가입</a></li>
-            <li><a th:href="@{/auth/login}">로그인</a></li>
+            <li><a th:href="@{|${locale}/members/signup|}">회원가입</a></li>
+            <li><a th:href="@{|${locale}/auth/login|}" th:text="#{button.login}">로그인</a></li>
           </ul>
         </nav>
         <hr />
         <nav class="test-navigation">
           <h2>🚀 커뮤니티 기능 테스트 메뉴</h2>
           <ul>
-            <li><a th:href="@{/club/list}">모임 목록 보기</a></li>
-            <li><a th:href="@{/club/create}">새 모임 만들기</a></li>
-            <li><a th:href="@{/members/mypage/clubs}">내 모임 정보</a></li>
+            <li><a th:href="@{|${locale}/club/list|}">모임 목록 보기</a></li>
+            <li><a th:href="@{|${locale}/club/create|}">새 모임 만들기</a></li>
+            <li><a th:href="@{|${locale}/members/mypage/clubs|}">내 모임 정보</a></li>
           </ul>
         </nav>
         <hr />

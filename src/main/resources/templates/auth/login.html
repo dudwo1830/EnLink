@@ -1,6 +1,6 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
-  <head th:replace="~{fragments/head :: head('로그인', ~{::link}, ~{::script})}">
+  <head th:replace="~{fragments/head :: head(#{login.title}, ~{::link}, ~{::script})}">
     <link rel="stylesheet" href="#" th:if="${false}" />
     <script src="#" th:if="${false}"></script>
   </head>
@@ -9,26 +9,26 @@
       <header th:replace="~{fragments/header :: header}"></header>
       <aside th:replace="~{fragments/aside :: aside}"></aside>
       <main class="main">
-        <form th:action="@{/auth/login}" method="post" id="loginForm">
+        <form th:action="@{/login}" method="post" id="loginForm">
           <!-- 회원 아이디 -->
           <div>
-            <label for="memberId">아이디</label><br />
+            <label for="memberId" th:text="#{auth.login.id}">아이디</label><br />
             <input type="text" id="memberId" name="memberId" maxlength="20" required />
           </div>
           <br />
           <!-- 비밀번호 -->
           <div>
-            <label for="password">비밀번호</label><br />
+            <label for="password" th:text="#{auth.login.password}">비밀번호</label><br />
             <input type="password" id="password" name="password" maxlength="100" required />
           </div>
           <br />
-          <button type="submit">로그인</button>
+          <button type="submit" th:text="#{auth.login.submit}">로그인</button>
           <div th:if="${param.error}">
-            <span style="color: red"> 일치하는 정보가 없음 </span>
+            <span style="color: red" th:text="#{auth.login.error.invalid}"> 일치하는 정보가 없음 </span>
           </div>
         </form>
         <div>
-          <a th:href="@{/members/signup}">회원가입</a>
+          <a th:href="@{/{locale}/members/signup(locale=${#locale.language})}" th:text="#{auth.login.signup}">회원가입</a>
         </div>
       </main>
       <footer th:replace="~{fragments/footer :: footer}"></footer>

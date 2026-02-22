@@ -40,9 +40,9 @@
             <p><strong th:text="${#authentication.name}">사용자</strong> 님의 활동 정보입니다.</p>
 
             <div class="tab-menu">
-                <a th:href="@{/members/mypage/clubs(type='owned')}" th:classappend="${currentType == 'owned'} ? 'active'">내가 만든 모임</a>
-                <a th:href="@{/members/mypage/clubs(type='active')}" th:classappend="${currentType == 'active'} ? 'active'">참여 중인 모임</a>
-                <a th:href="@{/members/mypage/clubs(type='pending')}" th:classappend="${currentType == 'pending'} ? 'active'">신청 현황</a>
+                <a th:href="@{|${locale}/members/mypage/clubs(type='owned')|}" th:classappend="${currentType == 'owned'} ? 'active'">내가 만든 모임</a>
+                <a th:href="@{|${locale}/members/mypage/clubs(type='active')|}" th:classappend="${currentType == 'active'} ? 'active'">참여 중인 모임</a>
+                <a th:href="@{|${locale}/members/mypage/clubs(type='pending')|}" th:classappend="${currentType == 'pending'} ? 'active'">신청 현황</a>
             </div>
 
             <div th:if="${#lists.isEmpty(clubs)}" class="empty-msg">

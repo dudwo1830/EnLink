@@ -133,7 +133,7 @@
               if (reply.canEdit) {
                 btnAreaHtml = `
                         <button type="button" onclick="switchToEditMode(${reply.replyId}, '${reply.content}')">수정</button>
-                        <button type="button" onclick="deleteReply(${reply.replyId})" style="color: red;">삭제</button>
+                        <button type="button" onclick="deleteReply(${reply.replyId})" style="color: red;" th:text="#{button.delete}">삭제</button>
                     `;
               }
 
@@ -225,7 +225,7 @@
         // 기존 버튼을 [저장], [취소] 버튼으로 교체
         btnArea.innerHTML = `
         <button type="button" onclick="updateReply(${replyId})">저장</button>
-        <button type="button" onclick="fetchReplies()">취소</button>
+        <button type="button" onclick="fetchReplies()" th:text="#{button.cancel}">취소</button>
     `;
       }
 
