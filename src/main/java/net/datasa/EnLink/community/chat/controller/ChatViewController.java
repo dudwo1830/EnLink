@@ -2,6 +2,7 @@ package net.datasa.EnLink.community.chat.controller;
 
 import lombok.RequiredArgsConstructor;
 import net.datasa.EnLink.community.chat.service.ChatService;
+import net.datasa.EnLink.community.service.ClubService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class ChatViewController {
 	
 	private final ChatService chatService;
+	private final ClubService clubService;
 	
 	/**
 	 * 채팅방 입장
@@ -31,6 +33,10 @@ public class ChatViewController {
 		// 2. 화면에서 필요한 정보 전달
 		model.addAttribute("clubId", clubId);
 		model.addAttribute("userId", user.getUsername());
+		
+		// 오른쪽 패널용 데이터
+		model.addAttribute("club", clubService.getClubDetail(clubId));
+		model.addAttribute("members", clubService.getActiveMembers(clubId));
 		
 		return "community/chat/chatRoom";
 	}

@@ -1,60 +1,245 @@
 <!doctype html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-  <head>
+  <head
+    th:replace="~{fragments/head :: head('EnLink - 모임 사진첩', ~{::style}, ~{::script})}"
+  >
     <meta charset="UTF-8" />
     <title>EnLink - 모임 사진첩</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
     <style>
-      /* 갤러리 전용 커스텀 스타일 */
-      .gallery-img {
+      /* ✅ 전역 레이아웃(.grid-container/.main)은 건드리지 않는다 */
+
+      /* 갤러리 페이지 컨텐츠 컨테이너 */
+      .gallery-page .gallery-wrapper {
         width: 100%;
-        height: 250px; /* 고정 높이 */
-        object-fit: cover; /* 사진 비율 유지하며 꽉 채움 */
-        cursor: pointer;
-        transition: transform 0.2s;
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 48px 24px;
+        box-sizing: border-box;
       }
-      .gallery-img:hover {
-        transform: scale(1.02); /* 살짝 커지는 효과 */
-        opacity: 0.9;
+
+      /* 타이틀 영역 */
+      .gallery-page .section-title-box {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 2.2rem;
+        padding-bottom: 1.1rem;
+        border-bottom: 2px solid #eaebed;
       }
-      .card {
-        overflow: hidden;
+
+      /* 카드 */
+      .gallery-page .gallery-card-item {
         border: none;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease;
+        height: 100%;
+      }
+
+      .gallery-page .gallery-card-item:hover {
+        transform: translateY(-6px);
+      }
+
+      .gallery-page .gallery-img {
+        width: 100%;
+        height: 260px;
+        object-fit: cover;
+        cursor: pointer;
+        display: block;
+      }
+
+      /* 부트스트랩 row 안에서 이미지 카드가 찌그러질 때 방지 */
+      .gallery-page #galleryContainer .col {
+        min-width: 0;
+      }
+
+      /* 반응형: 제목/버튼 세로 스택 */
+      @media (max-width: 600px) {
+        .gallery-page .section-title-box {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+
+      /* 모달 */
+      .gallery-page .modal-content {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+      }
+      .gallery-page #modalImg {
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      }
+      /* =========================
+   버튼 톤 통일 (페이지 전체 + 모달 버튼)
+========================= */
+
+      /* 공통 버튼 모양/효과 */
+      .gallery-page .btn {
+        border-radius: 14px !important;
+        font-weight: 800;
+        letter-spacing: -0.2px;
+        transition:
+          transform 0.12s ease,
+          box-shadow 0.12s ease,
+          filter 0.12s ease;
+      }
+
+      /* primary 버튼(사진 올리기/더보기/업로드 시작/닫기 등 필요시) */
+      .gallery-page .btn.btn-primary {
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
+      }
+
+      .gallery-page .btn.btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 28px rgba(0, 0, 0, 0.1);
+      }
+
+      .gallery-page .btn.btn-primary:active {
+        transform: translateY(0);
+        filter: brightness(0.98);
+      }
+
+      /* secondary/neutral(취소/닫기) 버튼을 더 예쁘게 */
+      .gallery-page .btn.btn-light,
+      .gallery-page .btn.btn-secondary {
+        background: #fff !important;
+        color: var(--bs-body-color) !important;
+        border: 1px solid rgba(0, 0, 0, 0.12) !important;
+        box-shadow: none !important;
+      }
+
+      .gallery-page .btn.btn-light:hover,
+      .gallery-page .btn.btn-secondary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 18px rgba(0, 0, 0, 0.06) !important;
+      }
+
+      /* danger(삭제) 버튼도 톤 맞추기 */
+      .gallery-page .btn.btn-danger {
+        border: 0 !important;
+        box-shadow: 0 10px 22px rgba(231, 76, 60, 0.18);
+      }
+
+      .gallery-page .btn.btn-danger:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 28px rgba(231, 76, 60, 0.24);
+      }
+
+      /* ✅ 더보기 버튼을 사진 올리기와 완전히 동일한 톤으로 */
+      .gallery-page #moreBtn.btn-outline-primary {
+        background: var(--bs-primary) !important;
+        color: #fff !important;
+        border-color: transparent !important;
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
+      }
+
+      .gallery-page #moreBtn.btn-outline-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 28px rgba(0, 0, 0, 0.1);
+      }
+
+      /* =========================
+   상세 모달 이미지 튀어나옴 방지(보강)
+========================= */
+      .gallery-page #detailModal .modal-body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .gallery-page #modalImg {
+        max-height: 70vh !important;
+        max-width: 100%;
+        width: auto;
+        object-fit: contain;
+      }
+
+      /* =========================
+   (이미 넣어둔 경우 생략 가능) 돋보기 hover 오버레이
+========================= */
+      .gallery-page .gallery-card-item {
+        position: relative;
+      }
+
+      .gallery-page .gallery-card-item .gallery-img {
+        transition:
+          transform 0.22s ease,
+          filter 0.22s ease;
+      }
+
+      .gallery-page .gallery-card-item:hover .gallery-img {
+        transform: scale(1.04);
+        filter: brightness(0.92);
+      }
+
+      .gallery-page .gallery-card-item::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.18s ease;
+        background:
+          radial-gradient(
+            circle at center,
+            rgba(0, 0, 0, 0.22),
+            rgba(0, 0, 0, 0) 55%
+          ),
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z' stroke='white' stroke-width='2'/%3E%3Cpath d='M16.2 16.2 21 21' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M10.5 7.8v5.4' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M7.8 10.5h5.4' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size:
+          cover,
+          44px 44px;
+      }
+
+      .gallery-page .gallery-card-item:hover::after {
+        opacity: 1;
       }
     </style>
   </head>
+
   <body class="bg-light">
-    <div class="container mt-5">
-      <div
-        class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom"
-      >
-        <h2 class="fw-bold">📸 모임 사진첩</h2>
-        <button
-          class="btn btn-primary px-4"
-          data-bs-toggle="modal"
-          data-bs-target="#uploadModal"
-        >
-          사진 올리기
-        </button>
-      </div>
+    <div class="grid-container gallery-page">
+      <header th:replace="~{fragments/header :: header}"></header>
+      <aside th:replace="~{fragments/aside :: aside}"></aside>
 
-      <div
-        class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4"
-        id="galleryContainer"
-      ></div>
+      <main class="main">
+        <div class="gallery-wrapper">
+          <div class="section-title-box">
+            <h2 class="fw-bold m-0">모임 사진첩</h2>
+            <button
+              class="btn btn-primary px-4 fw-bold"
+              data-bs-toggle="modal"
+              data-bs-target="#uploadModal"
+            >
+              사진 올리기
+            </button>
+          </div>
 
-      <div class="text-center mt-5 mb-5">
-        <button
-          id="moreBtn"
-          class="btn btn-outline-primary btn-lg px-5"
-          onclick="loadPhotos()"
-        >
-          더보기
-        </button>
-      </div>
+          <div
+            class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4"
+            id="galleryContainer"
+          ></div>
+
+          <div class="text-center mt-5 mb-5">
+            <button
+              id="moreBtn"
+              class="btn btn-outline-primary btn-lg px-5"
+              onclick="loadPhotos()"
+            >
+              더보기
+            </button>
+          </div>
+        </div>
+      </main>
+
+      <footer th:replace="~{fragments/footer :: footer}"></footer>
     </div>
 
     <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
@@ -73,18 +258,18 @@
             <div>
               <button
                 type="button"
-                class="btn btn-secondary btn-sm"
-                data-bs-dismiss="modal"
-              >
-                닫기
-              </button>
-              <button
-                type="button"
                 class="btn btn-danger btn-sm"
                 id="deleteBtn"
                 style="display: none"
               >
                 삭제
+              </button>
+              <button
+                type="button"
+                class="btn btn-light btn-sm"
+                data-bs-dismiss="modal"
+              >
+                닫기
               </button>
             </div>
           </div>
@@ -118,15 +303,15 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-              취소
-            </button>
             <button
               type="button"
               class="btn btn-primary"
               onclick="uploadPhoto()"
             >
               업로드 시작
+            </button>
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+              취소
             </button>
           </div>
         </div>
@@ -137,16 +322,17 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script th:inline="javascript">
-      /* 타임리프로부터 넘겨받은 변수 설정 */
-      const clubId = /*[[${club.clubId}]]*/ 0; // Controller에서 Model에 담아준 club 객체 활용
-      let currentPage = 0;
+      var clubId = [[${club.clubId}]];
+      var currentPage = 0;
+      var isAlreadyLoading = false;
 
       $(document).ready(function () {
-        // 처음 페이지 로드 시 첫 번째 페이지 사진들 가져오기
-        loadPhotos();
+        if (!isAlreadyLoading) {
+          isAlreadyLoading = true;
+          loadPhotos();
+        }
       });
 
-      // 1. 사진 목록 로드 (Ajax)
       function loadPhotos() {
         $.ajax({
           url: `/api/gallery/${clubId}?page=${currentPage}`,
@@ -155,46 +341,39 @@
             const photos = page.content;
             let html = '';
 
+            if (currentPage === 0) $('#galleryContainer').empty();
+
             if (photos.length === 0 && currentPage === 0) {
-              $('#galleryContainer').html(
-                '<div class="col-12 text-center py-5 text-muted">등록된 사진이 없습니다.</div>',
-              );
+              $('#galleryContainer').html('<div class="col-12 text-center py-5 text-muted">등록된 사진이 없습니다.</div>');
               $('#moreBtn').hide();
               return;
             }
 
             photos.forEach((photo) => {
               html += `
-                  <div class="col">
-                      <div class="card h-100 shadow-sm">
-                          <img src="/galleryImg/${photo.imageUrl}" class="gallery-img"
-                                onclick="showDetail(${photo.photoId}, '${photo.imageUrl}', '${photo.memberId}', '${photo.createdAt}')">
-                      </div>
-                  </div>`;
+                <div class="col">
+                  <div class="gallery-card-item">
+                    <img src="/galleryImg/${photo.imageUrl}" class="gallery-img"
+                         onclick="showDetail(${photo.photoId}, '${photo.imageUrl}', '${photo.memberId}', '${photo.createdAt}')">
+                  </div>
+                </div>`;
             });
 
             $('#galleryContainer').append(html);
-
-            // 마지막 페이지면 '더보기' 버튼 제거
             if (page.last) {
               $('#moreBtn').hide();
             } else {
+              $('#moreBtn').show();
               currentPage++;
             }
           },
-          error: function () {
-            alert('사진을 불러오는 중 오류가 발생했습니다.');
-          },
+          error: function () { alert('사진을 불러오는 중 오류가 발생했습니다.'); }
         });
       }
 
-      // 2. 사진 업로드
       function uploadPhoto() {
         const fileInput = document.getElementById('imageFile');
-        if (!fileInput.files[0]) {
-          alert('파일을 선택해주세요.');
-          return;
-        }
+        if (!fileInput.files[0]) { alert('파일을 선택해주세요.'); return; }
 
         const formData = new FormData();
         formData.append('image', fileInput.files[0]);
@@ -208,53 +387,27 @@
           contentType: false,
           success: function () {
             alert('성공적으로 업로드되었습니다!');
-            location.reload(); // 새로고침해서 최신 사진 확인
+            location.reload();
           },
-          error: function (err) {
-            alert('업로드 실패: ' + err.responseText);
-          },
+          error: function (err) { alert('업로드 실패: ' + err.responseText); }
         });
       }
 
-      // 3. 상세 보기 모달 띄우기
       function showDetail(photoId, url, author, date) {
-        // 날짜 형식 예쁘게 변환 (T 분리)
         const formattedDate = date.replace('T', ' ').split('.')[0];
-
         $('#modalImg').attr('src', '/galleryImg/' + url);
-        $('#modalInfo').html(
-          `<strong>등록자:</strong> ${author}<br><strong>등록일:</strong> ${formattedDate}`,
-        );
-
-        // 삭제 버튼에 해당 사진의 ID를 저장하고 보이게 설정
-        $('#deleteBtn')
-          .show()
-          .off('click')
-          .on('click', function () {
-            deletePhoto(photoId);
-          });
-
-        // 상세 모달 오픈
-        const detailModal = new bootstrap.Modal(
-          document.getElementById('detailModal'),
-        );
-        detailModal.show();
+        $('#modalInfo').html(`<strong>등록자:</strong> ${author}<br><strong>등록일:</strong> ${formattedDate}`);
+        $('#deleteBtn').show().off('click').on('click', function () { deletePhoto(photoId); });
+        new bootstrap.Modal(document.getElementById('detailModal')).show();
       }
 
-      // 4. 사진 삭제 (Ajax)
       function deletePhoto(photoId) {
         if (!confirm('정말 이 사진을 삭제하시겠습니까?')) return;
-
         $.ajax({
           url: `/api/gallery/${photoId}`,
           type: 'DELETE',
-          success: function (response) {
-            alert(response);
-            location.reload(); // 성공 시 새로고침
-          },
-          error: function (err) {
-            alert('삭제 실패: ' + err.responseText);
-          },
+          success: function (response) { alert(response); location.reload(); },
+          error: function (err) { alert('삭제 실패: ' + err.responseText); }
         });
       }
     </script>
