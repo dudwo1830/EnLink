@@ -2,6 +2,7 @@ package net.datasa.EnLink.common.advice;
 
 import java.util.List;
 
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -23,5 +24,10 @@ public class GlobalModelAttribute {
 	@ModelAttribute("currentURI")
 	public String currentURI(HttpServletRequest request){
 		return request.getRequestURI();
+	}
+
+	@ModelAttribute("locale")
+	public String addLocale(){
+		return "/" + LocaleContextHolder.getLocale().getLanguage();
 	}
 }

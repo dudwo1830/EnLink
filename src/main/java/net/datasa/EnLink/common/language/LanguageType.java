@@ -4,7 +4,7 @@ import java.util.Locale;
 
 public enum LanguageType {
 	KO("KR"),
-	JP("JP");
+	JA("JP");
 
 	private final String code;
 
@@ -19,7 +19,15 @@ public enum LanguageType {
 	public static LanguageType from(Locale locale) {
 		return switch (locale.getLanguage()) {
 			case "ko" -> LanguageType.KO;
-			case "ja" -> LanguageType.JP;
+			case "ja" -> LanguageType.JA;
+			default -> LanguageType.KO;
+		};
+	}
+
+	public static LanguageType from(String code) {
+		return switch(code){
+			case "ko" -> LanguageType.KO;
+			case "ja" -> LanguageType.JA;
 			default -> LanguageType.KO;
 		};
 	}

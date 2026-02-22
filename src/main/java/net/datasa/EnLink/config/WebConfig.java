@@ -2,8 +2,11 @@ package net.datasa.EnLink.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import net.datasa.EnLink.common.locale.PathLocaleInterceptor;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -32,5 +35,19 @@ public class WebConfig implements WebMvcConfigurer {
 		String chatPath = uploadPath + "chat/";
 		registry.addResourceHandler("/chatImg/**")
 				.addResourceLocations("file:///" + chatPath);
+	}
+
+	/**
+	 * Locale
+	 */
+	private final PathLocaleInterceptor pathLocaleInterceptor;
+
+	public WebConfig(PathLocaleInterceptor pathLocaleInterceptor){
+		this.pathLocaleInterceptor = pathLocaleInterceptor;
+	}
+
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(pathLocaleInterceptor).addPathPatterns("/ko/**", "/ja/**");
 	}
 }
