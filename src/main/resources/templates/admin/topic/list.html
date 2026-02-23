@@ -12,16 +12,18 @@
         <h1>주제 관리</h1>
         <div>
           <h3>사용중인 목록</h3>
-          <ul th:each="topic : ${topics}">
+          <ul th:each="topic : ${adminTopics}">
             <li th:data-topic-id="${topic.topicId}">
-              <span><input type="text" th:value="${topic.name}" /></span>
+              <span><input type="text" id="updateKo" th:value="${topic.nameKo}" /></span>
+              <span><input type="text" id="updateJa" th:value="${topic.nameJa}" /></span>
               <span><button type="button" class="editBtn">수정</button></span>
             </li>
           </ul>
           <h3>주제 추가</h3>
           <ul>
             <li>
-              <span><input type="text" id="name" name="name" /></span>
+              <span>KO: <input type="text" id="nameKo" name="nameKo" /></span>
+              <span>JA: <input type="text" id="nameJa" name="nameJa" /></span>
               <span><button type="button" id="addBtn">추가</button></span>
             </li>
           </ul>

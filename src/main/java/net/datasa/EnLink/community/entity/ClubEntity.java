@@ -61,6 +61,9 @@ public class ClubEntity {
 
 	private LocalDateTime deletedAt;
 	
+	@Column(name = "locale",length = 20, nullable = false)
+	private String locale;
+
 	@Builder.Default
 	@OneToMany(mappedBy = "club", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<ClubMemberEntity> members = new ArrayList<>();

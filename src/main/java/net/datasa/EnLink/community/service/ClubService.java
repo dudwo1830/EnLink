@@ -24,6 +24,7 @@ import net.datasa.EnLink.member.repository.MemberRepository;
 import net.datasa.EnLink.topic.entity.TopicEntity;
 import net.datasa.EnLink.topic.repository.TopicRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -63,7 +64,8 @@ public class ClubService {
 	 */
 	@Transactional
 	public Integer createClub(ClubCreateRequest clubCreateDTO, String loginMemberId) {
-		
+		String locale = LocaleContextHolder.getLocale().getLanguage();
+
 		validateCreateClub(clubCreateDTO, loginMemberId);
 		
 		MemberEntity loginMember = memberRepository.findById(loginMemberId)
@@ -88,6 +90,7 @@ public class ClubService {
 				.joinQuestion(clubCreateDTO.getJoinQuestion())
 				.imageUrl(imageUrl)
 				.status("ACTIVE")
+				.locale(locale)
 				.build();
 		
 		clubRepository.save(club);
@@ -338,10 +341,12 @@ public class ClubService {
 	 */
 	public Slice<ClubSummaryResponse> getClubListBySlice(Pageable pageable, Integer cityId, Integer topicId,
 			String search, Integer regionId) {
-		return clubRepository.searchClubs(pageable, cityId, topicId, search, regionId);
+		String locale = LocaleContextHolder.getLocale().getLanguage();
+		return clubRepository.searchClubs(pageable, cityId, topicId, search, regionId, locale);
 	}
 
 	public List<ClubSummaryResponse> getListByTopicId(Integer topicId){
-		return clubRepository.findClubSummary(topicId);
+		String locale = LocaleContextHolder.getLocale().getLanguage();
+		return clubRepository.findClubSummary(topicId, locale);
 	}
 }

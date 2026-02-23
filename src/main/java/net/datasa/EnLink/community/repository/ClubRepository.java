@@ -42,7 +42,10 @@ public interface ClubRepository extends JpaRepository<ClubEntity, Integer> {
 			select new net.datasa.EnLink.community.dto.ClubSummaryResponse(
 				c.clubId,
 				c.name,
-				t.name,
+				case 
+					when :locale = 'ja' then t.nameJa
+					else t.nameKo
+				end,
 				r.nameLocal,
 				ci.nameLocal,
 				c.imageUrl,
@@ -57,7 +60,8 @@ public interface ClubRepository extends JpaRepository<ClubEntity, Integer> {
 			left join ClubMemberEntity cm
 				on cm.club = c and cm.status = 'ACTIVE'
 			where
-				(:cityId is null or ci.cityId = :cityId)
+				(c.locale = :locale)
+			and	(:cityId is null or ci.cityId = :cityId)
 			and (:regionId is null or r.regionId = :regionId)
 			and (:topicId is null or t.topicId = :topicId)
 			and (
@@ -68,7 +72,10 @@ public interface ClubRepository extends JpaRepository<ClubEntity, Integer> {
 			group by
 				c.clubId,
 				c.name,
-				t.name,
+				case 
+					when :locale = 'ja' then t.nameJa
+					else t.nameKo
+				end,
 				r.nameLocal,
 				ci.nameLocal,
 				c.imageUrl,
@@ -80,13 +87,17 @@ public interface ClubRepository extends JpaRepository<ClubEntity, Integer> {
 			@Param("cityId") Integer cityId,
 			@Param("topicId") Integer topicId,
 			@Param("search") String search,
-			@Param("regionId") Integer regionId);
+			@Param("regionId") Integer regionId,
+			@Param("locale") String locale);
 
 	@Query("""
 			select new net.datasa.EnLink.community.dto.ClubSummaryResponse(
 					c.clubId,
 					c.name,
-					t.name,
+					case 
+						when :locale = 'ja' then t.nameJa
+						else t.nameKo
+					end,
 					r.nameLocal,
 					ci.nameLocal,
 					c.imageUrl,
@@ -100,12 +111,17 @@ public interface ClubRepository extends JpaRepository<ClubEntity, Integer> {
 			join ci.region r
 			left join ClubMemberEntity cm
 					on cm.club = c and cm.status = 'ACTIVE'
-			where c.status = 'ACTIVE'
+			where 
+				(c.status = 'ACTIVE')
+			and	(c.locale = :locale)
 			and (:topicId is null or t.topicId = :topicId)
 			group by
 					c.clubId,
 					c.name,
-					t.name,
+					case 
+						when :locale = 'ja' then t.nameJa
+						else t.nameKo
+					end,
 					r.nameLocal,
 					ci.nameLocal,
 					c.imageUrl,
@@ -113,5 +129,7 @@ public interface ClubRepository extends JpaRepository<ClubEntity, Integer> {
 					c.maxMember
 			order by c.clubId desc
 			""")
-	List<ClubSummaryResponse> findClubSummary(@Param("topicId") Integer topicId);
+	List<ClubSummaryResponse> findClubSummary(
+			@Param("topicId") Integer topicId, 
+			@Param("locale") String locale);
 }

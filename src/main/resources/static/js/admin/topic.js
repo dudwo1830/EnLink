@@ -10,7 +10,8 @@ addButton.addEventListener('click', addTopic);
 function updateTopic(ev) {
   const target = ev.target.closest('[data-topic-id]');
   const topicId = target.dataset.topicId;
-  const name = target.querySelector('input').value;
+  const nameKo = target.querySelector('#updateKo').value;
+  const nameJa = target.querySelector('#updateJa').value;
   fetch(`${API_BASE}/${topicId}`, {
     method: 'PATCH',
     headers: {
@@ -18,20 +19,23 @@ function updateTopic(ev) {
     },
     body: JSON.stringify({
       topicId: topicId,
-      name: name,
+      nameKo: nameKo,
+      nameJa: nameJa
     }),
   }).then((res) => {});
 }
 
 function addTopic() {
-  const name = document.querySelector('#name').value;
+  const nameKo = document.querySelector('#nameKo').value;
+  const nameJa = document.querySelector('#nameJa').value;
   fetch(`${API_BASE}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      name: name,
+      nameKo: nameKo,
+      nameJa: nameJa
     }),
   }).then((res) => {
     if (res.ok) {

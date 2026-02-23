@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -99,10 +100,11 @@ public class MemberService {
 	 * @return
 	 */
 	public MemberDetailResponse read(String memberId) {
+		String locale = LocaleContextHolder.getLocale().getLanguage();
 		MemberEntity entity = memberRepository.findById(memberId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 		String topic = String
-				.join(", ", entity.getMemberTopics().stream().map(memberTopic -> memberTopic.getTopic().getName()).toList());
+				.join(", ", entity.getMemberTopics().stream().map(memberTopic -> memberTopic.getTopic().getLocalizedName(locale)).toList());
 		String city = (entity.getCity() != null) ? entity.getCity().getRegion().getNameLocal() + " " + entity.getCity().getNameLocal() : "";
 		return MemberDetailResponse.builder()
 				.memberId(entity.getMemberId())
