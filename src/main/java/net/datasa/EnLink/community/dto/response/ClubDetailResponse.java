@@ -16,6 +16,7 @@ public class ClubDetailResponse {
 	private String name;
 	private Integer topicId;
 	private Integer cityId;
+	private String topicName;
 	private String cityName;
 	private Integer maxMember;
 	private int currentMemberCount;

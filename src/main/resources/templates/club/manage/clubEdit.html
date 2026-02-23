@@ -6,6 +6,7 @@
     <script th:inline="javascript">
         const topicId = /*[[${clubDTO.topicId}]]*/'';
         const cityId = /*[[${clubDTO.cityId}]]*/'';
+        const currentName = /*[[${clubDTO.name}]]*/ '';
     </script>
     <script th:src="@{/js/common/search-select.js}" defer></script>
     <script th:src="@{/js/club/club-edit.js}" defer></script>
@@ -16,98 +17,132 @@
 
     <aside th:replace="~{fragments/aside :: aside}"></aside>
 
-    <main class="main">
-        <div class="manage-main-container">
-            <aside class="manage-sidebar-area">
-                <div th:replace="~{fragments/manageSidebar :: sidebar('edit')}"></div>
-            </aside>
+    <main class="main overflow-auto py-5">
+        <div class="manage-main-container container-fluid px-4">
+            <div class="row justify-content-center">
+                <aside class="col-lg-3 manage-sidebar-area mb-4">
+                    <div th:replace="~{fragments/manageSidebar :: sidebar('edit')}"></div>
+                </aside>
 
-            <section class="manage-content-area">
-                <h1>모임 정보 수정</h1>
+                <section class="col-lg-9 manage-content-area">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-white py-3 border-bottom">
+                            <h3 class="card-title fw-bold mb-0 text-primary">
+                                <i class="bi bi-pencil-square me-2"></i>모임 정보 수정
+                            </h3>
+                        </div>
 
-                <form id="editClubForm" class="edit-form" enctype="multipart/form-data">
-                    <input type="hidden" name="clubId" th:value="${clubDTO.clubId}"/>
-                    <input type="hidden" name="imageUrl" th:value="${clubDTO.imageUrl}"/>
+                        <div class="card-body p-4 p-md-5">
+                            <form id="editClubForm" enctype="multipart/form-data">
+                                <input type="hidden" name="clubId" th:value="${clubDTO.clubId}"/>
+                                <input type="hidden" name="imageUrl" th:value="${clubDTO.imageUrl}"/>
 
-                    <div class="form-group">
-                        <label>모임 이름:</label>
-                        <input type="text" name="name" th:value="${clubDTO.name}" required>
-                    </div>
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">모임 이름</label>
+                                    <input type="text" name="name" id="clubName"
+                                           th:value="${clubDTO.name}"
+                                           class="form-control form-control-lg"
+                                           placeholder="모임명을 입력하세요" required>
+                                    <div id="nameFeedback" class="mt-2 small"></div>
+                                </div>
 
-                    <div class="form-group">
-                        <label>현재 모임 이미지:</label>
-                        <div class="image-preview">
-                            <img th:src="${clubDTO.imageUrl != null ? clubDTO.imageUrl : '/images/default_club.jpg'}"
-                                 alt="모임 이미지" width="200" style="border-radius: 8px; object-fit: cover;"
-                                 onerror="this.src='/images/default_club.jpg'">
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold d-block">현재 모임 이미지</label>
+                                    <div class="image-preview mb-3">
+                                        <img id="imgPreview"
+                                             th:src="${clubDTO.imageUrl != null ? clubDTO.imageUrl : '/images/default_club.jpg'}"
+                                             class="rounded-4 shadow-sm"
+                                             style="width: 240px; height: 140px; object-fit: cover;"
+                                             onerror="this.src='/images/default_club.jpg'">
+                                    </div>
+
+                                    <label class="form-label fw-bold">이미지 변경</label>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <input type="file" name="uploadFile" id="fileInput" class="form-control" accept="image/*" onchange="previewImage(this)">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="defaultImage" id="defaultImage" value="true">
+                                            <label class="form-check-label small text-danger fw-bold" for="defaultImage" style="cursor:pointer;">
+                                                기본 이미지로 리셋
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">관심사 카테고리</label>
+                                        <div class="select-search topics" data-name="topicId">
+                                            <input type="text" class="select-input form-control" autocomplete="false" />
+                                            <input type="hidden" class="select-hidden" />
+                                            <ul class="select-options"></ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">최대 인원</label>
+                                        <select name="maxMember" class="form-select">
+                                            <option th:each="n : ${#numbers.sequence(10,100,10)}"
+                                                    th:value="${n}"
+                                                    th:text="${n + '명'}"
+                                                    th:selected="${n == clubDTO.maxMember}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <label class="mb-2 fw-bold small text-muted">상세 지역 수정</label>
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <div class="select-search regions" data-name="regionId">
+                                            <input type="text" class="select-input form-control" autocomplete="off" placeholder="지역 선택"/>
+                                            <input type="hidden" class="select-hidden"/>
+                                            <ul class="select-options"></ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <div class="select-search cities" data-name="cityId">
+                                            <input type="text" class="select-input form-control" autocomplete="off" placeholder="도시 선택"/>
+                                            <input type="hidden" class="select-hidden" />
+                                            <ul class="select-options"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">모임 소개</label>
+                                    <textarea name="description" th:text="${clubDTO.description}" class="form-control" rows="10" placeholder="모임을 소개해 주세요"></textarea>
+                                </div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end pt-3">
+                                    <button type="button" class="btn btn-primary px-5 fw-bold" th:onclick="|updateClubInfo(${clubDTO.clubId})|">
+                                        수정 완료하기
+                                    </button>
+                                    <a th:href="@{/club/{id}(id=${clubDTO.clubId})}" class="btn btn-light px-4 me-md-2">취소</a>
+                                </div>
+                            </form>
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label>모임 이미지 변경:</label>
-                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
-                            <input type="file" name="uploadFile" accept="image/*" id="fileInput">
-                            <div class="reset-checkbox" style="display: flex; align-items: center; gap: 5px;">
-                                <input type="checkbox" name="defaultImage" id="defaultImage" value="true">
-                                <label for="defaultImage" style="font-size: 0.9rem; color: #d9534f; cursor: pointer; margin: 0;">기본 이미지로 변경</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>관심사 카테고리:</label>
-                        <div class="select-search topics" data-name="topicId">
-                            <input type="text" class="select-input" autocomplete="false" />
-                            <input type="hidden" class="select-hidden" />
-                            <ul class="select-options"></ul>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>상세 지역 (구/군):</label>
-                        <div style="display: flex; gap: 10px;">
-                            <div class="select-search regions" data-name="regionId" style="flex:1;">
-                                <input type="text" class="select-input" autocomplete="false" />
-                                <input type="hidden" class="select-hidden" />
-                                <ul class="select-options"></ul>
-                            </div>
-                            <div class="select-search cities" data-name="cityId" style="flex:1;">
-                                <input type="text" class="select-input" autocomplete="false" />
-                                <input type="hidden" class="select-hidden" />
-                                <ul class="select-options"></ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>최대 인원:</label>
-                        <input type="number" name="maxMember" th:value="${clubDTO.maxMember}" min="10" step="10">
-                    </div>
-
-                    <div class="form-group">
-                        <label>모임 소개:</label>
-                        <textarea name="description" th:text="${clubDTO.description}" rows="5" style="width: 100%; border-radius: 8px; border: 1px solid #ddd; padding: 10px;"></textarea>
-                    </div>
-
-                    <div class="form-actions" style="margin-top: 30px; display: flex; gap: 10px;">
-                        <button type="button" class="btn-submit" th:onclick="|updateClubInfo(${clubDTO.clubId})|"
-                                style="background: var(--color-primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer;">
-                            수정 완료
-                        </button>
-                        <a th:href="@{/club/{id}(id=${clubDTO.clubId})}" class="btn-cancel"
-                           style="background: #eee; color: #666; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: 600;">
-                            취소
-                        </a>
-                    </div>
-                </form>
-            </section>
+                </section>
+            </div>
         </div>
-
         <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
     </main>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script th:src="@{/js/club/manage.js}"></script>
+<script>
+    // 이미지 미리보기 기능 추가
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('imgPreview').src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+            // 기본 이미지 체크박스 해제
+            document.getElementById('defaultImage').checked = false;
+        }
+    }
+</script>
 </body>
 </html>

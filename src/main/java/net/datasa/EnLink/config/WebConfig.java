@@ -15,6 +15,12 @@ public class WebConfig implements WebMvcConfigurer {
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		String rootPath = uploadPath.endsWith("/") ? uploadPath : uploadPath + "/";
 		
+		registry.addResourceHandler("/images/**")
+				.addResourceLocations(
+						"file:///" + rootPath,               // 1순위: 외부 저장소 (UUID 파일들)
+						"classpath:/static/images/"          // 2순위: 프로젝트 내부 (default_club.jpg)
+				);
+		
 		// 1. ✨ 게시글 미디어 파일 설정
 		// URL 패턴을 /images/** 로 하고,
 		// 💡 실제 저장 경로: C:/enlink_storage/post/

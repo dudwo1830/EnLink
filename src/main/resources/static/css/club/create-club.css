@@ -1,0 +1,113 @@
+/* ===== Page Layout ===== */
+
+.main {
+    background: #f8f9fc;
+}
+
+/* ===== Card ===== */
+
+.card {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.card-header {
+    background: #ffffff;
+    border-bottom: 1px solid #eef1f6;
+}
+
+.card-title {
+    font-size: 1.4rem;
+    letter-spacing: -0.3px;
+}
+
+/* ===== Form ===== */
+
+.form-label {
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.form-control,
+.form-select,
+textarea {
+    border-radius: 10px;
+    border: 1px solid #e1e5eb;
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    background-color: #fff;
+}
+
+.form-control:focus,
+.form-select:focus,
+textarea:focus {
+    border-color: #4c6ef5;
+    box-shadow: 0 0 0 0.15rem rgba(76,110,245,0.15);
+}
+
+/* textarea */
+textarea {
+    resize: none;
+}
+
+/* ===== Custom Select Search ===== */
+
+.select-search {
+    position: relative;
+}
+
+.select-search .select-input {
+    cursor: pointer;
+    background: #fff;
+}
+
+.select-options {
+    border-radius: 10px;
+    border: 1px solid #e1e5eb;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+/* ===== File Upload ===== */
+
+input[type="file"] {
+    padding: 10px;
+}
+
+/* ===== Buttons ===== */
+
+.btn-primary {
+    border-radius: 10px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+}
+
+.btn-light {
+    border-radius: 10px;
+}
+
+#submitBtn {
+    min-width: 180px;
+}
+
+/* ===== Section Spacing ===== */
+
+.mb-4 {
+    margin-bottom: 1.4rem !important;
+}
+
+.mb-5 {
+    margin-bottom: 2.2rem !important;
+}
+
+/* ===== Responsive ===== */
+
+@media (max-width: 768px) {
+    .card-body {
+        padding: 24px !important;
+    }
+}
+
+.is-valid { border-color: #198754; }
+.is-invalid { border-color: #dc3545; }
