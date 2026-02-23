@@ -81,7 +81,40 @@
             </section>
         </div>
 
-        <div id="manageModal" class="modal" style="display:none; position:fixed; z-index:100; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
+        <div id="manageModal" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
+            <div class="modal-content" style="background:#fff; margin:10% auto; padding:30px; width:500px; border-radius:12px; position:relative;">
+                <h3 id="modalTitle" class="fw-bold mb-3 text-primary">가입 답변</h3>
+                <hr>
+                <div class="bg-light p-4 rounded border mb-4" style="min-height: 150px;">
+                    <p id="modalAnswer" class="mb-0 lh-lg" style="white-space: pre-wrap;"></p>
+                </div>
+                <div class="text-end">
+                    <button type="button" class="btn btn-secondary px-4" onclick="closeManageModal()">닫기</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="historyModal" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
+            <div class="modal-content" style="background:#fff; margin:5% auto; padding:30px; width:700px; border-radius:12px; position:relative;">
+                <h3 id="historyTitle" class="fw-bold mb-3 text-primary">전체 이력</h3>
+                <hr>
+                <div style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                        <tr>
+                            <th>일시</th>
+                            <th>유형</th>
+                            <th>설명</th>
+                        </tr>
+                        </thead>
+                        <tbody id="historyList">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-end mt-4">
+                    <button type="button" class="btn btn-secondary px-4" onclick="closeHistoryModal()">닫기</button>
+                </div>
+            </div>
         </div>
 
         <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>

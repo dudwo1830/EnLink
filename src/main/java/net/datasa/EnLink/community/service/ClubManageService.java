@@ -1,7 +1,10 @@
 package net.datasa.EnLink.community.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.datasa.EnLink.city.entity.CityEntity;
+import net.datasa.EnLink.city.repository.CityRepository;
 import net.datasa.EnLink.common.error.BusinessException;
 import net.datasa.EnLink.common.error.ErrorCode;
 import net.datasa.EnLink.community.dto.request.ClubUpdateRequest;
@@ -49,6 +52,7 @@ public class ClubManageService {
 	private final ClubMemberHistoryRepository clubMemberHistoryRepository;
 	private final ClubMemberHistoryService clubMemberHistoryService;
 	private final TopicRepository topicRepository;
+	private final CityRepository cityRepository;
 	
 	/**
 	 * 모임 ID로 모임 엔티티를 직접 조회합니다.
@@ -91,8 +95,15 @@ public class ClubManageService {
 		club.setJoinQuestion(request.getJoinQuestion());
 		
 		if (request.getTopicId() != null) {
-			TopicEntity topic = topicRepository.findById(request.getTopicId()).orElseThrow();
+			TopicEntity topic = topicRepository.findById(request.getTopicId())
+					.orElseThrow(() -> new EntityNotFoundException("해당 카테고리를 찾을 수 없습니다."));
 			club.setTopic(topic);
+		}
+		
+		if (request.getCityId() != null) {
+			CityEntity city = cityRepository.findById(request.getCityId())
+					.orElseThrow(() -> new EntityNotFoundException("해당 지역을 찾을 수 없습니다."));
+			club.setCity(city);
 		}
 	}
 

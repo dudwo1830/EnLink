@@ -70,6 +70,7 @@ public class ClubViewController {
 		
 		String loginId = (loginUser != null) ? loginUser.getMemberId() : null;
 		
+		model.addAttribute("isLogin", loginUser != null);
 		model.addAttribute("club", clubService.getClubDetail(id));
 		model.addAttribute("members", clubService.getActiveMembers(id));
 		model.addAttribute("loginMember", clubManageService.getMemberInfo(id, loginId));
