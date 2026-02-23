@@ -302,7 +302,6 @@ public class ClubService {
 				.actionType("JOIN_APPROVE").description("모임 생성 및 모임장 등록").build());
 	}
 
-
 	
 	private ClubListResponse convertToListResponse(ClubEntity entity) {
 		int currentCount = clubMemberRepository.countByClub_ClubIdAndStatus(entity.getClubId(), "ACTIVE");
@@ -369,6 +368,7 @@ public class ClubService {
 					.build();
 		});
 	}
+
 
 	public List<ClubSummaryResponse> getListByTopicId(Integer topicId){
 		List<ClubEntity> entities = (topicId != null) ?

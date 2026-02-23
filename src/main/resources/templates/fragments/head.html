@@ -17,11 +17,11 @@
     <link rel="stylesheet" th:href="@{/css/fragments/aside.css}" />
     <link rel="stylesheet" th:href="@{/css/fragments/footer.css}" />
     <!-- 페이지별 CSS -->
-    <th:block th:replace="${links}"></th:block>
+    <th:block th:replace="${links} ?: ~{}"></th:block>
 
     <!-- 공통 JS -->
     <script th:src="@{/js/common.js}"></script>
     <!-- 페이지별 JS -->
-    <th:block th:replace="${scripts}" />
+    <th:block th:replace="${scripts} ?: ~{}" />
   </head>
 </html>
