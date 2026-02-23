@@ -28,8 +28,8 @@ public class SecurityConfig {
 			// 정적 리소스
 			"/images/**", "/css/**", "/js/**",
 			// 로그인, 회원가입
-			"/*/auth/login",
-			"/*/members/signup",
+			"/auth/login",
+			"/members/signup",
 			// api
 			"/api/members",
 			"/api/location/**",

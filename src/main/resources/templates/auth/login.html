@@ -28,7 +28,7 @@
           </div>
         </form>
         <div>
-          <a th:href="@{/{locale}/members/signup(locale=${#locale.language})}" th:text="#{auth.login.signup}">회원가입</a>
+          <a th:href="@{/members/signup(locale=${#locale.language})}" th:text="#{auth.login.signup}">회원가입</a>
         </div>
       </main>
       <footer th:replace="~{fragments/footer :: footer}"></footer>
