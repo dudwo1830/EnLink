@@ -1,6 +1,6 @@
 <aside class="aside" th:fragment="aside" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <div class="aside-action">
-        <a th:href="@{|${locale}/club/create|}" class="btn-create-club" id="menu-create">
+        <a th:href="@{/club/create}" class="btn-create-club" id="menu-create">
             <i class="bi bi-plus-lg"></i>
             <span>새 모임 만들기</span>
         </a>
@@ -11,21 +11,21 @@
             <h3 class="menu-title">My Activity</h3>
             <ul class="my-menu-list">
                 <li>
-                    <a th:href="@{|${locale}/members/mypage/clubs(type='owned')|}"
+                    <a th:href="@{/members/mypage/clubs(type='owned')}"
                        th:classappend="${param.type != null && param.type[0] == 'owned'} ? 'active' : ''">
                         <i class="bi bi-patch-check-fill"></i>
                         <span>내가 만든 모임</span>
                     </a>
                 </li>
                 <li>
-                    <a th:href="@{|${locale}/members/mypage/clubs(type='active')|}"
+                    <a th:href="@{/members/mypage/clubs(type='active')}"
                        th:classappend="${param.type != null && param.type[0] == 'active'} ? 'active' : ''">
                         <i class="bi bi-people-fill"></i>
                         <span>참여 중인 모임</span>
                     </a>
                 </li>
                 <li>
-                    <a th:href="@{|${locale}/members/mypage/clubs(type='pending')|}"
+                    <a th:href="@{/members/mypage/clubs(type='pending')}"
                        th:classappend="${param.type != null && param.type[0] == 'pending'} ? 'active' : ''">
                         <i class="bi bi-hourglass-split"></i>
                         <span>가입 신청 현황</span>
@@ -38,7 +38,7 @@
             <h3 class="menu-title">Explore</h3>
             <ul>
                 <li>
-                    <a th:href="@{|${locale}/club/list|}" id="menu-all">
+                    <a th:href="@{/club/list}" id="menu-all">
                         <i class="bi bi-grid"></i>
                         <span>전체 모임 보기</span>
                     </a>

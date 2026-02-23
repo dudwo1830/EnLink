@@ -47,25 +47,11 @@ public class SecurityConfig {
 						.anyRequest().authenticated())
 				.httpBasic(AbstractHttpConfigurer::disable)
 				.formLogin(form -> form
+						.loginPage("/auth/login")
 						.usernameParameter("memberId")
 						.passwordParameter("password")
 						.loginProcessingUrl("/login")
-						// 로그인 실패 시 처리
-						.failureHandler((request, response, exception) -> {
-							String referer = request.getHeader("Referer");
-							if (referer != null && referer.contains("/ja/")) {
-								response.sendRedirect("/ja/auth/login?error");
-							} else {
-								response.sendRedirect("/ko/auth/login?error");
-							}
-						})
 						.permitAll())
-				// 로그인 페이지 커스텀 처리
-				.exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
-					String uri = request.getRequestURI();
-					String lang = (uri.startsWith("/ja")) ? "ja" : "ko";
-					response.sendRedirect("/" + lang + "/auth/login");
-				}))
 				.logout(logout -> logout
 						.logoutUrl("/auth/logout")
 						.logoutSuccessUrl("/"));

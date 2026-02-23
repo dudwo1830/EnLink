@@ -35,12 +35,12 @@
         <nav class="user-nav">
             <ul class="user-actions">
                 <th:block sec:authorize="not isAuthenticated()">
-                    <li><a th:href="@{|${locale}/auth/login|}" class="btn-login" th:text="#{button.login}">로그인</a></li>
-                    <li><a th:href="@{|${locale}/members/signup|}" class="btn-signup">회원가입</a></li>
+                    <li><a th:href="@{/auth/login}" class="btn-login" th:text="#{button.login}">로그인</a></li>
+                    <li><a th:href="@{/members/signup}" class="btn-signup">회원가입</a></li>
                 </th:block>
                 <th:block sec:authorize="isAuthenticated()">
                     <li><span class="user-name" th:text="${#authentication.name} + '님'">배경호님</span></li>
-                    <li><a th:href="@{|${locale}/members/me|}" class="btn-info">내 정보</a></li>
+                    <li><a th:href="@{/members/me}" class="btn-info">내 정보</a></li>
                     <li><a th:href="@{/auth/logout}" class="btn-logout" th:text="#{button.logout}">로그아웃</a></li>
                 </th:block>
             </ul>

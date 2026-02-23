@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("{locale}/community/schedule")
+@RequestMapping("/community/schedule")
 @RequiredArgsConstructor
 public class ScheduleViewController {
 	

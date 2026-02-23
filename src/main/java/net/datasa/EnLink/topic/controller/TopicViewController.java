@@ -13,7 +13,7 @@ import net.datasa.EnLink.topic.service.TopicService;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-@RequestMapping("{locale}/topics")
+@RequestMapping("/topics")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 public class TopicViewController {

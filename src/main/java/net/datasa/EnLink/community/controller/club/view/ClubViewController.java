@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("{locale}/club")
+@RequestMapping("/club")
 @Controller
 public class ClubViewController {
 	
