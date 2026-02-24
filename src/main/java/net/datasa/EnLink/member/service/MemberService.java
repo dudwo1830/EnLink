@@ -232,10 +232,14 @@ public class MemberService {
 	public CityDetailResponse getMemberCity(@P("memberId") String memberId) {
 		MemberEntity memberEntity = memberRepository.findById(memberId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
-		return new CityDetailResponse(
-				memberEntity.getCity().getCityId(),
-				memberEntity.getCity().getNameLocal(),
-				memberEntity.getCity().getRegion().getNameLocal() + " " + memberEntity.getCity().getNameLocal());
+		if(memberEntity.getCity() != null){
+			return new CityDetailResponse(
+					memberEntity.getCity().getCityId(),
+					memberEntity.getCity().getNameLocal(),
+					memberEntity.getCity().getRegion().getNameLocal() + " " + memberEntity.getCity().getNameLocal());
+		}
+		else{
+			return null;
+		}
 	}
 }

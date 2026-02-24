@@ -4,6 +4,16 @@
     <link rel="stylesheet" href="#" th:if="${false}" />
     <script th:src="@{/js/member/memberCommon.js}" defer></script>
     <script th:src="@{/js/member/signup.js}" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      window.alert = function(message) {
+        return Swal.fire({
+          text: message,
+          icon: 'info',
+          confirmButtonText: '확인'
+        })
+      }
+    </script>
   </head>
   <body>
     <div class="grid-container">
@@ -23,17 +33,13 @@
                       th:text="#{member.label.id}"
                       >아이디</label
                     >
-                    <div class="input-group">
-                      <input type="text" id="memberId" name="memberId" class="form-control" required />
-                      <button
-                        class="btn btn-outline-primary"
-                        type="button"
-                        id="btn-check-id"
-                        th:text="#{member.signup.btn.checkId}">
-                        중복 확인
-                      </button>
-                    </div>
-                    <div id="id-feedback" class="form-text mt-1 d-none"></div>
+                    <input
+                      type="text"
+                      id="memberId"
+                      name="memberId"
+                      class="form-control form-control-lg"
+                      maxlength="20"
+                      required/>
                   </div>
                   <div class="row g-3 mb-4">
                     <div class="col-md-6">
@@ -88,7 +94,9 @@
                     </button>
                     <p class="text-center mt-3 text-muted">
                       <small th:text="#{member.signup.footer}">계정이 있으신가요?</small>
-                      <a th:href="@{/auth/login}" class="ms-2 text-primary fw-bold" th:text="#{common.btn.login}">로그인</a>
+                      <a th:href="@{/auth/login}" class="ms-2 text-primary fw-bold" th:text="#{common.btn.login}"
+                        >로그인</a
+                      >
                     </p>
                   </div>
                 </form>
