@@ -1,281 +1,95 @@
 <!doctype html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta charset="UTF-8" />
-    <title>게시글 상세보기</title>
-    <style>
-      /* a 태그의 기본 밑줄을 없앱니다 */
-      a {
-        text-decoration: none;
-      }
-    </style>
+  <head
+    th:replace="~{fragments/head :: head('EnLink - 게시글 상세', ~{::link}, ~{::script})}"
+  >
+    <link rel="stylesheet" th:href="@{/css/community/post.css}" />
+    <script th:src="@{/js/community/post.js}" defer></script>
   </head>
+
   <body>
-    <h1>게시글 상세 내용</h1>
-    <hr />
-    <div>
-      <p><strong>제목:</strong> <span id="title">로딩 중...</span></p>
-      <p><strong>작성자:</strong> <span id="memberId"></span></p>
-      <p><strong>작성일:</strong> <span id="createdAt"></span></p>
-      <div style="border: 1px solid #ccc; padding: 20px; min-height: 200px">
-        <p id="content"></p>
-      </div>
-    </div>
-    <br />
-
-    <a id="listBtn" href="#">
-      <button type="button">목록으로</button>
-    </a>
-
-    <a id="editBtn" th:href="@{/community/post/edit/{id}(id=${postId})}">
-      <button type="button">게시글 수정</button>
-    </a>
-
-    <button
-      id="deleteBtn"
-      type="button"
-      onclick="deletePost()"
-      style="background-color: red; color: white"
+    <div
+      class="grid-container post-page"
+      data-page="post-detail"
+      th:attr="data-post-id=${postId}"
     >
-      삭제하기
-    </button>
+      <header th:replace="~{fragments/header :: header}"></header>
+      <aside th:replace="~{fragments/aside :: aside}"></aside>
 
-    <hr />
-    <div id="reply-section">
-      <h3>댓글 (<span id="replyCount">0</span>)</h3>
+      <main class="main">
+        <div class="post-container">
+          <section class="panel">
+            <div class="toolbar">
+              <div class="toolbar-left">
+                <a id="listLink" class="hint-link" href="#">← 목록으로</a>
+              </div>
 
-      <div id="reply-list" style="margin-bottom: 20px"></div>
+              <div class="toolbar-right">
+                <a
+                  id="editBtn"
+                  th:href="@{/community/post/edit/{id}(id=${postId})}"
+                  style="display: none"
+                >
+                  <button type="button" class="btn-ghost">수정</button>
+                </a>
+                <button
+                  id="deleteBtn"
+                  type="button"
+                  class="btn-danger"
+                  style="display: none"
+                >
+                  삭제
+                </button>
+              </div>
+            </div>
 
-      <div style="border: 1px solid #eee; padding: 15px; background: #f9f9f9">
-        <textarea
-          id="replyContent"
-          rows="3"
-          style="width: 100%; margin-bottom: 10px"
-          placeholder="댓글을 입력하세요."
-        ></textarea>
-        <button type="button" onclick="saveReply()">댓글 등록</button>
-      </div>
+            <div id="detailBadges" style="margin-bottom: 8px"></div>
+            <h1 id="detailTitle" class="post-detail-title">로딩 중...</h1>
+
+            <div class="post-detail-meta">
+              <span>작성자: <strong id="detailMemberId"></strong></span>
+              <span>작성일: <strong id="detailCreatedAt"></strong></span>
+            </div>
+
+            <div id="detailImageWrap"></div>
+
+            <div id="detailContent" class="post-content"></div>
+
+            <div class="reply-head">
+              <h3 style="margin: 0">댓글 (<span id="replyCount">0</span>)</h3>
+            </div>
+
+            <div id="replyList" class="reply-list"></div>
+
+            <div style="margin-top: 12px">
+              <form id="replyForm" class="form-grid">
+                <label for="replyContent">댓글 작성</label>
+                <input
+                  id="replyContent"
+                  type="text"
+                  placeholder="댓글을 입력하세요"
+                />
+                <div class="form-actions">
+                  <button type="submit" class="btn-primary">등록</button>
+                </div>
+              </form>
+            </div>
+            
+            <!-- 이미지 확대 모달 -->
+            <div id="imgModal" class="img-modal" aria-hidden="true">
+              <div class="img-modal-backdrop" data-close="true"></div>
+              <div class="img-modal-body" role="dialog" aria-modal="true">
+                <button type="button" class="img-modal-close" data-close="true">
+                  ×
+                </button>
+                <img id="imgModalTarget" src="" alt="expanded image" />
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer th:replace="~{fragments/footer :: footer}"></footer>
     </div>
-
-    <script th:inline="javascript">
-      // 타임리프를 통해 컨트롤러에서 넘겨받은 postId를 자바스크립트 변수로 사용
-      /* 주석을 활용한 타임리프 인라인 문법 */
-      const postId = /*[[${postId}]]*/ 0;
-      let returnList;
-      document.addEventListener('DOMContentLoaded', function () {
-        fetchDetail();
-        fetchReplies(); // 페이지 로드 시 댓글 가져오기
-      });
-
-      function fetchDetail() {
-        // 이전에 만든 API 컨트롤러의 @GetMapping("/{postId}")를 호출합니다.
-        fetch(`/api/posts/detail/${postId}`)
-          .then((response) => response.json())
-          .then((post) => {
-            if (post.imageUrl) {
-              // max-width를 100%로 주면 부모 요소보다 커지지 않고,
-              // 고정 크기(예: 500px)를 주면 적당한 크기로 고정됩니다.
-              const imgTag = `
-              <div style="margin: 20px 0; text-align: center;">
-                  <img src="/postImg/${post.imageUrl}"
-                       style="max-width: 500px; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-              </div>`;
-              document
-                .getElementById('content')
-                .insertAdjacentHTML('beforebegin', imgTag);
-            }
-            if (post.canEdit) {
-              editBtn.style.display = 'inline-block'; // 수정 가능하면 보이기
-            } else {
-              editBtn.style.display = 'none'; // 아니면 숨기기
-            }
-
-            if (post.canDelete) {
-              deleteBtn.style.display = 'inline-block'; // 삭제 가능하면 보이기
-            } else {
-              deleteBtn.style.display = 'none'; // 아니면 숨기기
-            }
-
-            document.getElementById('title').innerText = post.title;
-            document.getElementById('memberId').innerText = post.memberId;
-            document.getElementById('createdAt').innerText =
-              post.createdAt.replace('T', ' ');
-            document.getElementById('content').innerText = post.content;
-            returnList = `/community/post/list/${post.clubId}`;
-            document.getElementById('listBtn').href = returnList;
-          })
-          .catch((error) => {
-            console.error('Error:', error);
-            alert('데이터를 가져오는 데 실패했습니다.');
-          });
-      }
-
-      // 댓글 목록 가져오기
-      function fetchReplies() {
-        fetch(`/api/posts/${postId}/replies`)
-          .then((response) => response.json())
-          .then((replies) => {
-            const replyListDiv = document.getElementById('reply-list');
-            const replyCountSpan = document.getElementById('replyCount');
-
-            replyCountSpan.innerText = replies.length;
-            replyListDiv.innerHTML = ''; // 기존 내용 초기화
-
-            if (replies.length === 0) {
-              replyListDiv.innerHTML =
-                '<p style="color:gray;">등록된 댓글이 없습니다.</p>';
-              return;
-            }
-
-            replies.forEach((reply) => {
-              // 💡 1. 수정/삭제 버튼 영역 HTML을 권한에 따라 분기 처리
-              let btnAreaHtml = '';
-              if (reply.canEdit) {
-                btnAreaHtml = `
-                        <button type="button" onclick="switchToEditMode(${reply.replyId}, '${reply.content}')">수정</button>
-                        <button type="button" onclick="deleteReply(${reply.replyId})" style="color: red;" th:text="#{button.delete}">삭제</button>
-                    `;
-              }
-
-              // 💡 2. 템플릿 리터럴 내에서 작성자 정보와 버튼 영역을 사용
-              const replyHtml = `
-                    <div id="reply-container-${reply.replyId}" style="border-bottom: 1px solid #ddd; padding: 10px 0;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <strong>${reply.memberId}</strong>
-                            <small style="color:gray;">${reply.createdAt.replace('T', ' ')}</small>
-                        </div>
-                        
-                        <div id="reply-content-area-${reply.replyId}" style="margin: 10px 0;">
-                            <p style="margin: 5px 0;">${reply.content}</p>
-                        </div>
-
-                        <div id="reply-btn-area-${reply.replyId}" style="text-align: right;">
-                            ${btnAreaHtml} </div>
-                    </div>
-                `;
-              replyListDiv.insertAdjacentHTML('beforeend', replyHtml);
-            });
-          })
-          .catch((error) => console.error('댓글 로딩 에러:', error));
-      }
-
-      // 댓글 저장하기
-      function saveReply() {
-        const content = document.getElementById('replyContent').value;
-
-        if (!content.trim()) {
-          alert('댓글 내용을 입력해주세요.');
-          return;
-        }
-
-        // 폼 데이터 생성 (API Controller에서 @RequestParam으로 받기 때문)
-        const formData = new FormData();
-        formData.append('content', content);
-
-        fetch(`/api/posts/${postId}/replies`, {
-          method: 'POST',
-          body: formData,
-        })
-          .then((response) => {
-            if (response.ok) {
-              document.getElementById('replyContent').value = ''; // 입력창 비우기
-              fetchReplies(); // [중요] 새로고침 없이 댓글 목록만 갱신!
-            } else {
-              // 서비스에서 던진 에러 메시지 처리 (예: 제목을 입력해주세요 등)
-              return response.text().then((msg) => {
-                throw new Error(msg);
-              });
-            }
-          })
-          .catch((error) => alert(error.message));
-      }
-
-      // 댓글 삭제 기능
-      function deleteReply(replyId) {
-        if (!confirm('정말로 이 댓글을 삭제하시겠습니까?')) return;
-
-        fetch(`/api/posts/replies/${replyId}`, {
-          method: 'DELETE',
-        })
-          .then((response) => {
-            if (response.ok) {
-              alert('댓글이 삭제되었습니다.');
-              fetchReplies(); // 목록 새로고침
-            } else {
-              return response.text().then((msg) => {
-                throw new Error(msg);
-              });
-            }
-          })
-          .catch((error) => alert('삭제 실패: ' + error.message));
-      }
-
-      // 수정 모드로 화면을 전환하는 함수
-      function switchToEditMode(replyId, currentContent) {
-        const contentArea = document.getElementById(
-          `reply-content-area-${replyId}`,
-        );
-        const btnArea = document.getElementById(`reply-btn-area-${replyId}`);
-
-        // 기존 텍스트를 textarea로 교체
-        contentArea.innerHTML = `
-        <textarea id="edit-input-${replyId}" style="width: 100%;" rows="3">${currentContent}</textarea>
-    `;
-
-        // 기존 버튼을 [저장], [취소] 버튼으로 교체
-        btnArea.innerHTML = `
-        <button type="button" onclick="updateReply(${replyId})">저장</button>
-        <button type="button" onclick="fetchReplies()" th:text="#{button.cancel}">취소</button>
-    `;
-      }
-
-      // 수정 변경된 내용을 서버에 저장하는 함수
-      function updateReply(replyId) {
-        const newContent = document.getElementById(
-          `edit-input-${replyId}`,
-        ).value;
-
-        if (!newContent.trim()) {
-          alert('수정할 내용을 입력해주세요.');
-          return;
-        }
-
-        const formData = new FormData();
-        formData.append('content', newContent);
-
-        fetch(`/api/posts/replies/${replyId}`, {
-          method: 'PUT',
-          body: formData,
-        })
-          .then((response) => {
-            if (response.ok) {
-              alert('댓글이 수정되었습니다.');
-              fetchReplies(); // 목록을 다시 불러와서 '보기 모드'로 복구
-            } else {
-              return response.text().then((msg) => {
-                throw new Error(msg);
-              });
-            }
-          })
-          .catch((error) => alert('수정 실패: ' + error.message));
-      }
-
-      function deletePost() {
-        if (!confirm('정말로 이 글을 삭제하시겠습니까?')) return;
-
-        fetch(`/api/posts/${postId}`, {
-          method: 'DELETE', // HTTP 메서드를 DELETE로 설정
-        })
-          .then((response) => {
-            if (response.ok) {
-              alert('삭제되었습니다.');
-              location.href = returnList; // 삭제 후 목록으로 이동
-            } else {
-              alert('삭제 실패!');
-            }
-          })
-          .catch((error) => console.error('Error:', error));
-      }
-    </script>
   </body>
 </html>

@@ -1,245 +1,727 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
-  <head>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head
+    th:replace="~{fragments/head :: head('EnLink - 채팅', ~{::style}, ~{::script})}"
+  >
     <meta charset="UTF-8" />
     <title>채팅방</title>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <style>
-      #chat-container {
-        width: 500px;
+      /* ✅ 전역 레이아웃(.grid-container/.main)은 건드리지 않는다 */
+
+      /* 페이지 wrapper */
+      .chat-page .chat-wrapper {
+        width: 100%;
+        max-width: 1120px;
         margin: 0 auto;
-        border: 1px solid #ccc;
+        padding: 40px 24px;
+        box-sizing: border-box;
       }
-      #message-area {
-        height: 400px;
+
+      .chat-page .section-title-box {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 12px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #eaebed;
+      }
+
+      .chat-page .title-wrap {
+        display: grid;
+        gap: 6px;
+      }
+
+      .chat-page .page-title {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 900;
+        letter-spacing: -0.2px;
+      }
+
+      .chat-page .page-subtitle {
+        margin: 0;
+        font-size: 13px;
+        color: #7b7f87;
+        font-weight: 700;
+      }
+
+      /* ✅ 채팅 + 우측 패널 레이아웃 */
+      .chat-page .chat-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 300px;
+        gap: 16px;
+        align-items: start;
+      }
+
+      /* 채팅 카드 */
+      .chat-page .chat-card {
+        border: 1px solid #e8eaee;
+        border-radius: 18px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+      }
+
+      /* 메시지 영역 */
+      .chat-page #message-area {
+        height: min(62vh, 620px);
         overflow-y: auto;
-        border-bottom: 1px solid #ccc;
-        padding: 10px;
+        padding: 16px;
         display: flex;
         flex-direction: column;
+        gap: 10px;
+        background:
+          radial-gradient(
+            1200px 500px at 0% 0%,
+            rgba(92, 99, 230, 0.05),
+            transparent 45%
+          ),
+          radial-gradient(
+            1000px 500px at 100% 0%,
+            rgba(34, 197, 94, 0.04),
+            transparent 45%
+          ),
+          #fbfcfe;
       }
-      .message {
-        margin-bottom: 10px;
-        padding: 8px;
-        border-radius: 5px;
-        max-width: 70%;
+
+      /* 스크롤바 */
+      .chat-page #message-area::-webkit-scrollbar {
+        width: 10px;
       }
-      .my-message {
-        align-self: flex-end;
-        background-color: #dcf8c6;
+      .chat-page #message-area::-webkit-scrollbar-thumb {
+        background: rgba(31, 41, 55, 0.15);
+        border-radius: 999px;
+        border: 2px solid transparent;
+        background-clip: content-box;
       }
-      .other-message {
-        align-self: flex-start;
-        background-color: #f1f0f0;
+
+      /* 날짜 구분선 */
+      .chat-page .date-divider {
+        text-align: center;
+        color: #6b7280;
+        padding: 8px 12px;
+        border-radius: 999px;
+        margin: 8px auto 2px;
+        font-size: 12px;
+        font-weight: 900;
+        background: rgba(107, 114, 128, 0.12);
+        border: 1px solid rgba(107, 114, 128, 0.18);
+        width: fit-content;
       }
-      .sender-name {
-        font-size: 0.8em;
-        color: #555;
+
+      /* 메시지 버블 */
+      .chat-page .message {
+        padding: 10px 12px;
+        border-radius: 16px;
+        max-width: min(76%, 540px);
+        position: relative;
+        word-break: break-word;
+        line-height: 1.45;
+        display: grid;
+        gap: 6px;
+      }
+
+      .chat-page .sender-name {
+        font-size: 12px;
+        font-weight: 900;
+        color: rgba(17, 24, 39, 0.55);
         display: block;
       }
-      #input-area {
-        padding: 10px;
+
+      .chat-page .msg-time {
+        font-size: 11px;
+        font-weight: 900;
+        color: rgba(107, 114, 128, 0.8);
+        justify-self: end;
+        margin-top: 2px;
+      }
+
+      .chat-page .my-message {
+        align-self: flex-end;
+        background: rgba(92, 99, 230, 0.12);
+        border: 1px solid rgba(92, 99, 230, 0.22);
+      }
+
+      .chat-page .other-message {
+        align-self: flex-start;
+        background: #fff;
+        border: 1px solid rgba(17, 24, 39, 0.1);
+      }
+
+      .chat-page .content {
+        font-size: 14px;
+        font-weight: 800;
+        color: #111827;
+        white-space: pre-wrap;
+      }
+
+      /* 이미지 메시지 */
+      .chat-page .message img {
+        cursor: zoom-in;
+        max-width: 240px;
+        border-radius: 14px;
+        border: 1px solid rgba(17, 24, 39, 0.1);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
+        transition:
+          transform 0.15s ease,
+          filter 0.15s ease;
+      }
+      .chat-page .message img:hover {
+        transform: scale(1.01);
+        filter: brightness(0.98);
+      }
+
+      /* 입력 영역 */
+      .chat-page #input-area {
+        display: flex;
+        gap: 10px;
+        padding: 12px;
+        border-top: 1px solid #eef0f4;
+        background: #fff;
+        align-items: center;
+      }
+
+      .chat-page .btn {
+        border-radius: 14px !important;
+        font-weight: 900;
+        letter-spacing: -0.2px;
+        transition:
+          transform 0.12s ease,
+          box-shadow 0.12s ease,
+          filter 0.12s ease;
+      }
+      .chat-page .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 28px rgba(0, 0, 0, 0.1);
+      }
+      .chat-page .btn:active {
+        transform: translateY(0);
+        filter: brightness(0.98);
+      }
+
+      .chat-page #file-btn {
+        width: 44px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(17, 24, 39, 0.12);
+        background: #fff;
+      }
+
+      .chat-page #message-input {
+        flex-grow: 1;
+        height: 44px;
+        border-radius: 14px;
+        border: 1px solid rgba(17, 24, 39, 0.12);
+        padding: 0 14px;
+        font-weight: 800;
+        outline: none;
+      }
+      .chat-page #message-input:focus {
+        border-color: rgba(92, 99, 230, 0.55);
+        box-shadow: 0 0 0 4px rgba(92, 99, 230, 0.12);
+      }
+
+      .chat-page #send-btn {
+        height: 44px;
+        padding: 0 16px;
+      }
+
+      /* ✅ 우측 패널 */
+      .chat-page .side-card {
+        border: 1px solid #e8eaee;
+        border-radius: 18px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+        position: sticky;
+        top: 16px;
+      }
+
+      .chat-page .side-head {
+        padding: 14px 14px 10px;
+        border-bottom: 1px solid #eef0f4;
+        background: linear-gradient(
+          180deg,
+          rgba(92, 99, 230, 0.06),
+          rgba(92, 99, 230, 0)
+        );
+      }
+
+      .chat-page .side-title {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 900;
+        color: #111827;
+      }
+
+      .chat-page .side-sub {
+        margin: 6px 0 0;
+        font-size: 12px;
+        font-weight: 800;
+        color: #6b7280;
+      }
+
+      .chat-page .side-body {
+        padding: 12px 14px 14px;
+      }
+
+      .chat-page .mini-input {
+        width: 100%;
+        height: 38px;
+        border-radius: 12px;
+        border: 1px solid rgba(17, 24, 39, 0.12);
+        padding: 0 12px;
+        font-weight: 800;
+        outline: none;
+      }
+      .chat-page .mini-input:focus {
+        border-color: rgba(92, 99, 230, 0.55);
+        box-shadow: 0 0 0 4px rgba(92, 99, 230, 0.1);
+      }
+
+      .chat-page .member-list {
+        margin-top: 10px;
+        display: grid;
+        gap: 8px;
+        max-height: min(52vh, 520px);
+        overflow: auto;
+        padding-right: 4px;
+      }
+
+      .chat-page .member-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 10px;
+        border-radius: 14px;
+        border: 1px solid rgba(17, 24, 39, 0.08);
+        background: #fff;
+      }
+
+      .chat-page .member-left {
+        min-width: 0;
+        display: grid;
+        gap: 2px;
+      }
+
+      .chat-page .member-name {
+        font-weight: 900;
+        color: #111827;
+        font-size: 13px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .chat-page .member-id {
+        font-weight: 800;
+        color: #6b7280;
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .chat-page .role-badge {
+        font-size: 11px;
+        font-weight: 900;
+        padding: 6px 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(92, 99, 230, 0.22);
+        background: rgba(92, 99, 230, 0.1);
+        color: rgba(92, 99, 230, 1);
+        white-space: nowrap;
+      }
+
+      .chat-page .role-badge.manager {
+        border-color: rgba(34, 197, 94, 0.24);
+        background: rgba(34, 197, 94, 0.1);
+        color: rgba(22, 163, 74, 1);
+      }
+
+      .chat-page .role-badge.member {
+        border-color: rgba(107, 114, 128, 0.22);
+        background: rgba(107, 114, 128, 0.1);
+        color: rgba(75, 85, 99, 1);
+      }
+
+      /* ✅ Lightbox (ID 충돌 방지) */
+      .chat-page #chat-image-viewer {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        background: rgba(0, 0, 0, 0.72);
+        backdrop-filter: blur(2px);
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+      .chat-page #chat-image-viewer.is-open {
         display: flex;
       }
-      #message-input {
-        flex-grow: 1;
+      .chat-page #chat-image-viewer .viewer-box {
+        position: relative;
+        width: min(900px, 92vw);
+        height: min(600px, 80vh);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 18px;
+        overflow: hidden;
       }
-
-      /* 채팅 내역 이미지에 마우스 포인터 표시 */
-      .message img {
-        cursor: pointer;
-      }
-
-      /* 이미지 상세보기(LightBox) 스타일 */
-      #image-viewer {
-        display: none; /* 평소에는 숨김 */
-        position: fixed;
-        z-index: 1000;
-        padding-top: 100px;
-        left: 0;
-        top: 0;
+      .chat-page #chat-full-image {
         width: 100%;
         height: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.9); /* 검은색 반투명 배경 */
-      }
-      #full-image {
-        margin: auto;
+        object-fit: contain;
         display: block;
-        max-width: 80%;
-        max-height: 80%; /* 화면 크기의 80% 제한 */
       }
-      /* 닫기 버튼 스타일 */
-      #image-viewer span {
+      .chat-page #chat-image-viewer .viewer-close {
         position: absolute;
-        top: 15px;
-        right: 35px;
-        color: #f1f1f1;
-        font-size: 40px;
-        font-weight: bold;
+        top: 10px;
+        right: 10px;
+        width: 42px;
+        height: 42px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.14);
+        color: #fff;
+        font-size: 22px;
+        font-weight: 900;
         cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
       }
 
-      /* 날짜 구분선 스타일 */
-      .date-divider {
-        text-align: center;
-        background-color: #bbbbbb;
-        color: white;
-        padding: 5px 10px;
-        border-radius: 15px;
-        margin: 15px auto;
-        font-size: 0.85em;
-        width: fit-content;
-        clear: both;
-      } /* 다른 요소와 겹치지 않게 */
+      /* 반응형: 좁아지면 우측 패널 아래로 */
+      @media (max-width: 980px) {
+        .chat-page .chat-layout {
+          grid-template-columns: 1fr;
+        }
+        .chat-page .side-card {
+          position: static;
+        }
+      }
+
+      /* ✅ 카톡 느낌 강화: 내 메시지 이름 숨김 */
+      .chat-page .my-message .sender-name {
+        display: none;
+      }
+
+      /* ✅ 말풍선 꼬리 (before) */
+      .chat-page .message::before {
+        content: '';
+        position: absolute;
+        bottom: 10px;
+        width: 0;
+        height: 0;
+        border: 8px solid transparent;
+      }
+
+      /* 상대 말풍선 꼬리(왼쪽) */
+      .chat-page .other-message::before {
+        left: -10px;
+        border-right-color: rgba(17, 24, 39, 0.1); /* 테두리 색 */
+        border-left: 0;
+      }
+      .chat-page .other-message::after {
+        content: '';
+        position: absolute;
+        bottom: 10px;
+        left: -9px;
+        width: 0;
+        height: 0;
+        border: 7px solid transparent;
+        border-right-color: #fff; /* 버블 배경 */
+        border-left: 0;
+      }
+
+      /* 내 말풍선 꼬리(오른쪽) */
+      .chat-page .my-message::before {
+        right: -10px;
+        border-left-color: rgba(92, 99, 230, 0.22); /* 테두리 색 */
+        border-right: 0;
+      }
+      .chat-page .my-message::after {
+        content: '';
+        position: absolute;
+        bottom: 10px;
+        right: -9px;
+        width: 0;
+        height: 0;
+        border: 7px solid transparent;
+        border-left-color: rgba(92, 99, 230, 0.12); /* 버블 배경 */
+        border-right: 0;
+      }
+
+      /* ✅ 연속 메시지 묶기용 클래스 */
+      .chat-page .message.is-grouped {
+        margin-top: -6px; /* 위 메시지와 더 붙게 */
+      }
+      .chat-page .message.is-grouped .sender-name {
+        display: none; /* 연속이면 상대 이름도 숨김 */
+      }
+      .chat-page .message.is-grouped::before,
+      .chat-page .message.is-grouped::after {
+        display: none; /* 중간 말풍선은 꼬리 제거 */
+      }
+
+      /* ✅ 시간 위치 살짝 정리 */
+      .chat-page .msg-time {
+        margin-top: 0;
+        opacity: 0.9;
+      }
     </style>
   </head>
-  <body>
-    <div id="chat-container">
-      <h3 th:text="'모임 채팅 - ' + ${clubId}">채팅방</h3>
 
-      <div id="message-area"></div>
+  <body class="bg-light chat-page">
+    <div class="grid-container chat-page">
+      <header th:replace="~{fragments/header :: header}"></header>
+      <aside th:replace="~{fragments/aside :: aside}"></aside>
 
-      <div id="image-viewer">
-        <span onclick="closeImage()">&times;</span>
-        <img id="full-image" />
-      </div>
+      <main class="main">
+        <div class="chat-wrapper">
+          <div class="section-title-box">
+            <div class="title-wrap">
+              <h2
+                class="page-title"
+                th:text="${club != null ? club.name : '모임 채팅'}"
+              >
+                모임 채팅
+              </h2>
+              <p class="page-subtitle" th:text="'모임 ID: ' + ${clubId}">
+                모임 ID: 0
+              </p>
+            </div>
+          </div>
 
-      <div id="input-area">
-        <input
-          type="file"
-          id="file-input"
-          accept="image/*"
-          style="display: none"
-        />
-        <button id="file-btn">📎</button>
-        <input
-          type="text"
-          id="message-input"
-          placeholder="메시지를 입력하세요..."
-        />
-        <button id="send-btn">전송</button>
+          <div class="chat-layout">
+            <!-- 채팅 -->
+            <div class="chat-card">
+              <div id="message-area"></div>
+
+              <div id="input-area">
+                <input
+                  type="file"
+                  id="file-input"
+                  accept="image/*"
+                  style="display: none"
+                />
+                <button
+                  id="file-btn"
+                  class="btn"
+                  type="button"
+                  title="이미지 첨부"
+                >
+                  📎
+                </button>
+
+                <input
+                  type="text"
+                  id="message-input"
+                  placeholder="메시지를 입력하세요..."
+                  autocomplete="off"
+                />
+
+                <button id="send-btn" class="btn btn-primary" type="button">
+                  전송
+                </button>
+              </div>
+            </div>
+
+            <!-- 우측 패널 -->
+            <aside class="side-card" aria-label="모임 정보 패널">
+              <div class="side-head">
+                <h3 class="side-title">모임 정보</h3>
+                <p class="side-sub">
+                  <span th:text="${club != null ? club.name : ''}"></span>
+                  <span
+                    th:text="' · 활동 멤버 ' + ${#lists.size(members)} + '명'"
+                  >
+                    · 활동 멤버 0명</span
+                  >
+                </p>
+              </div>
+
+              <div class="side-body">
+                <input
+                  id="memberSearch"
+                  class="mini-input"
+                  type="text"
+                  placeholder="멤버 검색 (이름/아이디)"
+                  autocomplete="off"
+                />
+
+                <div class="member-list" id="memberList">
+                  <div
+                    class="member-item"
+                    th:each="m : ${members}"
+                    th:attr="data-name=${m.memberName}, data-id=${m.memberId}"
+                  >
+                    <div class="member-left">
+                      <div class="member-name" th:text="${m.memberName}">
+                        홍길동
+                      </div>
+                      <div class="member-id" th:text="${m.memberId}">@hong</div>
+                    </div>
+
+                    <span
+                      class="role-badge"
+                      th:classappend="${m.role == 'OWNER' ? '' : (m.role == 'MANAGER' ? ' manager' : ' member')}"
+                      th:text="${m.role == 'OWNER' ? '운영자' : (m.role == 'MANAGER' ? '매니저' : '멤버')}"
+                      >멤버</span
+                    >
+                  </div>
+
+                  <div
+                    th:if="${members == null || #lists.isEmpty(members)}"
+                    class="member-item"
+                  >
+                    <div class="member-left">
+                      <div class="member-name">활동 멤버가 없습니다</div>
+                      <div class="member-id">-</div>
+                    </div>
+                    <span class="role-badge member">-</span>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </main>
+
+      <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+
+    <!-- Lightbox -->
+    <div id="chat-image-viewer" onclick="closeImage()">
+      <div class="viewer-box" onclick="event.stopPropagation()">
+        <button class="viewer-close" type="button" onclick="closeImage()">
+          ×
+        </button>
+        <img id="chat-full-image" alt="full image" />
       </div>
     </div>
 
     <script th:inline="javascript">
-      // 컨트롤러에서 넘겨준 변수들을 JS에서 사용
-      const clubId = /*[[${clubId}]]*/ 1; // 1은 JS가 이해할 수 있는 기본값
+      const clubId = /*[[${clubId}]]*/ 1;
       const userId = /*[[${userId}]]*/ 'default';
 
       let stompClient = null;
-      let page = 0; // 무한 스크롤용 페이지 번호
-      let isLastPage = false; // 마지막 페이지 여부
-      let lastRenderedDate = null; // 날짜 구분선 관리를 위한 변수
+      let page = 0;
+      let isLastPage = false;
+      let lastRenderedDate = null;
 
       $(document).ready(function () {
-        // 1. 페이지 로드 시 실행
-        connect(); // 웹소켓 연결
-        loadChatHistory(); // 과거 내역 첫 페이지 로드
+        connect();
+        loadChatHistory();
 
-        // 전송 버튼 클릭 이벤트
         $('#send-btn').click(sendMessage);
 
-        // 엔터키 이벤트
         $('#message-input').keypress(function (e) {
           if (e.which == 13) sendMessage();
         });
 
-        // 무한 스크롤 (스크롤이 천장에 닿으면 이전 메시지 로드)
         $('#message-area').scroll(function () {
           if ($('#message-area').scrollTop() == 0 && !isLastPage) {
             loadChatHistory();
           }
         });
 
-        // --- 파일 첨부 관련 이벤트 ---
-
-        // 1. 파일 버튼 클릭 시 파일 input 클릭 유도
+        // 파일 첨부
         $('#file-btn').click(() => $('#file-input').click());
-
-        // 2. 파일 선택 시 즉시 서버로 업로드 (AJAX)
         $('#file-input').change(function () {
           const file = this.files[0];
           if (!file) return;
 
           const formData = new FormData();
           formData.append('file', file);
-          formData.append('clubId', clubId); // 어떤 채팅방인지 정보
+          formData.append('clubId', clubId);
 
           $.ajax({
-            url: '/api/chat/upload', // 파일 업로드 API
+            url: '/api/chat/upload',
             type: 'POST',
             data: formData,
-            processData: false, // 필수
-            contentType: false, // 필수
+            processData: false,
+            contentType: false,
             success: function (fileUrl) {
-              // 업로드 성공 시, 받은 파일 URL을 채팅 메시지로 전송
               const chatDTO = {
                 clubId: clubId,
                 senderId: userId,
-                content: fileUrl, // 내용 대신 파일 URL 전송
-                type: 'IMAGE', // 메시지 타입 추가
+                content: fileUrl,
+                type: 'IMAGE',
               };
-              console.log('전송할 DTO:', chatDTO);
               stompClient.send(
                 '/pub/chat/message',
                 {},
                 JSON.stringify(chatDTO),
               );
-              $('#file-input').val(''); // 파일 input 초기화
+              $('#file-input').val('');
             },
             error: function () {
               alert('파일 업로드 실패');
             },
           });
         });
+
+        // ✅ 우측 멤버 검색(프론트 필터)
+        $('#memberSearch').on('input', function () {
+          const q = ($(this).val() || '').toLowerCase().trim();
+          $('#memberList .member-item').each(function () {
+            const name = (this.dataset.name || '').toLowerCase();
+            const id = (this.dataset.id || '').toLowerCase();
+            // "활동 멤버가 없습니다" 같은 placeholder는 dataset이 없을 수 있음
+            if (!name && !id) return;
+
+            const hit = !q || name.includes(q) || id.includes(q);
+            this.style.display = hit ? '' : 'none';
+          });
+        });
       });
 
-      // [연결] 웹소켓 연결 및 구독
       function connect() {
-        const socket = new SockJS('/ws-chat'); // WebSocketConfig에서 설정한 엔드포인트
+        const socket = new SockJS('/ws-chat');
         stompClient = Stomp.over(socket);
+        stompClient.debug = null;
 
         stompClient.connect(
           {},
-          function (frame) {
-            console.log('Connected: ' + frame);
-
-            // 특정 모임의 채팅방 구독
+          function () {
             stompClient.subscribe(
               '/sub/chat/room/' + clubId,
               function (response) {
                 const message = JSON.parse(response.body);
-                displayMessage(message, false); // 수신된 메시지 화면에 표시
+                displayMessage(message, false);
               },
             );
           },
-          function (error) {
+          function () {
             alert('연결에 실패했습니다. 새로고침 후 다시 시도해주세요.');
           },
         );
       }
 
-      // [발행] 메시지 전송
       function sendMessage() {
         const content = $('#message-input').val();
         if (!content || !stompClient) return;
 
-        const chatDTO = {
-          clubId: clubId,
-          senderId: userId, // 이 값은 서버 컨트롤러에서 Principal로 검증/교체됩니다.
-          content: content,
-        };
-
-        // WebSocketConfig에서 설정한 Prefix(/pub) + ChatController의 Mapping(/chat/message)
+        const chatDTO = { clubId: clubId, senderId: userId, content: content };
         stompClient.send('/pub/chat/message', {}, JSON.stringify(chatDTO));
-        $('#message-input').val(''); // 입력창 초기화
+        $('#message-input').val('');
       }
 
-      // [조회] 과거 내역 불러오기 (API 호출) - [중요] 수정된 부분
       function loadChatHistory() {
         if (isLastPage) return;
 
@@ -247,16 +729,16 @@
           url: `/api/chat/history/${clubId}?page=${page}&size=20`,
           method: 'GET',
           success: function (data) {
-            const messages = data.content; // Desc (최신순)
+            const messages = data.content;
             isLastPage = data.last;
 
             if (messages.length > 0) {
-              // 1. [중요] 데이터를 거꾸로(Asc) 뒤집습니다.
               messages.reverse();
 
-              // 2. [핵심] 렌더링 함수를 하나씩 부르지 않고,
-              // 데이터를 묶어서 전체 HTML을 만들어서
-              // 한 번에 prepend 하겠습니다.
+              lastRenderedDate = null;
+              window.__lastSenderId = null;
+              window.__lastMessageDate = null;
+
               let historyHtml = '';
               messages.forEach((msg) => {
                 historyHtml += getMessageHtml(msg);
@@ -265,10 +747,7 @@
               const $area = $('#message-area');
               const currentScrollHeight = $area[0].scrollHeight;
 
-              // 한 번에 삽입
               $area.prepend(historyHtml);
-
-              // 스크롤 위치 유지
               $area.scrollTop($area[0].scrollHeight - currentScrollHeight);
 
               page++;
@@ -277,65 +756,80 @@
         });
       }
 
-      // [추가] 이미지 보기 함수
+      // Lightbox
       function openImage(imgSrc) {
-        $('#image-viewer').show();
-        $('#full-image').attr('src', imgSrc);
+        $('#chat-full-image').attr('src', imgSrc);
+        $('#chat-image-viewer').addClass('is-open');
       }
-
-      // [추가] 이미지 닫기 함수
       function closeImage() {
-        $('#image-viewer').hide();
+        $('#chat-image-viewer').removeClass('is-open');
+        $('#chat-full-image').attr('src', '');
       }
 
-      // [핵심] 메시지 HTML만 반환하는 함수 (구분선 + AM/PM 포함)
+      function escapeHtml(text) {
+        return String(text)
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#039;');
+      }
+
       function getMessageHtml(message) {
         if (!message.sentAt) return '';
 
         const sentAtParts = message.sentAt.split(' ');
         if (sentAtParts.length < 2) return '';
         const messageDate = sentAtParts[0];
-        const rawTime = sentAtParts[1]; // HH:mm:ss 형태
+        const rawTime = sentAtParts[1];
 
-        // 1. --- [시간 포맷 로직 (AM/PM)] ---
         const timeParts = rawTime.split(':');
-        let hours = parseInt(timeParts[0]);
+        let hours = parseInt(timeParts[0], 10);
         const minutes = timeParts[1];
 
         const ampm = hours >= 12 ? 'PM' : 'AM';
         hours = hours % 12;
-        hours = hours ? hours : 12; // 0시는 12시로 표시
+        hours = hours ? hours : 12;
 
-        // 최종 시간 형식: "PM 3:05"
         const formattedTime = `${ampm} ${hours}:${minutes}`;
 
-        // 2. 메시지 HTML 생성
+        // 연속 메시지 묶기 판단
+        // 같은 날짜 + 같은 senderId + 직전 메시지도 같은 사람이면 grouped 처리
+        let groupedClass = '';
+        if (
+          window.__lastSenderId === message.senderId &&
+          window.__lastMessageDate === messageDate
+        ) {
+          groupedClass = ' is-grouped';
+        }
+        window.__lastSenderId = message.senderId;
+        window.__lastMessageDate = messageDate;
+
         const isMine = message.senderId === userId;
         const messageClass = isMine ? 'my-message' : 'other-message';
 
-        // --- [이미지 타입 체크 로직 추가] ---
         let contentHtml = '';
-        // message 객체에 type 필드가 있다고 가정합니다.
         if (
           message.type === 'IMAGE' ||
-          message.content.startsWith('/chatImg/')
+          (message.content && message.content.startsWith('/chatImg/'))
         ) {
-          contentHtml = `<img src="${message.content}" onclick="openImage('${message.content}')" style="max-width: 200px; border-radius: 10px;" />`;
+          const src = escapeHtml(message.content);
+          contentHtml = `<img src="${src}" alt="chat image" onclick="openImage('${src}')" />`;
         } else {
-          contentHtml = `<div class="content">${message.content}</div>`;
+          contentHtml = `<div class="content">${escapeHtml(message.content ?? '')}</div>`;
         }
 
+        const senderName = escapeHtml(message.senderName ?? '');
+
         const messageHtml = `
-        <div class="message ${messageClass}">
-            <span class="sender-name">${message.senderName}</span>
-            ${contentHtml} <span style="font-size: 0.7em; color: #999;">${formattedTime}</span>
-        </div>
-    `;
+          <div class="message ${messageClass}${groupedClass}">
+            <span class="sender-name">${senderName}</span>
+            ${contentHtml}
+            <span class="msg-time">${formattedTime}</span>
+          </div>
+        `;
 
-        // 3. --- [날짜 구분선 로직 (이전 데이터와 비교)] ---
         let totalHtml = messageHtml;
-
-        // 이전 렌더링된 날짜와 비교
         if (messageDate !== lastRenderedDate) {
           const dateObj = new Date(messageDate);
           const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][
@@ -343,24 +837,28 @@
           ];
           const formattedDate = `${dateObj.getFullYear()}년 ${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일 ${dayOfWeek}요일`;
           const dividerHtml = `<div class="date-divider">${formattedDate}</div>`;
-
           totalHtml = dividerHtml + messageHtml;
-          lastRenderedDate = messageDate; // 날짜 업데이트
+          lastRenderedDate = messageDate;
         }
-
         return totalHtml;
       }
 
-      // [화면 표시] 실시간 메시지 렌더링
       function displayMessage(message, isHistory) {
-        // 실시간 메시지만 처리하도록 수정 (isHistory가 false일 때만)
         if (isHistory) return;
 
-        const html = getMessageHtml(message);
+        const $area = $('#message-area');
 
-        // 실시간 메시지는 아래로 쌓음
-        $('#message-area').append(html);
-        $('#message-area').scrollTop($('#message-area')[0].scrollHeight);
+        // 사용자가 바닥 근처를 보고 있을 때만 자동 스크롤
+        const isNearBottom =
+          $area[0].scrollHeight - ($area.scrollTop() + $area.innerHeight()) <
+          120;
+
+        const html = getMessageHtml(message);
+        $area.append(html);
+
+        if (isNearBottom) {
+          $area.scrollTop($area[0].scrollHeight);
+        }
       }
     </script>
   </body>

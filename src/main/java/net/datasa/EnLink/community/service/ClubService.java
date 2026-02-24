@@ -305,7 +305,6 @@ public class ClubService {
 				.actionType("JOIN_APPROVE").description("모임 생성 및 모임장 등록").build());
 	}
 
-
 	
 	private ClubListResponse convertToListResponse(ClubEntity entity) {
 		int currentCount = clubMemberRepository.countByClub_ClubIdAndStatus(entity.getClubId(), "ACTIVE");
@@ -361,6 +360,7 @@ public class ClubService {
 		String locale = LocaleContextHolder.getLocale().getLanguage();
 		return clubRepository.searchClubs(pageable, cityId, topicId, search, regionId, locale);
 	}
+
 
 	public List<ClubSummaryResponse> getListByTopicId(Integer topicId){
 		String locale = LocaleContextHolder.getLocale().getLanguage();
