@@ -1,120 +1,167 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head('모임 상세 정보', ~{::link}, ~{::script})}">
-    <link rel="stylesheet" th:href="@{/css/manage.css}">
-    <style>
-        /* 1. 이미지 칼각 고정 (인라인 스타일만큼 강력하게) */
-        .detail-img {
-            width: 300px !important;
-            height: 200px !important;
-            object-fit: cover !important;
-            border-radius: 12px !important;
-            flex-shrink: 0;
-        }
-    </style>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: head('EnLink - 모임 상세 정보', ~{::link}, ~{::script})}">
+    <link rel="stylesheet" th:href="@{/css/club/clubDetail.css}">
 </head>
-<body class="bg-light">
+<body class="bg-white">
 <div class="grid-container">
 
     <header th:replace="~{fragments/header :: header}" class="header shadow-sm"></header>
-
     <aside th:replace="~{fragments/aside :: aside}" class="aside"></aside>
 
     <main class="main">
-        <div class="container py-5 flex-grow-1">
-            <div class="detail-content-container bg-white p-4 rounded shadow-sm border">
+        <div class="cd-full-width-container" th:if="${club != null}"> <div class="detail-content-container bg-white">
 
-                <nav class="club-tabs mb-4">
-                    <ul class="nav nav-pills">
-                        <li class="nav-item"><a class="nav-link active" th:href="@{/club/{id}(id=${club.clubId})}">홈</a></li>
-                        <li class="nav-item"><a class="nav-link" th:href="@{/community/post/list/{id}(id=${club.clubId})}">게시판</a></li>
-                        <li class="nav-item"><a class="nav-link" th:href="@{/community/gallery/{id}(id=${club.clubId})}">사진첩</a></li>
-                        <li class="nav-item"><a class="nav-link" th:href="@{/community/chat/room/{id}(id=${club.clubId})}">채팅</a></li>
-                        <li class="nav-item"><a class="nav-link" th:href="@{/community/schedule/list/{id}(id=${club.clubId})}">일정</a></li>
-                        <th:block th:if="${loginMember != null && (loginMember.role == 'OWNER' || loginMember.role == 'MANAGER')}">
-                            <li class="nav-item"><a class="nav-link" th:href="@{/club/{id}/manage/requests(id=${club.clubId})}">모임관리</a></li>
+            <nav class="club-tabs">
+                <ul class="nav nav-pills">
+                    <li class="nav-item"><a class="nav-link active" th:href="@{/club/{id}(id=${club.clubId})}">홈</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/community/post/list/{id}(id=${club.clubId})}">게시판</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/community/gallery/{id}(id=${club.clubId})}">사진첩</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/community/chat/room/{id}(id=${club.clubId})}">채팅</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/community/schedule/list/{id}(id=${club.clubId})}">일정</a></li>
+                    <th:block th:if="${loginMember != null && (loginMember.role == 'OWNER' || loginMember.role == 'MANAGER')}">
+                        <li class="nav-item"><a class="nav-link text-danger fw-bold" th:href="@{/club/{id}/manage/requests(id=${club.clubId})}">모임관리</a></li>
+                    </th:block>
+                </ul>
+            </nav>
+
+            <div th:if="${club.status == 'DELETED_PENDING'}" class="alert alert-warning shadow-sm border-0">
+                <div class="d-flex align-items-center">
+                    <span class="fs-4 me-3">⚠️</span>
+                    <div>
+                        <h5 class="alert-heading fw-bold mb-1 small">모임 삭제 대기 안내</h5>
+                        <span class="badge bg-danger rounded-pill">남은 시간: <strong th:text="${club.remainingTime}">7일</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cd-slim-cover mt-3">
+                <img th:src="${club.imageUrl}" class="cd-cover-img" onerror="this.src='/images/default_club.jpg'">
+            </div>
+
+            <div class="cd-info-content-area py-4">
+                <div class="d-flex align-items-center gap-4 mb-4">
+                    <div class="cd-profile-circle shadow-sm">
+                        <img th:src="${club.imageUrl}" onerror="this.src='/images/default_club.jpg'">
+                    </div>
+                    <div class="cd-info-main">
+                        <h1 class="fw-bold mb-2 display-6" th:text="${club.name ?: '모임 이름 없음'}">모임명</h1>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge rounded-pill bg-light text-primary border border-primary px-3 py-1"
+                                      th:text="${club.topicName ?: '주제 없음'}">주제</span>
+                            <span class="text-secondary small">
+                                    <i class="bi bi-geo-alt-fill me-1 text-danger"></i>
+                                    <span th:text="${club.cityName ?: '전국'}">지역</span>
+                                </span>
+                            <span class="text-muted ms-2 small">
+                                    <i class="bi bi-people-fill me-1"></i> 멤버
+                                    <strong class="text-primary" th:text="${club.currentMemberCount ?: 1}">1</strong> /
+                                    <span th:text="${club.maxMember ?: 30}">30</span>명
+                                </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="club-description-box p-4 rounded-4 mb-5">
+                    <p class="fw-bold mb-3 text-dark fs-5"><i class="text-primary"></i>모임 소개</p>
+                    <p th:text="${club.description ?: '소개글이 없습니다.'}"
+                       class="text-muted mb-0 lh-lg"
+                       style="white-space: pre-wrap; word-break: break-all;"></p>
+                </div>
+
+                <div class="join-section text-start mb-5">
+                    <th:block th:if="${!isLogin}">
+                        <a th:href="@{/auth/login}" class="btn btn-primary px-4 py-2 shadow-sm rounded-pill">로그인하고 가입하기</a>
+                    </th:block>
+
+                    <th:block th:if="${isLogin}">
+                        <th:block th:if="${loginMember != null and loginMember.status == 'ACTIVE'}">
+                            <span th:if="${loginMember.role == 'OWNER'}" class="badge bg-primary p-3 fs-6 rounded-3 shadow-sm">👑 모임장입니다</span>
+                            <button th:if="${loginMember.role != 'OWNER'}" type="button" class="btn btn-danger px-4 py-2 shadow-sm rounded-pill" onclick="openLeaveModal()">모임 탈퇴하기</button>
                         </th:block>
-                    </ul>
-                </nav>
 
-<!--            <nav class="club-tabs">-->
-<!--                <a th:href="@{/club/{id}(id=${club.clubId})}">홈</a>-->
-<!--                <a th:href="@{/community/post/list/{id}(id=${club.clubId})}">게시판</a>-->
-<!--                <a th:href="@{/community/gallery/{id}(id=${club.clubId})}">사진첩</a>-->
-<!--                <a th:href="@{/community/schedule/list/{id}(id=${club.clubId})}">일정</a>-->
-<!--                <a th:href="@{/community/chat/room/{id}(id=${club.clubId})}">채팅</a>-->
-<!--                <th:block th:if="${loginMember != null && (loginMember.role == 'OWNER' || loginMember.role == 'MANAGER')}">-->
-<!--                    <a th:href="@{/club/{id}/manage/requests(id=${club.clubId})}">모임관리</a>-->
-<!--                </th:block>-->
-<!--            </nav>-->
-                <hr class="my-4">
+                        <th:block th:if="${loginMember != null and loginMember.status == 'PENDING'}">
+                            <button type="button" class="btn btn-warning px-4 py-2 fw-bold rounded-pill" th:onclick="|cancelApply(${club.clubId})|">가입 신청 취소</button>
+                        </th:block>
 
-                <div th:if="${club.status == 'DELETED_PENDING'}" class="alert alert-warning mb-4 shadow-sm border-warning">
-                    <div class="d-flex align-items-center">
-                        <span class="fs-4 me-3">⚠️</span>
-                        <div>
-                            <h5 class="alert-heading fw-bold">모임 삭제 대기 안내</h5>
-                            <p class="mb-1">이 모임은 현재 삭제 절차가 진행 중입니다.</p>
-                            <span class="badge bg-danger">남은 시간: <strong th:text="${club.remainingTime}">7일</strong></span>
-                        </div>
-                    </div>
+                        <th:block th:if="${loginMember == null or loginMember.status == 'EXIT' or loginMember.status == 'BANNED'}">
+                            <button th:if="${canJoin}" type="button" class="btn btn-primary px-5 py-3 fw-bold shadow rounded-pill" onclick="openApplyModal()">가입 신청하기</button>
+                            <div th:if="${!canJoin}" class="badge bg-secondary p-2 mt-2 rounded-pill small text-white">최대 5개 모임 참여 제한</div>
+                        </th:block>
+                    </th:block>
                 </div>
 
-                <section class="club-info mb-5">
-                    <div class="d-flex gap-4 align-items-start mb-4">
-                        <img th:src="${club.imageUrl}" alt="모임 이미지" class="detail-img border shadow-sm" onerror="this.src='/images/default_club.jpg'">
-
-                        <div class="club-title-area">
-                            <h2 class="fw-bold mb-2" th:text="${club.name}">모임 이름</h2>
-                            <span th:if="${club.status == 'DELETED_PENDING'}" class="badge bg-warning text-dark mb-2">삭제 대기 중</span>
-                            <p class="text-secondary">
-                                <i class="bi bi-people-fill me-1"></i> 멤버
-                                <span class="text-primary fw-bold" th:text="${club.currentMemberCount != null ? club.currentMemberCount : 1}">1</span>명 /
-                                <span th:text="${club.maxMember}">10</span>명
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="bg-light p-4 rounded border">
-                        <p class="fw-bold mb-2 text-dark">모임 소개</p>
-                        <p th:text="${club.description}" class="text-muted mb-0 lh-lg"></p>
-                    </div>
-                </section>
-
-                <hr class="my-5">
-
-                <div class="join-section text-end mb-4">
-                </div>
-
-                <div class="member-list-section border p-4 rounded bg-white">
-                    <h5 class="fw-bold mb-3">가입된 멤버 목록 (<span th:text="${members.size()}">0</span>명)</h5>
-                    <div class="list-group list-group-flush">
-                        <div th:each="member : ${members}" class="list-group-item d-flex justify-content-between align-items-center px-0">
-                            <span>
-                                <strong th:text="${member.memberName}">이름</strong>
-                                <span class="text-muted small ms-1" th:text="'(' + ${member.memberId} + ')'"></span>
-                            </span>
-                            <span class="badge rounded-pill"
+                <div class="member-list-section p-4 rounded-4 bg-white border border-light shadow-sm">
+                    <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-person-badge-fill me-2 text-primary"></i>멤버 목록 (<span th:text="${members != null ? members.size() : 0}">0</span>명)</h5>
+                    <div class="list-group list-group-flush" th:if="${members != null}">
+                        <div th:each="member : ${members}" class="list-group-item d-flex justify-content-between align-items-center px-2 py-3 member-item border-0 border-bottom">
+                                <span class="d-flex align-items-center">
+                                    <span class="me-3 fs-4">
+                                        <th:block th:if="${member.role == 'OWNER'}">👑</th:block>
+                                        <th:block th:if="${member.role == 'MANAGER'}">⭐</th:block>
+                                        <th:block th:if="${member.role == 'MEMBER'}"></th:block>
+                                    </span>
+                                    <div>
+                                        <strong class="text-dark d-block fs-6" th:text="${member.memberName}">이름</strong>
+                                        <span class="text-muted small" th:text="'@' + ${member.memberId}">아이디</span>
+                                    </div>
+                                </span>
+                            <span class="badge rounded-pill px-3 py-2"
                                   th:classappend="${member.role == 'OWNER' ? 'bg-primary' : (member.role == 'MANAGER' ? 'bg-info text-dark' : 'bg-light text-dark')}"
-                                  th:text="${member.role == 'OWNER' ? '모임장' : (member.role == 'MANAGER' ? '운영진' : '')}">
-                            </span>
+                                  th:text="${member.role == 'OWNER' ? '모임장' : (member.role == 'MANAGER' ? '운영진' : '일반멤버')}">
+                                </span>
                         </div>
                     </div>
                 </div>
 
-                <div class="mt-5">
-                    <a th:href="@{/club/list}" class="btn btn-outline-secondary px-4">
+                <div class="mt-5 text-center">
+                    <a th:href="@{/club/list}" class="btn btn-outline-secondary px-5 py-2 rounded-pill">
                         <i class="bi bi-arrow-left me-2"></i>목록으로 돌아가기
                     </a>
                 </div>
+
+                <div id="applyModal" class="modal">
+                    <div class="modal-content">
+                        <h4 class="fw-bold mb-4">가입 신청</h4>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary">가입 질문</label>
+                            <p class="text-dark bg-light p-3 rounded" th:text="${club.joinQuestion}">질문 내용</p>
+                            <textarea id="applyAnswer" class="form-control mt-2" rows="3" placeholder="답변을 입력해주세요"></textarea>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-primary w-100 py-2" th:onclick="|submitApply(${club.clubId})|">신청하기</button>
+                            <button type="button" class="btn btn-light w-100 py-2" onclick="closeApplyModal()">닫기</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="leaveModal" class="modal">
+                    <div class="modal-content">
+                        <h4 class="fw-bold mb-4">모임 탈퇴</h4>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary">탈퇴 사유</label>
+                            <select id="leaveReasonSelect" class="form-select mb-2" onchange="toggleLeaveEtcInput()">
+                                <option value="활동 저조">활동 저조</option>
+                                <option value="시간 부족">시간 부족</option>
+                                <option value="기타">기타 (직접 입력)</option>
+                            </select>
+                            <div id="leaveEtcWrapper" style="display:none;">
+                                <textarea id="leaveEtcInput" class="form-control" rows="2" placeholder="사유를 입력하세요"></textarea>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-danger w-100 py-2" th:onclick="|submitLeave(${club.clubId})|">탈퇴하기</button>
+                            <button type="button" class="btn btn-light w-100 py-2" onclick="closeLeaveModal()">취소</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
+        </div>
+        <footer th:replace="~{fragments/footer :: footer}" class="footer mt-5"></footer>
     </main>
 
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script th:src="@{/js/club/clubDetail.js}"></script>
 </body>

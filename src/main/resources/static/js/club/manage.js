@@ -2,7 +2,6 @@
  * manage.js
  * 모임 관리 통합 스크립트 (가입신청, 멤버관리, 정보수정, 삭제/복구)
  */
-
 // --- [공통] 서버 응답 처리 핸들러 ---
 async function handleResponse(response, successMsg, callback) {
     const resText = await response.text();
@@ -156,7 +155,7 @@ window.updateRole = async function(selectElement) {
 
 /** * 제명 모달 열기
  */
-let kickContext = { clubId: null, memberId: null };
+window.kickContext = window.kickContext || { clubId: null, memberId: null };
 
 window.openKickModal = function(buttonElement) {
     const memberId = buttonElement.getAttribute('data-member-id');
@@ -223,30 +222,85 @@ window.submitKick = async function() {
 }
 
 
-// 3. 모임 정보 수정 (clubEdit.html)
+/**
+ * 모임 정보 수정 (최종 제출)
+ */
 async function updateClubInfo(clubId) {
-    const form = document.getElementById('editClubForm');
-    if (!form) {
-        console.error("editClubForm을 찾을 수 없습니다.");
+    if (!isNameChecked) {
+        Swal.fire('알림', '모임 이름을 확인해주세요.', 'warning');
         return;
     }
 
-    // 💡 핵심: 파일을 포함한 멀티파트 전송을 위해 FormData 객체 생성
+    const form = document.getElementById('editClubForm');
     const formData = new FormData(form);
+
+    const topicIdVal = form.querySelector('input[name="topicId"]').value;
+    const cityIdVal = form.querySelector('input[name="cityId"]').value;
+
+    if (!topicIdVal || !cityIdVal) {
+        Swal.fire('알림', '관심사와 지역을 모두 선택해주세요.', 'info');
+        return;
+    }
+
+    const confirmResult = await Swal.fire({
+        title: '정보를 수정하시겠습니까?',
+        icon: 'question', showCancelButton: true, confirmButtonText: '수정', cancelButtonText: '취소'
+    });
+
+    if (!confirmResult.isConfirmed) return;
 
     try {
         const response = await fetch(`/api/club/${clubId}/manage/edit`, {
             method: 'POST',
-            // 💡 중요: FormData를 보낼 때는 headers에 Content-Type을 수동으로 넣지 않습니다.
             body: formData
         });
-
-        handleResponse(response, "모임 정보가 성공적으로 수정되었습니다.");
+        handleResponse(response, "수정 완료");
     } catch (e) {
-        console.error("수정 요청 중 네트워크 오류:", e);
-        Swal.fire('오류', '서버와 통신할 수 없습니다.', 'error');
+        Swal.fire('오류', '서버 통신 중 문제가 발생했습니다.', 'error');
     }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    // 전역 변수
+    window.isNameChecked = false;
+
+    const clubNameInput = document.getElementById('clubName');
+    const feedback = document.getElementById('nameFeedback');
+    const clubIdInput = document.getElementsByName('clubId')[0];
+
+    if (!clubNameInput || !clubIdInput) return;
+
+    clubNameInput.addEventListener('blur', async function() {
+        const name = this.value.trim();
+        const clubId = clubIdInput.value;
+
+        // 기존 이름과 같으면 체크하지 않음
+        if (typeof currentName !== 'undefined' && name === currentName) {
+            feedback.innerText = "";
+            window.isNameChecked = true;
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/club/${clubId}/manage/check-name-edit?name=${encodeURIComponent(name)}&clubId=${clubId}`);
+            const result = await response.json(); // { available: true/false, message: "..." }
+
+            feedback.innerText = result.message;
+            if (result.available) {
+                feedback.className = "mt-2 small text-success";
+                window.isNameChecked = true;
+            } else {
+                feedback.className = "mt-2 small text-danger";
+                window.isNameChecked = false;
+            }
+        } catch (e) {
+            console.error("중복/유효성 체크 실패:", e);
+            feedback.innerText = "서버와 통신 중 문제가 발생했습니다.";
+            feedback.className = "mt-2 small text-danger";
+            window.isNameChecked = false;
+        }
+    });
+});
 
 //이미지 변경 (기본이미지 적용)
 document.addEventListener('DOMContentLoaded', function() {

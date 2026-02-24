@@ -40,6 +40,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -132,7 +133,7 @@ public class ClubService {
 	 * 모임상세정보 변환
 	 * */
 	private ClubDetailResponse convertToDetailResponse(ClubEntity entity) {
-		
+		String locale = LocaleContextHolder.getLocale().getLanguage();
 		String remainingTime = null;
 		if ("DELETED_PENDING".equals(entity.getStatus()) && entity.getDeletedAt() != null) {
 			LocalDateTime expiryDate = entity.getDeletedAt().plusDays(7);
@@ -147,6 +148,7 @@ public class ClubService {
 				.description(entity.getDescription())
 				.maxMember(entity.getMaxMember())
 				.topicId(entity.getTopic().getTopicId())
+				.topicName(entity.getTopic().getLocalizedName(locale))
 				.cityId(entity.getCity().getCityId())
 				.cityName(entity.getCity().getNameLocal())
 				.imageUrl(entity.getImageUrl())
@@ -255,7 +257,7 @@ public class ClubService {
 }
 	
 	/**
-	 * 파일 저장 로직 (자동 폴더 생성 포함)
+	 * 파일 저장 로직 (UUID 적용으로 한글/특수문자 404 완벽 방어)
 	 */
 	private String storeUploadFile(MultipartFile file) {
 		if (file == null || file.isEmpty()) {
@@ -264,12 +266,27 @@ public class ClubService {
 		
 		try {
 			Path root = Paths.get(uploadPath);
-			if (!Files.exists(root)) Files.createDirectories(root);
+			if (!Files.exists(root)) {
+				Files.createDirectories(root);
+			}
 			
-			String savedFileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+			// 1. 원본 파일명에서 확장자만 안전하게 추출
+			String originalFileName = file.getOriginalFilename();
+			String extension = "";
+			if (originalFileName != null && originalFileName.contains(".")) {
+				extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+			}
+			
+			// 2. UUID + 타임스탬프 조합으로 영문/숫자 파일명 생성 (404 방지 핵심)
+			// 예: 8f2d12..._170812345.jpg
+			String savedFileName = UUID.randomUUID().toString() + "_" + System.currentTimeMillis() + extension;
+			
+			// 3. 파일 저장
 			Files.copy(file.getInputStream(), root.resolve(savedFileName), StandardCopyOption.REPLACE_EXISTING);
 			
+			// 4. DB에 저장될 경로 반환
 			return "/images/" + savedFileName;
+			
 		} catch (IOException e) {
 			log.error("이미지 저장 실패: {}", e.getMessage());
 			throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
@@ -348,5 +365,19 @@ public class ClubService {
 	public List<ClubSummaryResponse> getListByTopicId(Integer topicId){
 		String locale = LocaleContextHolder.getLocale().getLanguage();
 		return clubRepository.findClubSummary(topicId, locale);
+	}
+	
+	/**
+	 * 클럽명 중복체크 (생성)
+	 * */
+	public boolean existsByName(String name) {
+		return clubRepository.existsByName(name);
+	}
+	
+	/**
+	 * 클럽명 중복체크 (수정)
+	 * */
+	public boolean isNameAvailableForEdit(String name, Integer clubId) {
+		return !clubRepository.existsByNameAndClubIdNot(name, clubId);
 	}
 }
