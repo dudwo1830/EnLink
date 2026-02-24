@@ -44,7 +44,7 @@ public class TopicEntity {
 		this.nameJa = nameJa;
 	}
 	public String getLocalizedName(String locale){
-		if (locale.equals("JP")) {
+		if (locale.equals("ja")) {
 			return nameJa;
 		}else {
 			return nameKo;

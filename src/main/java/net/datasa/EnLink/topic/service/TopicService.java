@@ -46,16 +46,14 @@ public class TopicService {
 	// 관리자에 의해 관리되고 매 페이지마다 호출하므로 캐싱
 	@Cacheable(value = "topics", key = "T(org.springframework.context.i18n.LocaleContextHolder).getLocale().language")
 	public List<TopicDetailResponse> getListAll() {
-		Locale locale = LocaleContextHolder.getLocale();
-		String lang = LocaleType.from(locale).getCode();
-		System.out.println(lang);
+		String locale = LocaleContextHolder.getLocale().getLanguage();
 		List<TopicEntity> entities = topicRepository.findAll();
 		List<TopicDetailResponse> topics = new ArrayList<>();
 		for (TopicEntity entity : entities) {
 			topics.add(
 					TopicDetailResponse.builder()
 							.topicId(entity.getTopicId())
-							.name(entity.getLocalizedName(lang))
+							.name(entity.getLocalizedName(locale))
 							.build());
 		}
 		return topics;
