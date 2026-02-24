@@ -1,7 +1,6 @@
-/* 공통 설정: 스크롤바 유무에 따른 화면 흔들림 방지 */
-html {
-  overflow-y: scroll;
-}
+/* header.css */
+
+html { overflow-y: scroll; }
 
 .header {
   grid-area: header;
@@ -24,9 +23,9 @@ html {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 20px;
 }
 
-/* 로고 스타일 */
 .logo-text {
   font-size: 28px;
   font-weight: 800;
@@ -37,17 +36,47 @@ html {
   -webkit-text-fill-color: transparent;
 }
 
-/* 중앙 검색바 */
+/* 1. 셀렉트 박스 내부 텍스트 및 디자인 정교화 */
+.header .select-search {
+    width: 110px;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.header .select-input {
+    border: none !important;
+    background: transparent !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #555 !important;
+    padding: 0 10px 0 0 !important; /* 오른쪽 아이콘 여백 */
+    cursor: pointer;
+    text-overflow: ellipsis; /* 글자 길면 말줄임 */
+}
+
+/* 드롭다운 화살표 커스텀 (필요 시) */
+.header .select-search::after {
+    content: '\F282'; /* Bootstrap icons chevron-down */
+    font-family: 'bootstrap-icons';
+    font-size: 10px;
+    color: #aaa;
+    position: absolute;
+    right: 5px;
+    pointer-events: none;
+}
+
+/* --- 검색바 코어 디자인 --- */
 .header-search-bar {
   display: flex;
   align-items: center;
   background-color: #ffffff;
   border: 1px solid #e1e1e1;
   border-radius: 60px;
-  padding: 5px 5px 5px 20px; /* 왼쪽 패딩 살짝 조절 */
+  padding: 2px 2px 2px 20px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  width: 680px; /* 550px에서 확장 */
-  height: 48px;
+  width: 720px; /* 상세지역까지 3칸이므로 여유있게 확장 */
+  height: 50px;
   transition: all 0.3s ease;
 }
 
@@ -57,39 +86,40 @@ html {
   flex-shrink: 0;
 }
 
-.fake-select {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+/* select-search 내부 input 디자인 초기화 ✨ */
+.header-filter-group .select-search {
+  width: 110px; /* 각 필터 너비 고정 */
+}
+
+.header-filter-group .select-input {
+  border: none !important;
+  background: transparent !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #666 !important;
+  padding: 0 !important;
   cursor: pointer;
-  min-width: fit-content;
+  width: 100%;
 }
 
-.fake-select .label {
-  font-size: 13px;
-  font-weight: 600;
+.header-filter-group .select-input::placeholder {
   color: #666;
-  white-space: nowrap; /* 글자 줄바꿈 방지 */
-}
-
-.fake-select i {
-  font-size: 11px;
-  color: #aaa;
 }
 
 .divider {
   width: 1px;
   height: 16px;
   background-color: #eee;
-  margin: 0 12px; /* 15px에서 12px로 살짝 좁혀서 3칸 밸런스 유지 */
+  margin: 0 12px;
 }
 
+/* 텍스트 입력창 영역 */
 .header-input-wrapper {
   flex: 1;
   display: flex;
   align-items: center;
   padding-left: 15px;
-  border-left: 1px solid #eee; /* 입력창 시작 부분에도 얇은 선 추가 가능 (선택) */
+  border-left: 1px solid #eee;
   margin-left: 5px;
 }
 
@@ -103,10 +133,10 @@ html {
 }
 
 .search-circle-btn {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary, #8e8cd8);
   border: none;
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   color: white;
   display: flex;
@@ -114,40 +144,31 @@ html {
   justify-content: center;
   flex-shrink: 0;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .search-circle-btn:hover {
   background-color: #6c63ff;
+  transform: scale(1.05);
 }
 
-/* ★ 헤더 우측 깨짐 방지 핵심 코드 */
-.user-nav {
-  display: flex;
-  align-items: center;
-}
+/* --- 우측 유저 메뉴 --- */
+.user-nav { display: flex; align-items: center; }
 
 .user-actions {
-  display: flex; /* 가로 나열 */
+  display: flex;
   align-items: center;
-  gap: 20px;
-  list-style: none !important; /* 기본 점 제거 */
+  gap: 15px;
+  list-style: none !important;
   margin: 0;
   padding: 0;
 }
 
-.user-actions li {
-  list-style: none !important;
-  display: flex;
-  align-items: center;
-}
-
-/* 유저 뱃지 및 버튼 스타일 */
 .user-name {
   font-weight: 700;
-  color: var(--color-primary) !important;
-  background-color: rgba(142, 140, 216, 0.15);
-  padding: 6px 16px;
+  color: #6c63ff !important;
+  background-color: rgba(142, 140, 216, 0.1);
+  padding: 6px 14px;
   border-radius: 20px;
   white-space: nowrap;
 }
@@ -157,20 +178,14 @@ html {
   font-weight: 600;
   font-size: 14px;
   text-decoration: none;
-  transition: 0.2s;
-}
-
-.btn-login:hover, .btn-info:hover, .btn-logout:hover {
-  color: var(--color-primary) !important;
 }
 
 .btn-signup {
-  background-color: var(--color-primary);
+  background-color: #6c63ff;
   color: white !important;
-  padding: 10px 22px;
+  padding: 9px 20px;
   border-radius: 50px;
   font-weight: 700;
   text-decoration: none;
-  box-shadow: 0 4px 12px rgba(142, 140, 216, 0.3);
   white-space: nowrap;
 }

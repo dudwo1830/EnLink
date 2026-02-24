@@ -18,41 +18,36 @@
             <section class="manage-content-area">
                 <h1>모임 삭제 관리</h1>
 
-                <div th:if="${club.status == 'DELETED_PENDING'}" class="alert-box pending-box"
-                     style="background-color: #fff1f0; border: 1px solid #ffa39e; padding: 25px; border-radius: 12px; margin-top: 20px;">
-                    <p style="font-size: 1.1em; color: #cf1322; margin-bottom: 10px;">
-                        ⚠️ <strong>이 모임은 현재 삭제 대기 상태입니다.</strong>
-                    </p>
-                    <p style="color: #434343; line-height: 1.6;">
-                        복구 가능 기간이 지나면 모든 데이터가 영구 삭제됩니다. <br>
-                        <strong>남은 시간: </strong>
-                        <span th:text="${club.remainingTime}" class="time-limit" style="font-weight: 700; color: #f5222d;">7일 0시간 남음</span>
-                    </p>
+                <div th:if="${club.status == 'DELETED_PENDING'}" class="delete-status-container">
+                    <h2>
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        이 모임은 현재 삭제 대기 상태입니다.
+                    </h2>
+                    <div class="delete-info-text">
+                        <p>복구 가능 기간이 지나면 이미지와 모든 데이터가 영구 삭제되어 되돌릴 수 없습니다.</p>
+                        <p>
+                            <strong>남은 시간:</strong>
+                            <span th:text="${club.remainingTime}" class="time-limit-highlight">7일 0시간 남음</span>
+                        </p>
+                    </div>
 
-                    <div class="action-area" style="margin-top: 25px; display: flex; gap: 12px;">
-                        <button type="button" class="btn-hard-delete"
-                                th:onclick="|hardDeleteClub(${club.clubId})|"
-                                style="background-color: #ff4d4f; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s;">
+                    <div class="action-area d-flex gap-3 mt-4">
+                        <button type="button" class="btn-hard-delete" th:onclick="|hardDeleteClub(${club.clubId})|">
                             즉시 삭제하기
                         </button>
-                        <button type="button" class="btn-restore"
-                                th:onclick="|restoreClub(${club.clubId})|"
-                                style="background-color: #52c41a; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s;">
+                        <button type="button" class="btn-restore" th:onclick="|restoreClub(${club.clubId})|">
                             삭제 취소 (지금 복구하기)
                         </button>
                     </div>
                 </div>
 
-                <div th:if="${club.status == 'ACTIVE'}" class="alert-box active-box"
-                     style="background-color: #fafafa; border: 1px solid #d9d9d9; padding: 25px; border-radius: 12px; margin-top: 20px;">
-                    <p class="warning-text" style="color: #666; margin-bottom: 20px;">
-                        모임을 삭제하면 7일 동안의 유예 기간 후 영구 삭제됩니다. <br>
-                        삭제 요청 후에도 유예 기간 내에는 언제든 복구가 가능합니다.
-                    </p>
+                <div th:if="${club.status == 'ACTIVE'}" class="active-status-container">
+                    <div class="warning-description">
+                        <p>모임을 삭제하시면 <strong>7일 동안의 유예 기간</strong>이 부여됩니다.</p>
+                        <p>요청 후에도 7일 이내에는 언제든 '삭제 관리' 탭에서 복구가 가능하지만, 기간이 지나면 모든 정보가 소멸됩니다.</p>
+                    </div>
                     <div class="action-area">
-                        <button type="button" class="btn-danger"
-                                th:onclick="|deleteClub(${club.clubId})|"
-                                style="background-color: #ffffff; color: #ff4d4f; border: 1px solid #ff4d4f; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s;">
+                        <button type="button" class="btn-request-delete" th:onclick="|deleteClub(${club.clubId})|">
                             모임 삭제 요청하기
                         </button>
                     </div>

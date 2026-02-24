@@ -17,23 +17,21 @@
 
     <aside th:replace="~{fragments/aside :: aside}"></aside>
 
-    <main class="main overflow-auto py-5">
-        <div class="manage-main-container container-fluid px-4">
-            <div class="row justify-content-center">
-                <aside class="col-lg-3 manage-sidebar-area mb-4">
-                    <div th:replace="~{fragments/manageSidebar :: sidebar('edit')}"></div>
-                </aside>
+    <main class="main"> <div class="manage-main-container">
+        <aside class="manage-sidebar-area">
+            <div th:replace="~{fragments/manageSidebar :: sidebar('edit')}"></div>
+        </aside>
 
-                <section class="col-lg-9 manage-content-area">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-header bg-white py-3 border-bottom">
-                            <h3 class="card-title fw-bold mb-0 text-primary">
-                                <i class="bi bi-pencil-square me-2"></i>모임 정보 수정
-                            </h3>
-                        </div>
+        <section class="manage-content-area">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h3 class="card-title fw-bold mb-0 text-primary">
+                        <i class="bi bi-pencil-square me-2"></i>모임 정보 수정
+                    </h3>
+                </div>
 
-                        <div class="card-body p-4 p-md-5">
-                            <form id="editClubForm" enctype="multipart/form-data">
+                <div class="card-body p-4 p-md-5">
+                    <form id="editClubForm" enctype="multipart/form-data">
                                 <input type="hidden" name="clubId" th:value="${clubDTO.clubId}"/>
                                 <input type="hidden" name="imageUrl" th:value="${clubDTO.imageUrl}"/>
 
@@ -62,7 +60,7 @@
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" name="defaultImage" id="defaultImage" value="true">
                                             <label class="form-check-label small text-danger fw-bold" for="defaultImage" style="cursor:pointer;">
-                                                기본 이미지로 리셋
+                                                기본 이미지 사용
                                             </label>
                                         </div>
                                     </div>
@@ -123,9 +121,8 @@
                     </div>
                 </section>
             </div>
-        </div>
+        </main>
         <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
-    </main>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

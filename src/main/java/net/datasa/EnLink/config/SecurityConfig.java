@@ -57,6 +57,7 @@ public class SecurityConfig {
 						.usernameParameter("memberId")
 						.passwordParameter("password")
 						.loginProcessingUrl("/auth/login")
+						.defaultSuccessUrl("/", true)
 						.permitAll())
 				.logout(logout -> logout
 						.logoutUrl("/auth/logout")

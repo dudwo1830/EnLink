@@ -30,16 +30,17 @@
                     <tbody>
                     <tr th:each="m : ${members}">
                         <td class="col-name">
-                            <span th:text="${m.memberName}" style="font-weight: bold;">홍길동</span>
-                            <small th:text="|(${m.memberId})|" style="color: #888;"></small>
-                            <span th:if="${m.memberId == loginMember.memberId}" style="font-size: 0.7em; color: #2196f3;">[나]</span>
+                            <span th:text="${m.memberName}">홍길동</span>
+                            <small th:text="|(${m.memberId})|"> (id123) </small>
+                            <span th:if="${m.memberId == loginMember.memberId}"
+                                  style="font-size: 0.75rem; color: #228be6; font-weight: normal;">[나]</span>
                         </td>
                         <td class="col-role">
-                            <span th:switch="${m.role}">
-                                <span th:case="'OWNER'" style="color: #ff9800; font-weight: bold;">(모임장)</span>
-                                <span th:case="'MANAGER'" style="color: #2196f3;">(운영진)</span>
-                                <span th:case="'MEMBER'" style="color: #757575;">(멤버)</span>
-                            </span>
+                            <div th:switch="${m.role}">
+                                <span th:case="'OWNER'" class="role-owner">모임장</span>
+                                <span th:case="'MANAGER'" class="role-manager">운영진</span>
+                                <span th:case="'MEMBER'" class="role-member">멤버</span>
+                            </div>
                         </td>
                         <td class="col-date">
                             <span th:text="${#temporals.format(m.joinedAt, 'yyyy.MM.dd')}">2024.01.23</span>
