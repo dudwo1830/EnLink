@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -75,7 +76,7 @@ public class MemberService {
 	 * @return
 	 */
 	@PreAuthorize("#memberId == principal.memberId")
-	public void update(MemberUpdateRequest request, String memberId) {
+	public void update(MemberUpdateRequest request, @P("memberId") String memberId) {
 		MemberEntity entity = memberRepository.findById(memberId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 		// 기존 비밀번호 확인
@@ -134,7 +135,7 @@ public class MemberService {
 	 * @return
 	 */
 	@PreAuthorize("#memberId == principal.memberId")
-	public MemberUpdateResponse edit(String memberId) {
+	public MemberUpdateResponse edit(@P("memberId") String memberId) {
 		MemberEntity entity = memberRepository.findById(memberId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 		return MemberUpdateResponse.builder()
@@ -151,7 +152,8 @@ public class MemberService {
 	 * @param memberId
 	 * @param newTopicIds
 	 */
-	public void replaceTopics(String memberId, List<Integer> newTopicIds) {
+	@PreAuthorize("#memberId == principal.memberId")
+	public void replaceTopics(@P("memberId") String memberId, List<Integer> newTopicIds) {
 		// 회원 정보
 		MemberEntity memberEntity = memberRepository.findById(memberId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
@@ -202,7 +204,7 @@ public class MemberService {
 	 * @param cityId
 	 */
 	@PreAuthorize("#memberId == principal.memberId")
-	public void updateCity(String memberId, Integer cityId) {
+	public void updateCity(@P("memberId") String memberId, Integer cityId) {
 		Optional<MemberCityEntity> opt = memberCityRepository.findByMember_MemberId(memberId);
 		// 최초 수정시는 null
 		MemberCityEntity entity = opt.orElse(null);
@@ -227,7 +229,7 @@ public class MemberService {
 	 * @return
 	 */
 	@PreAuthorize("#memberId == principal.memberId")
-	public CityDetailResponse getMemberCity(String memberId) {
+	public CityDetailResponse getMemberCity(@P("memberId") String memberId) {
 		MemberEntity memberEntity = memberRepository.findById(memberId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
