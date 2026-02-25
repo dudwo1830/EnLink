@@ -124,4 +124,10 @@ public class ClubMemberService {
 				.map(ClubMemberHistoryResponse::fromEntity)
 				.toList();
 	}
+	
+	//멤버가 모임에 속해있는지 확인
+	public boolean checkClubMember(Integer clubId, String memberId){
+		ClubMemberEntity entity = clubMemberRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId).orElse(null);
+		return entity != null;
+	}
 }

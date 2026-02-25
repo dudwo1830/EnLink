@@ -7,7 +7,7 @@
     <script th:src="@{/js/community/post.js}" defer></script>
   </head>
 
-  <body>
+  <body th:classappend="${isClubMember} ? '' : 'not-member'">
     <div
       class="grid-container post-page"
       data-page="post-list"
@@ -17,6 +17,7 @@
       <aside th:replace="~{fragments/aside :: aside}"></aside>
 
       <main class="main">
+        <div th:replace="fragments/clubTabs :: clubTabs('post')"></div>
         <div class="post-container">
           <h1 class="page-title">모임 게시판</h1>
 
@@ -55,6 +56,7 @@
                 <button
                   type="button"
                   class="btn-primary"
+                  th:if="${loginMember != null and loginMember.role != null}"
                   th:onclick="|location.href='@{/community/post/write(clubId=${clubId})}'|"
                 >
                   글쓰기

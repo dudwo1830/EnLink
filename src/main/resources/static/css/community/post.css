@@ -414,3 +414,16 @@
   font-weight: 900;
   background: rgba(255,255,255,0.9);
 }
+
+/* 미가입자는 게시글 클릭 불가 */
+.not-member .post-card a {
+  pointer-events: none;   /* 클릭 차단 */
+  cursor: default;        /* 손가락 제거 */
+  text-decoration: none;  /* 밑줄 제거 */
+  color: inherit;         /* 글자색 유지 */
+}
+
+/* hover 효과가 있다면 제거 */
+.not-member .post-card:hover {
+  transform: none !important;
+}

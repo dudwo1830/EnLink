@@ -21,4 +21,6 @@ public interface PostRepository extends JpaRepository<PostEntity, Integer> {
 	
 	// 4. 내용만 검색 (페이징 적용)
 	Page<PostEntity> findByClub_ClubIdAndContentContaining(Integer clubId, String content, Pageable pageable);
+	
+	
 }

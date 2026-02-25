@@ -81,5 +81,7 @@ public interface ClubMemberRepository extends JpaRepository<ClubMemberEntity, In
 	 * 모임 영구 삭제 시 관련 멤버 데이터를 일괄 제거합니다.
 	 */
 	void deleteByClub_ClubId(Integer clubId);
+	
+	boolean existsByClub_ClubIdAndMember_MemberIdAndStatus(Integer clubId, String memberId, String status);
 }
 
