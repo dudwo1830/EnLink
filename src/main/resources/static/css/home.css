@@ -1,10 +1,224 @@
-.flex {
-  display: flex;
+.home-hero-v3 {
+background-color: #fff; /* 배경을 깨끗한 흰색으로 가고 그림자로 포인트 */
+background: linear-gradient(135deg, #f5f7ff 0%, #eef1ff 100%);
+border: 1px solid #f0efff;
+border-radius: 30px;
+padding: 60px;
+margin-bottom: 50px;
+position: relative;
+box-shadow: 0 10px 30px rgba(108, 99, 255, 0.05);
 }
 
-.ul-reset {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  gap: 2vh;
+
+
+.home-hero-v3::after {
+
+content: "";
+
+position: absolute;
+
+right: -80px;
+
+top: -80px;
+
+width: 260px;
+
+height: 260px;
+
+background: rgba(108, 99, 255, 0.08);
+
+border-radius: 50%;
+
+}
+
+
+
+.hero-badge {
+
+display: inline-block;
+
+padding: 6px 16px;
+
+background: rgba(108, 99, 255, 0.1);
+
+color: #6c63ff;
+
+border-radius: 20px;
+
+font-weight: 700;
+
+font-size: 14px;
+
+margin-bottom: 20px;
+
+}
+
+
+
+.hero-text-area h1 {
+
+font-size: 3rem;
+
+font-weight: 800;
+
+line-height: 1.2;
+
+color: #1a1a1a;
+
+}
+
+
+
+.hero-text-area .highlight {
+
+color: #6c63ff;
+
+position: relative;
+
+}
+
+
+
+.hero-action-area {
+
+margin-top: 40px;
+
+padding-top: 30px;
+
+border-top: 1px solid #eee;
+
+}
+
+
+
+.popular-tags {
+
+display: flex;
+
+gap: 15px;
+
+margin-top: 10px;
+
+}
+
+
+
+.popular-tags a {
+
+background:#f2f4ff;
+
+border-radius: 999px;
+
+padding:6px 14px;
+
+font-weight:500;
+
+}
+
+.popular-tags a:hover {
+
+background:#6c63ff;
+
+color:#fff;
+
+}
+
+/* ============================= */
+/* 홈 카드 레이아웃 통합 정리 */
+/* ============================= */
+
+/* 공통 섹션 여백 */
+.club-list-section {
+  margin-top: 40px;
+}
+
+/* ============================= */
+/* 카드 그리드 레이아웃 */
+/* ============================= */
+
+.home-grid-layout {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* ⭐ 가로 5개 */
+  gap: 24px;
+  margin-bottom: 50px;
+}
+
+/* 반응형 */
+@media (max-width: 1400px) {
+  .home-grid-layout {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .home-grid-layout {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ============================= */
+/* 카드 디자인 */
+/* ============================= */
+
+.club-card {
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid #eee;
+  transition: 0.25s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.club-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+}
+
+.club-card a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* 이미지 영역 */
+.card-img {
+  height: 150px;
+  overflow: hidden;
+}
+
+.card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 카드 본문 */
+.card-body {
+  padding: 16px;
+}
+
+.club-title {
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 6px;
+  color: #222;
+}
+
+.club-description {
+  font-size: 13px;
+  color: #666;
+  height: 36px;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+.club-info {
+  font-size: 12px;
+  color: #888;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+.club-info span {
+  display: block;   /* ⭐ 줄바꿈 */
 }

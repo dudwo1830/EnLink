@@ -51,7 +51,9 @@
         border-radius: 14px !important;
         font-weight: 800;
         letter-spacing: -0.2px;
-        transition: transform 0.12s ease, box-shadow 0.12s ease,
+        transition:
+          transform 0.12s ease,
+          box-shadow 0.12s ease,
           filter 0.12s ease;
       }
 
@@ -88,7 +90,9 @@
         overflow: hidden;
         background: #fff;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.15s ease;
       }
 
       .schedule-page .sched-card:hover {
@@ -326,6 +330,7 @@
       <aside th:replace="~{fragments/aside :: aside}"></aside>
 
       <main class="main">
+        <div th:replace="fragments/clubTabs :: clubTabs('schedule')"></div>
         <div class="schedule-wrapper">
           <div class="section-title-box">
             <div class="title-wrap">
@@ -335,7 +340,7 @@
               </p>
             </div>
 
-            <div id="adminCreateArea" style="display: none">
+            <div id="adminCreateArea" th:if="${loginMember != null and loginMember.role == 'OWNER' or loginMember.role == 'MANAGER'}">
               <button
                 class="btn btn-primary px-4"
                 data-bs-toggle="modal"
@@ -347,7 +352,9 @@
           </div>
 
           <div id="scheduleContainer">
-            <div class="empty">등록된 일정이 없습니다. 일정을 추가해 보세요!</div>
+            <div class="empty">
+              등록된 일정이 없습니다. 일정을 추가해 보세요!
+            </div>
           </div>
 
           <!-- 종료 일정 섹션(토글) -->
@@ -368,81 +375,155 @@
     </div>
 
     <!-- 생성 모달 -->
-    <div class="modal fade" id="createScheduleModal" tabindex="-1" aria-hidden="true">
+    <div
+      class="modal fade"
+      id="createScheduleModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title fw-bold">새 일정 등록</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
           </div>
           <div class="modal-body">
             <div class="mb-3">
               <label for="title" class="form-label fw-bold">일정 제목</label>
-              <input type="text" id="title" class="form-control" placeholder="예: 정기 스터디 모임" />
+              <input
+                type="text"
+                id="title"
+                class="form-control"
+                placeholder="예: 정기 스터디 모임"
+              />
             </div>
             <div class="mb-3">
               <label for="eventDate" class="form-label fw-bold">일시</label>
-              <input type="datetime-local" id="eventDate" class="form-control" />
+              <input
+                type="datetime-local"
+                id="eventDate"
+                class="form-control"
+              />
             </div>
             <div class="mb-3">
               <label for="location" class="form-label fw-bold">장소</label>
-              <input type="text" id="location" class="form-control" placeholder="예: 강남역 스터디룸" />
+              <input
+                type="text"
+                id="location"
+                class="form-control"
+                placeholder="예: 강남역 스터디룸"
+              />
             </div>
             <div class="mb-3">
               <label for="maxCapa" class="form-label fw-bold">최대 정원</label>
-              <input type="number" id="maxCapa" class="form-control" placeholder="숫자만 입력" />
+              <input
+                type="number"
+                id="maxCapa"
+                class="form-control"
+                placeholder="숫자만 입력"
+              />
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-light" data-bs-dismiss="modal">취소</button>
-            <button type="button" class="btn btn-primary" onclick="saveSchedule()">저장하기</button>
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+              취소
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="saveSchedule()"
+            >
+              저장하기
+            </button>
           </div>
         </div>
       </div>
     </div>
 
     <!-- 수정 모달 -->
-    <div class="modal fade" id="updateScheduleModal" tabindex="-1" aria-hidden="true">
+    <div
+      class="modal fade"
+      id="updateScheduleModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title fw-bold">일정 수정</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
           </div>
           <div class="modal-body">
             <input type="hidden" id="updateSchedId" />
             <div class="mb-3">
-              <label for="updateTitle" class="form-label fw-bold">일정 제목</label>
+              <label for="updateTitle" class="form-label fw-bold"
+                >일정 제목</label
+              >
               <input type="text" id="updateTitle" class="form-control" />
             </div>
             <div class="mb-3">
-              <label for="updateEventDate" class="form-label fw-bold">일시</label>
-              <input type="datetime-local" id="updateEventDate" class="form-control" />
+              <label for="updateEventDate" class="form-label fw-bold"
+                >일시</label
+              >
+              <input
+                type="datetime-local"
+                id="updateEventDate"
+                class="form-control"
+              />
             </div>
             <div class="mb-3">
-              <label for="updateLocation" class="form-label fw-bold">장소</label>
+              <label for="updateLocation" class="form-label fw-bold"
+                >장소</label
+              >
               <input type="text" id="updateLocation" class="form-control" />
             </div>
             <div class="mb-3">
-              <label for="updateMaxCapa" class="form-label fw-bold">최대 정원</label>
+              <label for="updateMaxCapa" class="form-label fw-bold"
+                >최대 정원</label
+              >
               <input type="number" id="updateMaxCapa" class="form-control" />
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-light" data-bs-dismiss="modal">취소</button>
-            <button type="button" class="btn btn-primary" onclick="updateSchedule()">수정완료</button>
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+              취소
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="updateSchedule()"
+            >
+              수정완료
+            </button>
           </div>
         </div>
       </div>
     </div>
 
     <!-- 참여자 명단 모달 -->
-    <div class="modal fade" id="participantModal" tabindex="-1" aria-hidden="true">
+    <div
+      class="modal fade"
+      id="participantModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header bg-light">
             <h5 class="modal-title fw-bold">참여자 명단</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
           </div>
           <div class="modal-body p-0">
             <ul id="participantList" class="list-group list-group-flush"></ul>
@@ -464,7 +545,9 @@
         return isNaN(d.getTime()) ? null : d;
       }
 
-      function pad2(n) { return String(n).padStart(2, '0'); }
+      function pad2(n) {
+        return String(n).padStart(2, '0');
+      }
 
       function formatPrettyDate(str) {
         const d = parseEventDate(str);
@@ -496,8 +579,16 @@
         if (!d) return null;
         // 날짜 단위로 계산 (오늘 00:00 기준)
         const now = new Date();
-        const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-        const target = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+        const start = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+        ).getTime();
+        const target = new Date(
+          d.getFullYear(),
+          d.getMonth(),
+          d.getDate(),
+        ).getTime();
         const diffDays = Math.round((target - start) / (1000 * 60 * 60 * 24));
 
         if (diffDays === 0) return 'D-DAY';
@@ -539,10 +630,12 @@
 
         let statusBadge = '';
         if (ended) statusBadge = `<span class="badge-chip gray">⏱ 종료</span>`;
-        else if (full) statusBadge = `<span class="badge-chip danger">🚫 마감</span>`;
+        else if (full)
+          statusBadge = `<span class="badge-chip danger">🚫 마감</span>`;
 
         let ddayBadge = '';
-        if (!ended && dday) ddayBadge = `<span class="badge-chip orange">⏳ ${dday}</span>`;
+        if (!ended && dday)
+          ddayBadge = `<span class="badge-chip orange">⏳ ${dday}</span>`;
 
         // ✅ 종료면 신청/취소 모두 disabled
         let actionButton = '';
@@ -552,8 +645,10 @@
           if (item.joined) {
             actionButton = `<button class="btn btn-danger action-btn" onclick="cancelSchedule(${item.schedId})">참가 취소</button>`;
           } else {
-            if (full) actionButton = `<button class="btn btn-light action-btn" disabled>정원 마감</button>`;
-            else actionButton = `<button class="btn btn-primary action-btn" onclick="applySchedule(${item.schedId})">참가 신청</button>`;
+            if (full)
+              actionButton = `<button class="btn btn-light action-btn" disabled>정원 마감</button>`;
+            else
+              actionButton = `<button class="btn btn-primary action-btn" onclick="applySchedule(${item.schedId})">참가 신청</button>`;
           }
         }
 
@@ -617,11 +712,13 @@
           type: 'GET',
           data: { clubId: clubId },
           success: function (list) {
-            if (list.length > 0 && list[0].admin) $('#adminCreateArea').show();
-            else $('#adminCreateArea').hide();
+            // if (list.length > 0 && list[0].admin) $('#adminCreateArea').show();
+            // else $('#adminCreateArea').hide();
 
             if (list.length === 0) {
-              $('#scheduleContainer').html(`<div class="empty">등록된 일정이 없습니다. 일정을 추가해 보세요!</div>`);
+              $('#scheduleContainer').html(
+                `<div class="empty">등록된 일정이 없습니다. 일정을 추가해 보세요!</div>`,
+              );
               $('#endedWrap').hide();
               return;
             }
@@ -632,7 +729,10 @@
             const ended = sorted.filter((x) => isEnded(x.eventDate));
 
             // 다가오는 일정 렌더
-            $('#scheduleContainer').html(upcoming.map(renderCard).join('') || `<div class="empty">다가오는 일정이 없습니다.</div>`);
+            $('#scheduleContainer').html(
+              upcoming.map(renderCard).join('') ||
+                `<div class="empty">다가오는 일정이 없습니다.</div>`,
+            );
 
             // 종료 일정 렌더 + 토글 표시
             if (ended.length > 0) {
@@ -682,7 +782,9 @@
             location.reload();
           },
           error: function (err) {
-            alert('등록 실패: ' + (err.responseText || '관리자 권한이 필요합니다.'));
+            alert(
+              '등록 실패: ' + (err.responseText || '관리자 권한이 필요합니다.'),
+            );
           },
         });
       }
@@ -761,7 +863,8 @@
           success: function (list) {
             let html = '';
             if (list.length === 0) {
-              html = '<li class="list-group-item text-center py-4 text-muted">참여자가 아직 없습니다.</li>';
+              html =
+                '<li class="list-group-item text-center py-4 text-muted">참여자가 아직 없습니다.</li>';
             } else {
               list.forEach(function (p) {
                 html += `

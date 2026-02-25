@@ -210,6 +210,7 @@
       <aside th:replace="~{fragments/aside :: aside}"></aside>
 
       <main class="main">
+        <div th:replace="fragments/clubTabs :: clubTabs('gallery')"></div>
         <div class="gallery-wrapper">
           <div class="section-title-box">
             <h2 class="fw-bold m-0">모임 사진첩</h2>
@@ -217,6 +218,7 @@
               class="btn btn-primary px-4 fw-bold"
               data-bs-toggle="modal"
               data-bs-target="#uploadModal"
+              th:if="${loginMember != null and loginMember.role != null}"
             >
               사진 올리기
             </button>

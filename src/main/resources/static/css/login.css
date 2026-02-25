@@ -1,0 +1,176 @@
+/* 전체 중앙 배치 + 배경 */
+.login-center-layout {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+
+    background: linear-gradient(135deg, #eef1ff 0%, #f9fbff 50%, #f1f4ff 100%);
+}
+
+
+/* 로그인 박스 */
+.login-box {
+    width: 100%;
+    max-width: 400px;
+    padding: 42px;
+
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    border-radius: 28px;
+    border: 1px solid rgba(255,255,255,0.6);
+
+    box-shadow:
+        0 30px 60px rgba(0,0,0,0.06),
+        0 10px 25px rgba(108,99,255,0.08);
+}
+
+
+/* 헤더 */
+.login-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.login-logo {
+    color: #6c63ff;
+    font-size: 2.3rem;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+}
+
+a.logo-link {
+  background: linear-gradient(45deg, #8e8cd8, #6c63ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.login-header p {
+    color: #8a8fa3;
+    font-size: 0.9rem;
+}
+
+
+/* 입력 그룹 */
+.input-group {
+    display: flex;          /* 가로 정렬 */
+    align-items: center;    /* 세로 중앙 맞춤 */
+    margin-bottom: 20px;
+    gap: 15px;              /* 라벨과 인풋 사이 간격 */
+}
+
+.input-group label {
+    flex-shrink: 0;         /* 라벨 크기 고정 */
+    width: 80px;            /* 라벨 너비를 일정하게 잡아줘야 인풋창 시작선이 맞음 */
+    font-size: 14px;
+    font-weight: 700;
+    color: #444;
+    padding-left: 2px;
+    margin-bottom: 0;       /* block일 때 있던 마진 제거 */
+}
+
+
+/* 아이콘 포함 input */
+.input-wrapper {
+    flex-grow: 1;
+    position: relative;
+}
+
+.input-wrapper i {
+    position: absolute;
+    left: 16px;   /* ✔ 기준선 */
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9aa0b5;
+    font-size: 16px;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 15px 18px 15px 46px; /* ✔ 아이콘 기준과 정확히 일치 */
+    border: 1px solid #e4e7f2;
+    border-radius: 14px;
+    font-size: 15px;
+    background: #fafbff;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.input-wrapper input:focus {
+    border-color: #6c63ff;
+    box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.08);
+    background: #fff;
+    transform: translateY(-1px);
+}
+
+
+/* 로그인 버튼 */
+.login-submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #7b73ff, #6c63ff);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s ease;
+    margin-top: 12px;
+}
+
+.login-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(108,99,255,0.25);
+}
+
+.login-submit-btn:active {
+    transform: scale(0.97);
+}
+
+
+/* 에러 메시지 */
+.error-container {
+    background: #fff6f6;
+    color: #e5484d;
+    padding: 13px;
+    border-radius: 12px;
+    font-size: 13px;
+    text-align: center;
+    margin-bottom: 18px;
+    border: 1px solid #ffe1e1;
+}
+
+
+/* 회원가입 안내 */
+.login-helper {
+    margin-top: 22px;
+    text-align: center;
+    font-size: 14px;
+    color: #777;
+}
+
+.login-helper a {
+    color: #6c63ff;
+    text-decoration: none;
+    font-weight: 700;
+    margin-left: 6px;
+}
+
+.login-helper a:hover {
+    text-decoration: underline;
+}
+
+/* 로그인 페이지 집중 모드 */
+body.login-page header,
+body.login-page aside,
+body.login-page footer {
+    display: none !important;
+}
+
+/* grid 구조 무시하고 전체 중앙 정렬 */
+body.login-page .grid-container {
+    display: block;
+}

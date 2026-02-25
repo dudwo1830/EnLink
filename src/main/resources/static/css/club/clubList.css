@@ -1,0 +1,151 @@
+.club-img-wrapper {
+            width: 200px !important;
+            height: 150px !important;
+            flex-shrink: 0; /* 👈 사이드바 때문에 눌리는 것 방지 */
+            overflow: hidden;
+            background-color: #f8f9fa; /* 이미지 로딩 전 배경색 */
+        }
+        .club-img-wrapper img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important; /* 👈 비율 유지하며 꽉 채우기 */
+            display: block;
+        }
+
+        /* 전체 컨테이너 정렬 */
+        .list-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* 1. 카테고리 헤더 */
+        .list-category-header {
+            margin-bottom: 40px;
+            padding: 40px;
+            background: #fff;
+            border-radius: 24px;
+            border: 1px solid #f1f3f9;
+        }
+
+        .category-badge {
+            color: #6c63ff;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .list-category-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 10px 0;
+            color: #1a1a1a;
+        }
+
+        /* 2. 가로형 와이드 카드 (홈 화면 스타일 계승) */
+        .club-vertical-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .club-wide-card {
+            display: flex;
+            background: #fff;
+            border-radius: 20px;
+            height: 180px; /* 높이 고정 */
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid #f1f3f9;
+            transition: 0.3s;
+            overflow: hidden;
+        }
+
+        .club-wide-card:hover {
+            transform: translateX(10px); /* 옆으로 밀리는 유니크한 효과 */
+            border-color: #6c63ff;
+            box-shadow: 0 10px 30px rgba(108, 99, 255, 0.08);
+        }
+
+        .card-img-area {
+            width: 280px;
+            height: 100%;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .card-img-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .tag-topic {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(108, 99, 255, 0.9);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .card-info-area {
+            padding: 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .info-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .club-name {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .location-tag {
+            font-size: 13px;
+            color: #888;
+        }
+
+        /* 설명글 2줄 제한 */
+        .club-intro {
+            font-size: 14px;
+            color: #666;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.5;
+        }
+
+        .info-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #f8f9fa;
+            padding-top: 15px;
+        }
+
+        .member-status {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .member-status .current { color: #6c63ff; }
+
+        .btn-view-detail {
+            font-size: 13px;
+            font-weight: 700;
+            color: #6c63ff;
+        }
