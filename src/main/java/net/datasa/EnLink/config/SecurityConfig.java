@@ -50,7 +50,7 @@ public class SecurityConfig {
 						.loginPage("/auth/login")
 						.usernameParameter("memberId")
 						.passwordParameter("password")
-						.loginProcessingUrl("/auth/login")
+						.loginProcessingUrl("/login")
 						.permitAll())
 				.logout(logout -> logout
 						.logoutUrl("/auth/logout")
