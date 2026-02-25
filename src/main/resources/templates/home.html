@@ -4,8 +4,9 @@
     <link rel="stylesheet" th:href="@{/css/search-select.css}" />
     <link rel="stylesheet" th:href="@{/css/card-layout.css}" />
       <link rel="stylesheet" th:href="@{/css/home.css}" />
+      <script th:src="@{/js/common/search-select.js}"></script>
     <script type="module" th:src="@{/js/club/list/club-list.js}"></script>
-    <script th:src="@{/js/common/search-select.js}"></script>
+
   </head>
   <body>
     <div class="grid-container">
@@ -38,7 +39,10 @@
                         <h2>🆕 새로 생겼어요!</h2>
                         <a th:href="@{/club/list(sort='createdAt,desc')}" class="view-all-link">전체보기 <i class="bi bi-chevron-right"></i></a>
                     </div>
-                    <div class="home-grid-layout" id="newClubList">
+                    <div class="home-grid-layout" id="newClubList"></div>
+
+                    <div class="more-btn-container">
+                        <button type="button" id="newClubMoreBtn" class="btn-home-more">신규 모임 더보기 <i class="bi bi-plus-lg"></i></button>
                     </div>
                 </section>
 
@@ -50,7 +54,7 @@
                     </div>
 
                     <div class="more-btn-container">
-                        <button type="button" id="clubListMore" class="btn-home-more">모임 더보기 <i class="bi bi-plus-lg"></i></button>
+                        <button type="button" id="clubListMore" class="btn-home-more">추천 모임 더보기 <i class="bi bi-plus-lg"></i></button>
                     </div>
                 </section>
             </div>

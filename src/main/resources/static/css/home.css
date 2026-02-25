@@ -222,3 +222,58 @@ color:#fff;
 .club-info span {
   display: block;   /* ⭐ 줄바꿈 */
 }
+
+/* 버튼을 감싸는 컨테이너 여백 조절 */
+.more-btn-container {
+    width: 100%;
+    margin-top: 30px;
+    padding: 0 10px; /* 양옆 미세한 여백 */
+}
+
+/* 길쭉한 바 형태의 버튼 디자인 */
+.btn-home-more {
+    width: 100%;            /* 전체 너비 차지 */
+    height: 56px;           /* 적당한 두께감 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;               /* 텍스트와 아이콘 사이 간격 */
+
+    background-color: #ffffff;
+    color: #555555;
+    font-size: 15px;
+    font-weight: 600;
+
+    border: 1px solid #e1e4ed;
+    border-radius: 12px;    /* 너무 둥글지 않은 세련된 곡률 */
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+
+    /* 은은한 그림자로 입체감 부여 */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* 마우스를 올렸을 때 (Hover) */
+.btn-home-more:hover {
+    background-color: #f8f9ff; /* 아주 연한 보라빛 배경 */
+    color: #6c63ff;            /* 브랜드 컬러로 포인트 */
+    border-color: #6c63ff;
+    transform: translateY(-2px); /* 살짝 떠오르는 효과 */
+    box-shadow: 0 4px 12px rgba(108, 99, 255, 0.1);
+}
+
+/* 클릭했을 때 (Active) */
+.btn-home-more:active {
+    transform: translateY(0);
+    background-color: #f0f1f7;
+}
+
+/* 버튼 내 아이콘 스타일 */
+.btn-home-more i {
+    font-size: 18px;
+    transition: transform 0.2s ease;
+}
+
+.btn-home-more:hover i {
+    transform: rotate(90deg); /* 호버 시 플러스 아이콘 회전 효과 */
+}

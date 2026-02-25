@@ -28,11 +28,11 @@ public class SecurityConfig {
 			, "/images/**", "/css/**", "/js/**"
 			// 사용자 정의
 			// 회원
-			, "members/signup", "api/members"
+			, "/members/signup", "/api/members"
 			// 주제, 지역
-			, "api/location/**", "api/topics"
+			, "/api/location/**", "/api/topics"
 			// 모임
-			, "api/clubs"
+			, "/api/clubs"
 	};
 
 	/**
