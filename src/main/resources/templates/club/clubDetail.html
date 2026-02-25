@@ -11,8 +11,9 @@
 
     <main class="main">
         <div class="cd-full-width-container" th:if="${club != null}"> <div class="detail-content-container bg-white">
+            <div th:replace="fragments/clubTabs :: clubTabs('home')"></div>
 
-            <nav class="club-tabs">
+            <!-- <nav class="club-tabs">
                 <ul class="nav nav-pills">
                     <li class="nav-item"><a class="nav-link active" th:href="@{/club/{id}(id=${club.clubId})}">홈</a></li>
                     <li class="nav-item"><a class="nav-link" th:href="@{/community/post/list/{id}(id=${club.clubId})}">게시판</a></li>
@@ -23,7 +24,7 @@
                         <li class="nav-item"><a class="nav-link text-danger fw-bold" th:href="@{/club/{id}/manage/requests(id=${club.clubId})}">모임관리</a></li>
                     </th:block>
                 </ul>
-            </nav>
+            </nav> -->
 
             <div th:if="${club.status == 'DELETED_PENDING'}" class="alert alert-warning shadow-sm border-0">
                 <div class="d-flex align-items-center">

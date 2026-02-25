@@ -17,6 +17,7 @@
       <aside th:replace="~{fragments/aside :: aside}"></aside>
 
       <main class="main">
+        <div th:replace="fragments/clubTabs :: clubTabs('post')"></div>
         <div class="post-container">
           <h1 class="page-title">게시글 수정</h1>
 
@@ -58,10 +59,11 @@
               </div>
 
               <div class="form-actions">
-                <button id="cancelBtn" type="button" class="btn-ghost">
-                  취소
-                </button>
+
                 <button type="submit" class="btn-primary">수정</button>
+                  <button id="cancelBtn" type="button" class="btn-ghost">
+                  취소
+              </button>
               </div>
             </form>
           </section>
