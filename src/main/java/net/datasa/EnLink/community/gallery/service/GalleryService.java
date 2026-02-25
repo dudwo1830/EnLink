@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -119,7 +120,7 @@ public class GalleryService {
 	
 	// 사진 삭제
 	@PreAuthorize("#memberId == principal.memberId")
-	public void delete(Integer photoId, String memberId) {
+	public void delete(Integer photoId, @P("memberId") String memberId) {
 		// 1. DB에서 사진 정보 조회
 		GalleryEntity entity = galleryRepository.findById(photoId)
 				.orElseThrow(() -> new RuntimeException("사진을 찾을 수 없습니다."));

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('새로운 모임 만들기', ~{::link}, ~{::script})}">
+    <link rel="stylesheet" th:href="@{/css/search-select.css}" />
+    <script th:src="@{/js/common/search-select.js}" defer></script>
     <script th:src="@{/js/club/create-club-form.js}" defer></script>
     <link rel="stylesheet" th:href="@{/css/club/create-club.css}" />
 </head>
@@ -56,7 +58,6 @@
                                     </div>
                                 </div>
 
-
                                 <label class="mb-2 fw-bold">상세 지역 선택</label>
                                 <div class="row">
                                     <div class="col-md-6 mb-4">
@@ -75,7 +76,6 @@
                                         </div>
                                         <small id="cityGuide" class="text-muted">지역을 먼저 선택하세요</small>
                                     </div>
-
                                 </div>
 
                                 <div class="mb-4">
@@ -102,9 +102,10 @@
                     </div>
                 </div>
             </div>
-            </div>
+        </div>
+        <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
     </main>
-<footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
+
 
 </div>
 

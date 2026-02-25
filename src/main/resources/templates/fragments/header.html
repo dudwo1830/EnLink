@@ -7,28 +7,25 @@
         <div class="search-area">
             <div class="header-search-bar">
                 <div class="header-filter-group">
-                    <div class="select-search topics" data-name="topicId">
-                        <input type="text" class="select-input" placeholder="관심사" autocomplete="off" />
-                        <input type="hidden" class="select-hidden" id="headerTopicId" />
-                        <ul class="select-options"></ul>
+                    <div class="fake-select">
+                        <span class="label">관심사</span>
+                        <i class="bi bi-chevron-down"></i>
                     </div>
                     <div class="divider"></div>
-                    <div class="select-search regions" data-name="regionId">
-                        <input type="text" class="select-input" placeholder="시/도" autocomplete="off" />
-                        <input type="hidden" class="select-hidden" id="headerRegionId" />
-                        <ul class="select-options"></ul>
+                    <div class="fake-select">
+                        <span class="label">도/시 전체</span>
+                        <i class="bi bi-chevron-down"></i>
                     </div>
                     <div class="divider"></div>
-                    <div class="select-search cities" data-name="cityId">
-                        <input type="text" class="select-input" placeholder="상세 지역" autocomplete="off" />
-                        <input type="hidden" class="select-hidden" id="headerCityId" />
-                        <ul class="select-options"></ul>
+                    <div class="fake-select">
+                        <span class="label">상세 지역</span>
+                        <i class="bi bi-chevron-down"></i>
                     </div>
                 </div>
 
                 <div class="header-input-wrapper">
-                    <input type="text" id="headerSearchInput" placeholder="어떤 모임을 찾으시나요?" autocomplete="off">
-                    <button type="button" class="search-circle-btn" id="headerSearchBtn">
+                    <input type="text" readonly>
+                    <button type="button" class="search-circle-btn">
                         <i class="bi bi-search"></i>
                     </button>
                 </div>
@@ -38,65 +35,15 @@
         <nav class="user-nav">
             <ul class="user-actions">
                 <th:block sec:authorize="not isAuthenticated()">
-                    <li><a th:href="@{/auth/login}" class="btn-login">로그인</a></li>
-                    <li><a th:href="@{/members/signup}" class="btn-signup">회원가입</a></li>
+                    <li><a th:href="@{/auth/login}" class="btn-login" th:text="#{common.btn.login}">로그인</a></li>
+                    <li><a th:href="@{/members/signup}" class="btn-signup" th:text="#{common.btn.signup}">회원가입</a></li>
                 </th:block>
                 <th:block sec:authorize="isAuthenticated()">
-                    <li><span class="user-name" th:text="${#authentication.name} + '님'">사용자님</span></li>
-                    <li><a th:href="@{/members/me}" class="btn-info">내 정보</a></li>
-                    <li><a th:href="@{/auth/logout}" class="btn-logout">로그아웃</a></li>
+                    <li><span class="user-name" th:text="${#authentication.name} + #{member.label.name.honorific}">배경호님</span></li>
+                    <li><a th:href="@{/members/me}" class="btn-info" th:text="#{member.menu.myPage}">내 정보</a></li>
+                    <li><a th:href="@{/auth/logout}" class="btn-logout" th:text="#{common.btn.logout}">로그아웃</a></li>
                 </th:block>
             </ul>
         </nav>
     </div>
-    <script th:inline="javascript">
-        (function() {
-            function startHeaderSearch() {
-                // SearchSelect 클래스가 로드되었는지 확인
-                if (typeof SearchSelect !== 'undefined') {
-                    console.log("SearchSelect 엔진 확인 완료. 헤더 초기화 시작");
-
-                    const topicEl = document.querySelector('.header .topics');
-                    const regionEl = document.querySelector('.header .regions');
-                    const cityEl = document.querySelector('.header .cities');
-
-                    if (topicEl && regionEl && cityEl) {
-                        const hTopic = new SearchSelect(topicEl);
-                        const hRegion = new SearchSelect(regionEl);
-                        const hCity = new SearchSelect(cityEl);
-
-                        // ⚠️ API 주소를 실제 팀장님 프로젝트의 서버 컨트롤러 주소와 맞춰야 합니다!
-                        hTopic.load('/api/club/topics', { valueKey: 'topicId', labelKey: 'name', includeAll: true, allLabel: '관심사' });
-                        hRegion.load('/api/club/regions', { valueKey: 'regionId', labelKey: 'name', includeAll: true, allLabel: '시/도' });
-
-                        regionEl.addEventListener('change', (e) => {
-                            hCity.load(`/api/club/regions/${e.detail.value}/cities`, { valueKey: 'cityId', labelKey: 'name', includeAll: true, allLabel: '상세 지역' });
-                        });
-                    }
-                } else {
-                    // 아직 로드가 안됐으면 100ms 뒤에 다시 시도 (최대 50번)
-                    console.log("SearchSelect 로딩 대기 중...");
-                    setTimeout(startHeaderSearch, 100);
-                }
-            }
-
-            // 페이지 로드 시 실행
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', startHeaderSearch);
-            } else {
-                startHeaderSearch();
-            }
-
-            // 검색 버튼 이벤트는 별도로 등록 (클래스 로드와 상관없음)
-            document.addEventListener('click', function(e) {
-                if (e.target.closest('#headerSearchBtn')) {
-                    const t = document.getElementById('headerTopicId')?.value || '';
-                    const r = document.getElementById('headerRegionId')?.value || '';
-                    const c = document.getElementById('headerCityId')?.value || '';
-                    const k = document.getElementById('headerSearchInput')?.value || '';
-                    location.href = `/?topicId=${t}&regionId=${r}&cityId=${c}&keyword=${encodeURIComponent(k)}`;
-                }
-            });
-        })();
-    </script>
 </header>

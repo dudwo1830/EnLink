@@ -9,21 +9,66 @@
     <div class="grid-container">
       <header th:replace="~{fragments/header :: header}"></header>
       <aside th:replace="~{fragments/aside :: aside}"></aside>
-      <main class="main">
-        <h1>내 정보</h1>
-        <div th:object="${member}">
-          <div>아이디: <span th:text="*{memberId}"></span></div>
-          <div>이름: <span th:text="*{name}"></span></div>
-          <div>이메일: <span th:text="*{email}"></span></div>
-          <div>생년월일: <span th:text="*{birth}"></span></div>
-          <div>관심 주제: <span th:text="*{topic}"></span></div>
-          <div>관심 지역: <span th:text="*{city}"></span></div>
-        </div>
-        <div>
-          <ul class="flex ul-reset">
-            <li><a th:href="@{/members/me/edit}">회원 정보 수정</a></li>
-            <li><a th:href="@{/members/me/interest}">관심 주제/지역 관리</a></li>
-          </ul>
+      <main class="main container py-5">
+        <div class="row justify-content-center">
+          <div class="col-md-8 col-lg-6">
+            <h2 class="section-title text-center mb-4" th:text="#{member.detail.title}">내 정보</h2>
+            <div class="card shadow-sm" th:object="${member}">
+              <div class="card-body p-4">
+                <h3 class="mb-4 text-primary">
+                  <i class="bi bi-person-circle me-2"></i
+                  ><span th:text="#{member.detail.subtitle.profile}">기본 프로필</span>
+                </h3>
+                <div class="info-group mb-4">
+                  <div class="d-flex justify-content-between border-bottom py-2">
+                    <span class="fw-bold text-muted" th:text="#{member.label.id}">아이디</span>
+                    <span th:text="*{memberId}" class="text-dark"></span>
+                  </div>
+                  <div class="d-flex justify-content-between border-bottom py-2">
+                    <span class="fw-bold text-muted" th:text="#{member.label.name}">이름</span>
+                    <span th:text="*{name}" class="text-dark"></span>
+                  </div>
+                  <div class="d-flex justify-content-between border-bottom py-2">
+                    <span class="fw-bold text-muted" th:text="#{member.label.email}">이메일</span>
+                    <span th:text="*{email}" class="text-dark"></span>
+                  </div>
+                  <div class="d-flex justify-content-between border-bottom py-2">
+                    <span class="fw-bold text-muted" th:text="#{member.label.birth}">생년월일</span>
+                    <span th:text="*{birth}" class="text-dark"></span>
+                  </div>
+                </div>
+                <h3 class="mb-3 text-primary">
+                  <i class="bi bi-heart-fill me-2"></i
+                  ><span th:text="#{member.detail.subtitle.interest}">관심 설정</span>
+                </h3>
+                <div class="row g-2 mb-4">
+                  <div class="col-6">
+                    <div class="p-3 border rounded-3 bg-light text-center">
+                      <small class="d-block text-muted" th:text="#{member.label.topic}">관심 주제</small>
+                      <strong th:text="*{topic}"></strong>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="p-3 border rounded-3 bg-light text-center">
+                      <small class="d-block text-muted" th:text="#{member.label.city}">관심 지역</small>
+                      <strong th:text="*{city}"></strong>
+                    </div>
+                  </div>
+                </div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                  <a th:href="@{/members/me/edit}" class="btn btn-primary px-4" th:text="#{member.detail.btn.edit}"
+                    >회원 정보 수정</a
+                  >
+                  <a
+                    th:href="@{/members/me/interest}"
+                    class="btn btn-outline px-4"
+                    th:text="#{member.detail.btn.interest}"
+                    >관심 설정 관리</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
       <footer th:replace="~{fragments/footer :: footer}"></footer>

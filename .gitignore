@@ -42,6 +42,7 @@ out/
 ####################################
 .vscode/
 !.vscode/extensions.json
+bin/
 
 ####################################
 # Environment / Secrets
