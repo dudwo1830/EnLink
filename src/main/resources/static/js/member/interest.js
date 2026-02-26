@@ -15,7 +15,7 @@ fetch(`/api/members/me/city`)
     return res.json();
   })
   .then((data) => {
-    changeCity('현재 설정: ' + data.fullNameLocal);
+    changeCity(data.fullNameLocal);
   })
   .catch((err) => {
     console.log(err);
@@ -39,26 +39,31 @@ function topicRender() {
 
 function makeTopicElement(topic) {
   const template = document.createElement('template');
+  const checkboxId = `topic_${topic.topicId}`;
+
   template.innerHTML = `
-	<p>
-		<input type="checkbox" value="${topic.topicId}">
-		<span>${topic.name}</span>
-	</p>
-	`;
+  <div class="topic-chip-item d-inline-block me-2 mb-2">
+    <input type="checkbox" class="btn-check" id="${checkboxId}" value="${topic.topicId}" autocomplete="off">
+    <label class="btn btn-outline-primary rounded-pill px-3 py-1" for="${checkboxId}">
+      <i class="bi bi-plus-lg me-1 small"></i>${topic.name}
+    </label>
+  </div>
+  `;
   const checkbox = template.content.querySelector("input[type='checkbox']");
   checkbox.checked = topic.checked;
   return template.content.firstElementChild;
 }
 
-const regionTarget = document.querySelector('.select-search.regions');
-const cityTarget = document.querySelector('.select-search.cities');
+const searchSelectContainer = document.querySelector('.search-select-container');
+const regionTarget = searchSelectContainer.querySelector('.select-search.regions');
+const cityTarget = searchSelectContainer.querySelector('.select-search.cities');
 const regionSelect = new SearchSelect(regionTarget);
 const citySelect = new SearchSelect(cityTarget);
 regionSelect.load(`/api/location/regions`, {
   valueKey: 'regionId',
   labelKey: 'nameLocal',
   includeAll: true,
-  allLabel: '도/시 전체',
+  allLabel: window.i18n ? window.i18n.search.region : '도/시',
 });
 citySelect.load(`/api/location/cities`, {
   valueKey: 'cityId',
@@ -68,7 +73,7 @@ regionTarget.addEventListener('change', (e) => {
   changeRegion(regionSelect.getValue());
 });
 cityTarget.addEventListener('change', (e) => {
-  changeCity('변경 후: ' + citySelect.getText());
+  changeCity(citySelect.getText());
 });
 
 function changeRegion(regionId) {
