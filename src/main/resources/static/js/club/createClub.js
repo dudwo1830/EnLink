@@ -1,5 +1,3 @@
-document.querySelectorAll('.header .select-search').forEach(el => el.remove());
-
 document.addEventListener('DOMContentLoaded', function() {
 
     const submitBtn = document.getElementById('submitBtn');
@@ -103,8 +101,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // region/city select 처리
-    const regionBox = document.querySelector(".select-search.regions");
-    const cityBox = document.querySelector(".select-search.cities");
+    const regionBox = createForm.querySelector(".select-search.regions");
+    const cityBox = createForm.querySelector(".select-search.cities");
 
     if (regionBox && cityBox) {
         const regionHidden = regionBox.querySelector(".select-hidden");

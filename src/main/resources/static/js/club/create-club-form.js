@@ -1,6 +1,7 @@
-const regionTarget = document.querySelector('.select-search.regions');
-const cityTarget = document.querySelector('.select-search.cities');
-const topicTarget = document.querySelector('.select-search.topics');
+const searchSelectContainer = document.querySelector('#createClubForm');
+const regionTarget = searchSelectContainer.querySelector('.select-search.regions');
+const cityTarget = searchSelectContainer.querySelector('.select-search.cities');
+const topicTarget = searchSelectContainer.querySelector('.select-search.topics');
 
 const regionSelect = new SearchSelect(regionTarget);
 const citySelect = new SearchSelect(cityTarget);
@@ -10,19 +11,19 @@ regionSelect.load(`/api/location/regions`, {
   valueKey: 'regionId',
   labelKey: 'nameLocal',
   includeAll: true,
-  allLabel: '도/시 선택',
+  allLabel: window.i18n ? window.i18n.search.region : '도/시',
 });
 citySelect.load(`/api/location/cities`, {
   valueKey: 'cityId',
   labelKey: 'fullNameLocal',
   includeAll: true,
-  allLabel: '구/군 선택',
+  allLabel: window.i18n ? window.i18n.search.city : '구/군',
 });
 topicSelect.load(`/api/topics`, {
   valueKey: 'topicId',
   labelKey: 'name',
   includeAll: true,
-  allLabel: '관심사 선택',
+  allLabel: window.i18n ? window.i18n.search.topic : '관심사',
 });
 regionTarget.addEventListener('change', (e) => {
   changeRegion(regionSelect.getValue());
