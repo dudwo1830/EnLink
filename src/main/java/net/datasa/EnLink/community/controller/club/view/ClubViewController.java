@@ -54,10 +54,13 @@ public class ClubViewController {
 	@GetMapping("/list")
 	public String list(Model model,
 						@AuthenticationPrincipal MemberDetails loginUser,
-						@RequestParam(name="topicId", required = false, defaultValue = "") Integer topicId) {
-						String loginMemberId = (loginUser != null) ? loginUser.getUsername() : null;
+						@RequestParam(name = "topicId", required = false, defaultValue = "") Integer topicId,
+						@RequestParam(name = "cityId", required = false) Integer cityId,
+						@RequestParam(name = "q", required = false) String search,
+						@RequestParam(name = "regionId", required = false) Integer regionId) {
+		String loginMemberId = (loginUser != null) ? loginUser.getUsername() : null;
 		
-		model.addAttribute("clubs", clubService.getListByTopicId(topicId));
+		model.addAttribute("clubs", clubService.getListByTopicId(topicId, regionId, cityId, search));
 		model.addAttribute("loginMemberId", loginMemberId);
 		return "club/clubList";
 	}
