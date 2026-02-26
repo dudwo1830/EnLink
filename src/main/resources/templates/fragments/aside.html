@@ -66,7 +66,7 @@
             const params = new URLSearchParams(window.location.search);
 
             // 1. 전체 모임 보기 활성화
-            if (path === '/club/list' && !params.has('topicId') && !params.has('type')) {
+            if (path === '/club/list' && !params.get('topicId') && !params.has('type')) {
                 const menuAll = document.getElementById('menu-all');
                 if (menuAll) {
                     menuAll.classList.add('active');
