@@ -386,7 +386,9 @@ public class ClubService {
 	 */
 	@Transactional(readOnly = true)
 	public List<ClubListResponse> getRandomClubList() {
-		return clubRepository.findRandomActiveClubs(20)
+		
+		String locale = LocaleContextHolder.getLocale().getLanguage();
+		return clubRepository.findRandomActiveClubs(20, locale)
 				.stream()
 				.map(ClubListResponse::new) // 👈 이 변환 과정이 꼭 필요합니다!
 				.collect(Collectors.toList());
@@ -397,6 +399,7 @@ public class ClubService {
 	 */
 	@Transactional(readOnly = true)
 	public List<ClubListResponse> getPersonalizedClubList(String memberId) {
+		String locale = LocaleContextHolder.getLocale().getLanguage();
 		// 1. 회원 정보 조회
 		MemberEntity member = memberRepository.findById(memberId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
@@ -413,7 +416,7 @@ public class ClubService {
 		
 		System.out.println("🚀 추천 로직 가동 - Member: " + memberId + ", City: " + cityId + ", Topic: " + topicId);
 		// 4. Repository 호출 (추출한 ID들 전달)
-		return clubRepository.findRecommendedClubs(cityId, topicId)
+		return clubRepository.findRecommendedClubs(cityId, topicId, locale)
 				.stream()
 				.map(ClubListResponse::new)
 				.collect(Collectors.toList());

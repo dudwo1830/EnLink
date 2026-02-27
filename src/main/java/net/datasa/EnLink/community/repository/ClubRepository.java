@@ -35,8 +35,8 @@ public interface ClubRepository extends JpaRepository<ClubEntity, Integer> {
 	
 	
 	// [비로그인용] 전체에서 랜덤하게 N개 추출
-	@Query(value = "SELECT * FROM club WHERE status = 'ACTIVE' ORDER BY RAND() LIMIT :limit", nativeQuery = true)
-	List<ClubEntity> findRandomActiveClubs(@Param("limit") int limit);
+	@Query(value = "SELECT * FROM club WHERE status = 'ACTIVE' AND locale = :locale ORDER BY RAND() LIMIT :limit", nativeQuery = true)
+	List<ClubEntity> findRandomActiveClubs(@Param("limit") int limit, @Param("locale") String locale);
 	
 	// [로그인용] 1~4순위 통합 추천 로직
 	@Query(value = """
@@ -49,10 +49,13 @@ public interface ClubRepository extends JpaRepository<ClubEntity, Integer> {
                 END) AS match_score
         FROM clubs
         WHERE status = 'ACTIVE'
+        AND locale = :locale
         ORDER BY match_score DESC, RAND()
         LIMIT 20
         """, nativeQuery = true)
-	List<ClubEntity> findRecommendedClubs(@Param("cityId") Long cityId, @Param("topicId") Long topicId);
+	List<ClubEntity> findRecommendedClubs(@Param("cityId") Long cityId,
+										  @Param("topicId") Long topicId,
+										  @Param("locale") String locale);
 
 
 	/**
