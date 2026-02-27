@@ -35,7 +35,7 @@
     </li>
 
     <th:block th:if="${loginMember != null and (loginMember.role == 'OWNER' or loginMember.role == 'MANAGER')}">
-      <li class="nav-item ms-auto">
+      <li class="nav-item">
         <a class="nav-link text-danger fw-bold"
            th:href="@{/club/{id}/manage/requests(id=${cid})}">모임관리</a>
       </li>

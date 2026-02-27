@@ -1,109 +1,156 @@
-/* * manage.css
- * 모임 관리 통합 디자인 (가입신청, 멤버관리, 정보수정, 삭제/복구)
- */
-
 :root {
-    --primary-blue: #4c6ef5;
+    --primary-blue: #6c63ff;
     --danger-red: #ff6b6b;
-    --success-green: #51cf66;
-    --warning-orange: #fcc419;
-    --gray-text: #868e96;
-    --bg-light: #f8f9fa;
-    --radius-lg: 20px;
+    --bg-white: #ffffff;    /* 🚀 회색 제거하고 화이트 변수 추가 */
+    --radius-lg: 24px;
     --radius-md: 12px;
 }
 
-/* --- [1. 기본 레이아웃 & 메인 영역] --- */
-.manage-main-container {
-    display: flex;
-    gap: 40px;
-    align-items: flex-start;
-    padding: 40px 60px;
-    width: 100%;
-    min-height: 80vh;
-    box-sizing: border-box;
+/* --- [1. 가로 배치 레이아웃 & 배경 초기화] --- */
+body, .main, .grid-container {
+    background-color: var(--bg-white) !important; /* 🚀 전체 배경 화이트 */
 }
 
+.manage-main-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0;               /* 🚀 탭과 컨텐츠 사이 틈 제거 (더 정갈함) */
+    padding: 40px 60px;
+    max-width: 1400px;
+    margin: 0 auto;
+    background-color: var(--bg-white) !important;
+}
+
+/* 상단 가로 탭 영역 (회색 배경 완전 제거) */
 .manage-sidebar-area {
-    width: 220px;
-    flex-shrink: 0;
-    position: sticky;
-    top: 20px;
+    display: flex !important;
+    gap: 10px;
+    width: 100% !important;
+    border-bottom: 2px solid #f1f3f5;
+    background-color: var(--bg-white) !important;
+    padding-bottom: 0;
 }
 
 .manage-sidebar-area a {
-    display: block;
-    padding: 14px 18px;
-    color: #555;
+    padding: 16px 24px;
+    color: #495057;       /* 비활성 텍스트를 살짝 더 연하게 */
     text-decoration: none;
-    border-radius: var(--radius-md);
-    transition: all 0.3s ease;
-    font-weight: 500;
+    border-radius: 12px 12px 0 0;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    margin-bottom: -2px;
+    background-color: transparent !important;
 }
 
 .manage-sidebar-area a:hover {
-    background-color: #f1f3f5;
-    transform: translateX(5px);
+    color: var(--primary-blue);
+    background-color: #fcfcff !important; /* 호버 시에만 아주 연한 보라빛 */
 }
 
 .manage-sidebar-area a.active {
-    background-color: #edf2ff;
-    color: var(--primary-blue);
-    font-weight: 700;
+    background-color: transparent !important;
+    color: var(--primary-blue) !important;
+    border-bottom: 3px solid var(--primary-blue);
 }
 
+/* 메인 컨텐츠 영역 */
 .manage-content-area {
-    flex: 1;
-    min-width: 0;
-    background: #ffffff;
-    border-radius: var(--radius-lg);
-    padding: 45px; /* 시원한 여백 확보 */
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+    background: var(--bg-white) !important;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    padding: 40px;
+    /* 그림자도 더 투명하게 조절해서 경계선만 깔끔하게 보이게 함 */
     border: 1px solid #f1f3f5;
+    border-top: none; /* 🚀 탭 하단 선과 겹치므로 위쪽 선은 제거 */
 }
 
 .manage-content-area h1 {
-    font-size: 1.75rem;
-    color: #212529;
-    margin-bottom: 2.5rem;
+    font-size: 22px;
     font-weight: 800;
+    margin-bottom: 30px;
+    color: #333;
 }
 
-/* --- [2. 테이블 공통 디자인 (중앙 정렬 필살기)] --- */
+/* --- [2. 테이블 정갈한 배치] --- */
 .manage-table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    margin-top: 1rem;
+    border-collapse: collapse;
+    table-layout: auto;
 }
 
 .manage-table th {
-    background-color: var(--bg-light);
-    color: #495057;
-    font-weight: 700;
+    background-color: #fafaff; /* 🚀 헤더만 아주 살짝 구분 (완전 화이트 원하시면 #fff) */
+    color: #666;
+    font-size: 14px;
     padding: 15px;
-    border-bottom: 2px solid #dee2e6;
-    text-align: center !important;
+    border-bottom: 2px solid #f1f3f5;
+    text-align: center;
 }
 
 .manage-table td {
     padding: 20px 15px;
+    text-align: center;
     vertical-align: middle;
-    border-bottom: 1px solid #f1f3f5;
-    font-size: 0.95rem;
-    text-align: center !important; /* ✨ 모든 열 강제 중앙 정렬 */
+    white-space: nowrap;
+    border-bottom: 1px solid #f8f9fa;
+    background-color: var(--bg-white) !important; /* 🚀 테이블 내부도 화이트 */
 }
 
-.manage-table tbody tr:hover {
-    background-color: #fcfdfe;
-    transition: background 0.2s;
+/* 가입 이력 칸 내부 정렬 */
+.history-cell-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
 }
 
-/* --- [3. 탭별 전용 스타일 보정] --- */
+/* 🚀 빠졌던 상세이력 버튼 스타일 추가 */
+.btn-history-small {
+    background-color: #f8f9fa; /* 은은한 회색으로 배경 처리 */
+    color: #868e96;            /* 차분한 폰트 컬러 */
+    border: 1px solid #e9ecef;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;           /* 다른 버튼보다 작고 정갈하게 */
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
 
-/* 가입 신청: 이름 & 버튼 디자인 */
-.manage-table td:nth-child(2) {
-    font-weight: 600; /* 이름은 좀 더 진하게 */
+/* 마우스를 올렸을 때 보라색 포인트 */
+.btn-history-small:hover {
+    background-color: #f0efff;
+    color: var(--primary-blue);
+    border-color: var(--primary-blue);
+    transform: translateY(-1px);
+}
+
+/* 가입 이력 배지 텍스트 정렬 보정 */
+.status-badge-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.status-new { color: #4caf50; font-weight: 700; font-size: 14px; }
+
+/* --- [3. 버튼 디자인 통일] --- */
+.btn-view {
+    background: #fff;
+    color: var(--primary-blue);
+    border: 1px solid var(--primary-blue);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    transition: 0.2s;
+}
+.btn-view:hover {
+    background-color: var(--primary-blue);
+    color: #fff;
 }
 
 .btn-approve {
@@ -112,85 +159,75 @@
     border: none;
     padding: 8px 18px;
     border-radius: 8px;
-    font-weight: 600;
+    font-weight: 700;
     transition: 0.2s;
 }
+.btn-approve:hover { opacity: 0.9; transform: translateY(-1px); }
 
 .btn-reject {
-    background-color: #fff5f5;
-    color: #e03131;
-    border: 1.5px solid #ffa8a8;
+    background: #fff;
+    color: var(--danger-red);
+    border: 1px solid var(--danger-red);
     padding: 8px 18px;
     border-radius: 8px;
-    font-weight: 600;
+    font-weight: 700;
     transition: 0.2s;
 }
+.btn-reject:hover { background-color: #fff5f5; }
 
-.btn-reject:hover {
-    background-color: #e03131;
-    color: #fff;
+/* --- [4. 모달 ] --- */
+.modal-body-box {
+    background: #fcfcfd; /* 🚀 모달 내부 답변 박스는 가독성을 위해 살짝 미색 */
+    padding: 25px;
+    border-radius: 16px;
+    margin: 20px 0;
+    border: 1px solid #f1f3f5;
 }
 
-/* 멤버 관리: 프로필 영역 (예외적 왼쪽 정렬) */
-.col-name {
-    text-align: left !important;
-    padding-left: 25px !important;
-}
-
-.col-role span {
-    padding: 5px 14px;
+/* 👑 역할 배지 (모임장, 운영진, 일반) */
+.role-badge {
+    padding: 6px 14px;
     border-radius: 30px;
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
+    display: inline-block;
+    min-width: 70px;
+    text-align: center;
 }
-.role-owner { background: #fff4e6; color: #fd7e14; border: 1px solid #ffe8cc; }
-.role-manager { background: #e7f5ff; color: #228be6; border: 1px solid #d0ebff; }
+.role-owner { background: #f0efff; color: #6c63ff; border: 1px solid #e0dfff; }
+.role-manager { background: #fff9db; color: #f08c00; border: 1px solid #fff3bf; }
 .role-member { background: #f8f9fa; color: #868e96; border: 1px solid #e9ecef; }
 
-/* 모임 삭제: 경고 박스 중화 디자인 */
-.delete-status-container {
-    background-color: #fff5f5;
-    border: 1px solid #ffc9c9;
-    border-left: 6px solid var(--danger-red);
-    padding: 35px;
-    border-radius: var(--radius-md);
-}
-
-.time-limit-highlight {
-    background-color: var(--danger-red);
-    color: #fff;
-    padding: 3px 12px;
-    border-radius: 30px;
-    font-weight: 700;
-}
-
-.btn-hard-delete, .btn-restore {
-    padding: 12px 24px;
-    border-radius: 10px;
-    font-weight: 700;
-    border: none;
-    transition: 0.3s;
-}
-.btn-hard-delete { background: var(--danger-red); color: #fff; }
-.btn-restore { background: #51cf66; color: #fff; }
-
-/* --- [4. 기타 공통 요소] --- */
-.modal-content {
-    border-radius: var(--radius-lg);
-    border: none;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-}
-
+/* ⚙️ 권한 변경 셀렉트 박스 */
 .manage-select {
     padding: 6px 12px;
     border-radius: 8px;
     border: 1px solid #dee2e6;
-    background: #fff;
-    font-size: 0.9rem;
+    background-color: #ffffff;
+    font-size: 14px;
+    color: #495057;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+.manage-select:focus {
+    border-color: var(--primary-blue);
 }
 
-img {
-    max-width: 100%;
-    height: auto;
+/* 🚫 멤버 제명 버튼 */
+.btn-ban {
+    background-color: #fff5f5;
+    color: #e03131;
+    border: 1px solid #ffc9c9;
+    padding: 6px 14px;
     border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.2s;
 }
+.btn-ban:hover {
+    background-color: #e03131;
+    color: #ffffff;
+    border-color: #e03131;
+}
+

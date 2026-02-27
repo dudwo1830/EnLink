@@ -2,6 +2,7 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/head :: head('EnLink - 내 모임 활동', ~{::link}, ~{::script})}">
     <link rel="stylesheet" th:href="@{/css/club/myclubList.css}">
+    <script th:src="@{/js/member/myClubList.js}" defer></script>
 </head>
 <body>
 <div class="grid-container">
@@ -36,7 +37,11 @@
 
                         <div class="club-meta">
                             <th:block th:if="${currentType == 'owned'}">
-                                <div class="member-count">멤버 <span th:text="${club.currentMemberCount}">0</span>/<span th:text="${club.maxMember}">10</span></div>
+                                <div class="member-info-home">
+                                    <i class="bi bi-people-fill"></i>
+                                    <span class="current" th:text="${club.currentMemberCount}">0</span>
+                                    <span class="total">/ <span th:text="${club.maxMember}">10</span></span>
+                                </div>
                                 <div class="button-group mt-3">
                                     <a th:href="@{/club/{id}/manage/requests(id=${club.clubId})}" class="btn-action btn-manage">신청 관리</a>
                                     <a th:href="@{/club/{id}/manage/edit(id=${club.clubId})}" class="btn-action btn-edit">수정</a>
@@ -44,11 +49,20 @@
                             </th:block>
 
                             <th:block th:if="${currentType == 'active'}">
-                                <div class="member-count">참여 <span th:text="${club.currentMemberCount}">0</span>/<span th:text="${club.maxMember}">10</span></div>
+                                <div class="member-info-home">
+                                    <i class="bi bi-people-fill"></i>
+                                    <span class="current" th:text="${club.currentMemberCount}">0</span>
+                                    <span class="total">/ <span th:text="${club.maxMember}">10</span></span>
+                                </div>
                                 <p class="status-text active">✔️ 현재 활동 중</p>
                             </th:block>
 
                             <th:block th:if="${currentType == 'pending'}">
+                                <div class="member-info-home" style="margin-bottom: 12px;">
+                                    <i class="bi bi-people-fill"></i>
+                                    <span class="current" th:text="${club.currentMemberCount}">0</span>
+                                    <span class="total">/ <span th:text="${club.maxMember}">10</span></span>
+                                </div>
                                 <p class="status-text pending">승인 대기 중...</p>
                                 <button type="button" class="btn-action btn-cancel" th:onclick="|cancelApply(${club.clubId})|">
                                     신청 취소
@@ -65,8 +79,8 @@
                 </div>
             </div>
         </div>
-        <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
     </main>
+    <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

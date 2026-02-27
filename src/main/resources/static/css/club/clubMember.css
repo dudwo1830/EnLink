@@ -1,0 +1,51 @@
+/* --- [멤버 관리: 이전 버전의 정갈한 스타일 복구] --- */
+
+/* 1. 프로필 영역: 가독성 중심 왼쪽 정렬 */
+.col-name {
+    text-align: left !important;
+    padding-left: 30px !important;
+}
+
+.member-name-text {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #343a40;
+    margin-right: 8px;
+}
+
+.member-id-text {
+    font-size: 0.85rem;
+    color: var(--gray-text); /* #868e96 */
+    font-weight: 400;
+}
+
+/* 2. 역할 배지 디자인 (이전 버전의 맑은 컬러감 복구) */
+.role-badge {
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 30px; /* 정통 캡슐형 */
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+}
+
+/* 👑 모임장: 따뜻한 오렌지 계열 (기존 role-owner 복구) */
+.role-owner {
+    background-color: #fff4e6;
+    color: #fd7e14;
+    border-color: #ffe8cc;
+}
+
+/* ⭐ 운영진: 시원한 블루 계열 (기존 role-manager 복구) */
+.role-manager {
+    background-color: #e7f5ff;
+    color: #228be6;
+    border-color: #d0ebff;
+}
+
+/* 👤 일반 멤버: 깔끔한 그레이 계열 (기존 role-member 복구) */
+.role-member {
+    background-color: #f8f9fa;
+    color: #868e96;
+    border-color: #e9ecef;
+}

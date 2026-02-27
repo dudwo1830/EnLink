@@ -2,6 +2,7 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('EnLink - 멤버 관리', ~{::link}, ~{::script})}">
     <link rel="stylesheet" th:href="@{/css/manage.css}">
+    <link rel="stylesheet" th:href="@{/css/clubMembers.css}">
 </head>
 <body>
 <div class="grid-container">
@@ -30,19 +31,20 @@
                     <tbody>
                     <tr th:each="m : ${members}">
                         <td class="col-name">
-                            <span th:text="${m.memberName}">홍길동</span>
-                            <small th:text="|(${m.memberId})|"> (id123) </small>
+                            <span class="member-name-text" th:text="${m.memberName}">홍길동</span>
+                            <small class="member-id-text" th:text="|(${m.memberId})|"> (id123) </small>
+
                             <span th:if="${m.memberId == loginMember.memberId}"
                                   style="font-size: 0.75rem; color: #228be6; font-weight: normal;">[나]</span>
                         </td>
                         <td class="col-role">
                             <div th:switch="${m.role}">
-                                <span th:case="'OWNER'" class="role-owner">모임장</span>
-                                <span th:case="'MANAGER'" class="role-manager">운영진</span>
-                                <span th:case="'MEMBER'" class="role-member">멤버</span>
+                                <span th:case="'OWNER'" class="role-badge role-owner">모임장</span>
+                                <span th:case="'MANAGER'" class="role-badge role-manager">운영진</span>
+                                <span th:case="'MEMBER'" class="role-badge role-member">멤버</span>
                             </div>
                         </td>
-                        <td class="col-date">
+                        <td class="col-date text-muted">
                             <span th:text="${#temporals.format(m.joinedAt, 'yyyy.MM.dd')}">2024.01.23</span>
                         </td>
                         <td class="col-update">
@@ -50,6 +52,7 @@
                                 <select class="manage-select"
                                         th:data-club-id="${clubId}"
                                         th:data-member-id="${m.memberId}"
+                                        th:data-old-role="${m.role}"
                                         onchange="updateRole(this)">
                                     <option value="MEMBER" th:selected="${m.role == 'MEMBER'}">멤버</option>
                                     <option value="MANAGER" th:selected="${m.role == 'MANAGER'}">운영진</option>
@@ -61,7 +64,7 @@
                         <td class="col-kick">
                             <div th:if="${m.memberId != loginMember.memberId and
                                  (loginMember.role == 'OWNER' or (loginMember.role == 'MANAGER' and m.role == 'MEMBER'))}">
-                                <button type="button" class="btn-danger"
+                                <button type="button" class="btn-ban"
                                         th:data-member-id="${m.memberId}"
                                         th:data-member-name="${m.memberName}"
                                         th:data-club-id="${clubId}"
@@ -78,9 +81,8 @@
                 </table>
             </section>
         </div>
-
-        <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
     </main>
+    <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
 </div>
 
 <div id="kickModal" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
