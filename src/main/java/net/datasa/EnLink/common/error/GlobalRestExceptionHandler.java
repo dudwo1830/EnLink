@@ -1,17 +1,17 @@
 package net.datasa.EnLink.common.error;
 
-import java.util.List;
-import java.util.Locale;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.Locale;
 
-@RestControllerAdvice
+@RestControllerAdvice(annotations = RestController.class)
 @RequiredArgsConstructor
 public class GlobalRestExceptionHandler {
 
