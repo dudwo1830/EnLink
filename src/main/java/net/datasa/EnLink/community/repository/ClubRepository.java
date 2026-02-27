@@ -113,47 +113,34 @@ public interface ClubRepository extends JpaRepository<ClubEntity, Integer> {
 			@Param("regionId") Integer regionId,
 			@Param("locale") String locale);
 
-	@Query("""
-			select new net.datasa.EnLink.community.dto.ClubSummaryResponse(
-					c.clubId,
-					c.name,
-					case 
-						when :locale = 'ja' then t.nameJa
-						else t.nameKo
-					end,
-					r.nameLocal,
-					ci.nameLocal,
-					c.imageUrl,
-					c.description,
-					count(cm),
-					c.maxMember
-			)
-			from ClubEntity c
-			join c.topic t
-			join c.city ci
-			join ci.region r
-			left join ClubMemberEntity cm
-					on cm.club = c and cm.status = 'ACTIVE'
-			where 
-				(c.status = 'ACTIVE')
-			and	(c.locale = :locale)
-			and (:topicId is null or t.topicId = :topicId)
-			group by
-					c.clubId,
-					c.name,
-					case 
-						when :locale = 'ja' then t.nameJa
-						else t.nameKo
-					end,
-					r.nameLocal,
-					ci.nameLocal,
-					c.imageUrl,
-					c.description,
-					c.maxMember
-			order by c.clubId desc
-			""")
-	List<ClubSummaryResponse> findClubSummary(
-			@Param("topicId") Integer topicId, 
-			@Param("locale") String locale);
+@Query("""
+    select new net.datasa.EnLink.community.dto.ClubSummaryResponse(
+        c.clubId, c.name,
+        case when :locale = 'ja' then t.nameJa else t.nameKo end,
+        r.nameLocal, ci.nameLocal,
+        c.imageUrl, c.description,
+        count(cm), c.maxMember
+    )
+    from ClubEntity c
+    join c.topic t
+    join c.city ci
+    join ci.region r
+    left join ClubMemberEntity cm on cm.club = c and cm.status = 'ACTIVE'
+    where c.status = 'ACTIVE'
+      and c.locale = :locale
+      and (:topicId is null or t.topicId = :topicId)
+      and (:cityId is null or ci.cityId = :cityId)
+      and (:regionId is null or r.regionId = :regionId)
+      and (:search is null or c.name like concat('%', :search, '%') or c.description like concat('%', :search, '%'))
+    group by 
+        c.clubId, c.name, t.nameJa, t.nameKo, r.nameLocal, ci.nameLocal, c.imageUrl, c.description, c.maxMember
+    order by c.clubId desc
+    """)
+List<ClubSummaryResponse> findClubSummary(
+	@Param("topicId") Integer topicId,
+	@Param("regionId") Integer regionId,
+	@Param("cityId") Integer cityId,
+	@Param("search") String search,
+	@Param("locale") String locale);
 }
 

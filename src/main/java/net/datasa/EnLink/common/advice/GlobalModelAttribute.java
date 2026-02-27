@@ -27,7 +27,7 @@ public class GlobalModelAttribute {
 	}
 
 	@ModelAttribute("locale")
-	public String addLocale(){
-		return "/" + LocaleContextHolder.getLocale().getLanguage();
+	public String locale(){
+		return LocaleContextHolder.getLocale().getLanguage();
 	}
 }

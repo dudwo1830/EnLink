@@ -1,49 +1,83 @@
-<header class="header" th:fragment="header" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-    <div class="header-container">
-        <div class="logo-area">
-            <a th:href="@{/}" class="logo-text">EnLink</a>
-        </div>
-
-        <div class="search-area">
-            <div class="header-search-bar">
-                <div class="header-filter-group">
-                    <div class="fake-select">
-                        <span class="label">관심사</span>
-                        <i class="bi bi-chevron-down"></i>
-                    </div>
-                    <div class="divider"></div>
-                    <div class="fake-select">
-                        <span class="label">도/시 전체</span>
-                        <i class="bi bi-chevron-down"></i>
-                    </div>
-                    <div class="divider"></div>
-                    <div class="fake-select">
-                        <span class="label">상세 지역</span>
-                        <i class="bi bi-chevron-down"></i>
-                    </div>
-                </div>
-
-                <div class="header-input-wrapper">
-                    <input type="text" readonly>
-                    <button type="button" class="search-circle-btn">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <nav class="user-nav">
-            <ul class="user-actions">
-                <th:block sec:authorize="not isAuthenticated()">
-                    <li><a th:href="@{/auth/login}" class="btn-login" th:text="#{common.btn.login}">로그인</a></li>
-                    <li><a th:href="@{/members/signup}" class="btn-signup" th:text="#{common.btn.signup}">회원가입</a></li>
-                </th:block>
-                <th:block sec:authorize="isAuthenticated()">
-                    <li><span class="user-name" th:text="${#authentication.name} + #{member.label.name.honorific}">배경호님</span></li>
-                    <li><a th:href="@{/members/me}" class="btn-info" th:text="#{member.menu.myPage}">내 정보</a></li>
-                    <li><a th:href="@{/auth/logout}" class="btn-logout" th:text="#{common.btn.logout}">로그아웃</a></li>
-                </th:block>
-            </ul>
-        </nav>
+<header
+  class="header"
+  th:fragment="header"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+  <div class="header-container">
+    <div class="logo-area">
+      <a th:href="@{/}" class="logo-text">EnLink</a>
     </div>
+
+    <div class="search-area">
+      <div class="header-search-bar">
+        <form th:action="@{/club/list}" method="get" id="headerSearchForm" class="d-flex w-100">
+          <div class="header-filter-group">
+            <div class="select-search topics topic-filter" data-name="topicId">
+              <div class="fake-select">
+                <input type="text" class="select-input" />
+                <input type="hidden" class="select-hidden" />
+              </div>
+              <ul class="select-options header-dropdown-menu"></ul>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="select-search regions region-filter" data-name="regionId">
+              <div class="fake-select">
+                <input type="text" class="select-input" />
+                <input type="hidden" class="select-hidden" />
+              </div>
+              <ul class="select-options header-dropdown-menu"></ul>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="select-search cities city-filter" data-name="cityId">
+              <div class="fake-select">
+                <input type="text" class="select-input" />
+                <input type="hidden" class="select-hidden" />
+              </div>
+              <ul class="select-options header-dropdown-menu"></ul>
+            </div>
+          </div>
+
+          <div class="header-input-wrapper">
+            <input type="text" name="q" th:placeholder="#{club.search.placeholder}" />
+            <button type="submit" class="search-circle-btn">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <nav class="user-nav">
+      <ul class="user-actions">
+        <th:block sec:authorize="not isAuthenticated()">
+          <li><a th:href="@{/auth/login}" class="btn-login" th:text="#{common.btn.login}">로그인</a></li>
+          <li><a th:href="@{/members/signup}" class="btn-signup" th:text="#{common.btn.signup}">회원가입</a></li>
+        </th:block>
+        <th:block sec:authorize="isAuthenticated()">
+          <li>
+            <span class="user-name" th:text="${#authentication.name} + #{member.label.name.honorific}">배경호님</span>
+          </li>
+          <li><a th:href="@{/members/me}" class="btn-info" th:text="#{member.menu.myPage}">내 정보</a></li>
+          <li><a th:href="@{/auth/logout}" class="btn-logout" th:text="#{common.btn.logout}">로그아웃</a></li>
+        </th:block>
+        <li class="nav-item lang-selector-wrapper ms-3 d-flex align-items-center">
+          <div class="lang-switch-group d-flex align-items-center">
+            <a th:href="@{/ko}" class="lang-btn" th:classappend="${locale == 'ko'} ? 'active' : ''">
+              <span class="lang-text">KR</span>
+            </a>
+
+            <span class="lang-divider-dot"></span>
+
+            <a th:href="@{/ja}" class="lang-link" th:classappend="${locale == 'ja'} ? 'active' : ''">
+              <span class="lang-text">JP</span>
+            </a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </header>

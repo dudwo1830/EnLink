@@ -1,13 +1,11 @@
 package net.datasa.EnLink.common.locale;
 
-import java.io.IOException;
 import java.util.Locale;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.LocaleResolver;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -26,21 +24,21 @@ public class PathLocaleInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         String uri = request.getRequestURI();
-        Locale locale = null;
         String newUri = uri;
-
-        if (uri.startsWith("/ko")) {
-            locale = Locale.KOREAN;
-            newUri = uri.substring(3); // /ko 제거
-        } else if (uri.startsWith("/ja")) {
-            locale = Locale.JAPANESE;
-            newUri = uri.substring(3); // /ja 제거
-        } else {
-            locale = request.getLocale(); // Accept-Language 사용
+        
+        if (uri.startsWith("/auth")) {
+            return true;
         }
 
-        localeResolver.setLocale(request, response, locale);
-        log.info("Locale set: {}, uri: {}", locale, uri);
+        if (uri.startsWith("/ko")) {
+            newUri = uri.substring(3); // /ko 제거
+            localeResolver.setLocale(request, response, Locale.KOREAN);
+        } else if (uri.startsWith("/ja")) {
+            newUri = uri.substring(3); // /ja 제거
+            localeResolver.setLocale(request, response, Locale.JAPANESE);
+        }
+
+        log.info("Locale set: {}, uri: {}", localeResolver.resolveLocale(request).getLanguage(), uri);
 
         if (!newUri.equals(uri)) {
             // /ko, /ja 제거한 경로로 포워드

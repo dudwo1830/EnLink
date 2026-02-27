@@ -40,12 +40,10 @@ public class CityService {
 				.toList();
 	}
 
-	@Cacheable("cityListByRegionAndLocale")
-	public List<CityDetailResponse> getCityList(Integer regionId) {
-		Locale locale = LocaleContextHolder.getLocale();
-		String code = LocaleType.from(locale).getCode();
+	@Cacheable(value = "cityListByRegionAndLocale", key = "#regionId + '_' + #countryCode")
+	public List<CityDetailResponse> getCityList(Integer regionId, String countryCode) {
 		List<CityEntity> cities = (regionId == null)
-				? cityRepository.findByRegion_Country_CodeOrderByNameLocalAsc(code)
+				? cityRepository.findByRegion_Country_CodeOrderByNameLocalAsc(countryCode)
 				: cityRepository.findByRegion_RegionIdOrderByNameLocalAsc(regionId);
 		return cities.stream()
 				.map(city -> new CityDetailResponse(city.getCityId(), city.getNameLocal(),

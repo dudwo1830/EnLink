@@ -6,20 +6,39 @@
 
     <title th:text="${title}">Default Title</title>
 
-      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
 
     <!-- 공통 CSS -->
     <link rel="stylesheet" th:href="@{/css/main.css}" />
-    <link rel="stylesheet" th:href="@{/css/layout.css}"/>
-      <link rel="stylesheet" th:href="@{/css/search-select.css}" />
+    <link rel="stylesheet" th:href="@{/css/layout.css}" />
+    <link rel="stylesheet" th:href="@{/css/search-select.css}" />
     <link rel="stylesheet" th:href="@{/css/fragments/header.css}" />
     <link rel="stylesheet" th:href="@{/css/fragments/aside.css}" />
     <link rel="stylesheet" th:href="@{/css/fragments/footer.css}" />
     <!-- 페이지별 CSS -->
     <th:block th:replace="${links} ?: ~{}"></th:block>
+
+    <!-- 로컬라이징 -->
+    <script th:inline="javascript">
+      window.i18n = {
+          search: {
+            topic: /*[[#{search.select.topic}]]*/'',
+            region: /*[[#{search.select.region}]]*/'',
+            city: /*[[#{search.select.city}]]*/'',
+          },
+          save: /*[[#{button.save}]]*/'',
+          delete: /*[[#{button.delete}]]*/'',
+          confirmDelete: /*[[#{js.confirm.delete}]]*/''
+      };
+  </script>
+
     <!-- 공통 JS -->
     <script th:src="@{/js/common.js}"></script>
+    <script th:src="@{/js/common/search-select.js}" defer></script>
+    <script th:src="@{/js/common/header.js}" defer></script>
+
     <!-- 페이지별 JS -->
     <th:block th:replace="${scripts} ?: ~{}" />
   </head>

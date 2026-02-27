@@ -1,6 +1,5 @@
 .select-search {
   position: relative;
-  /* width: 200px; */
 }
 
 .select-options {
@@ -12,8 +11,6 @@
   z-index: 1000;
   background: white;
   border: 1px solid #ccc;
-
-  /* max-height: 150px; */
   overflow-y: auto;
 
   display: none;
@@ -29,4 +26,59 @@
 
 .select-options li:hover {
   background: #eee;
+}
+/* 지역 선택 컴포넌트 옵션 스타일링 */
+.select-options .list-group-item {
+  cursor: pointer;
+  border: none;
+  padding: 10px 15px;
+  transition: background 0.2s ease;
+}
+
+.select-options .list-group-item:hover {
+  background-color: var(--color-secondary); /* 부드러운 보라색 빛 무채색 */
+  color: var(--color-primary);
+}
+
+/* 입력창 포커스 시 보라색 테두리 */
+.select-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.25rem rgba(142, 140, 216, 0.25);
+}
+
+/* 헤더 검색바 내 드롭다운 위치 조정 */
+.header-filter-group .select-search {
+    position: relative;
+    flex: 1;
+}
+
+.header-dropdown-menu {
+    position: absolute !important;
+    top: 110%; /* 헤더 바 바로 아래 */
+    left: 0;
+    width: 200px; /* 고정 너비 또는 100% */
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    z-index: 9999;
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 8px 0;
+    list-style: none;
+}
+
+/* fake-select 내부의 input을 투명하게 처리하여 디자인 유지 */
+.fake-select input.select-input {
+    border: none;
+    background: transparent;
+    width: 100%;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--color-text);
+    padding: 0;
+}
+
+.fake-select input.select-input:focus {
+    outline: none;
 }
