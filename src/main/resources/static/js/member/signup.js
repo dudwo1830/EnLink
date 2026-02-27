@@ -12,11 +12,17 @@ async function signup(e) {
   });
   if (!res.ok) {
     const data = await res.json();
-    const msg = `
-    ${data.messageCode}
-    ${data.defaultMessage}
-    Code: ${data.code}
-    `;
+    let msg = '';
+    if (data.errors) {
+      data.errors.forEach((error) => {
+        msg += 'Field: ' + error.field + '\n';
+        msg += 'Message: ' + error.message + '\n';
+      });
+    } else {
+      msg = `
+      ${data.messageCode}
+      `;
+    }
     alert(msg);
   } else {
     alert('success');

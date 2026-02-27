@@ -1,43 +1,67 @@
-<nav xmlns:th="http://www.thymeleaf.org"
-     th:fragment="clubTabs(activeTab)"
-     class="club-tabs sticky-club-tabs"
-     th:with="cid=${club != null and club.clubId != null ? club.clubId : clubId}">
-
+<nav
+  xmlns:th="http://www.thymeleaf.org"
+  th:fragment="clubTabs(activeTab)"
+  class="club-tabs sticky-club-tabs"
+  th:with="cid=${club != null and club.clubId != null ? club.clubId : clubId}"
+>
   <ul class="nav nav-pills">
     <li class="nav-item">
-      <a class="nav-link"
-         th:classappend="${activeTab == 'home'} ? ' active' : ''"
-         th:href="@{/club/{id}(id=${cid})}">홈</a>
+      <a
+        class="nav-link"
+        th:classappend="${activeTab == 'home'} ? ' active' : ''"
+        th:href="@{/club/{id}(id=${cid})}"
+        >홈</a
+      >
     </li>
 
     <li class="nav-item">
-      <a class="nav-link"
-         th:classappend="${activeTab == 'post'} ? ' active' : ''"
-         th:href="@{/community/post/list/{id}(id=${cid})}">게시판</a>
+      <a
+        class="nav-link"
+        th:classappend="${activeTab == 'post'} ? ' active' : ''"
+        th:href="@{/community/post/list/{id}(id=${cid})}"
+        >게시판</a
+      >
     </li>
 
     <li class="nav-item">
-      <a class="nav-link"
-         th:classappend="${activeTab == 'gallery'} ? ' active' : ''"
-         th:href="@{/community/gallery/{id}(id=${cid})}">사진첩</a>
+      <a
+        class="nav-link"
+        th:classappend="${activeTab == 'gallery'} ? ' active' : ''"
+        th:href="@{/community/gallery/{id}(id=${cid})}"
+        >사진첩</a
+      >
     </li>
 
-    <li class="nav-item" th:if="${loginMember != null and loginMember.role != null}">
-      <a class="nav-link"
-         th:classappend="${activeTab == 'chat'} ? ' active' : ''"
-         th:href="@{/community/chat/room/{id}(id=${cid})}">채팅</a>
+    <li
+      class="nav-item"
+      th:if="${loginMember != null and loginMember.role != null}"
+    >
+      <a
+        class="nav-link"
+        th:classappend="${activeTab == 'chat'} ? ' active' : ''"
+        th:href="@{/community/chat/room/{id}(id=${cid})}"
+        >채팅</a
+      >
     </li>
 
     <li class="nav-item">
-      <a class="nav-link"
-         th:classappend="${activeTab == 'schedule'} ? ' active' : ''"
-         th:href="@{/community/schedule/list/{id}(id=${cid})}">일정</a>
+      <a
+        class="nav-link"
+        th:classappend="${activeTab == 'schedule'} ? ' active' : ''"
+        th:href="@{/community/schedule/list/{id}(id=${cid})}"
+        >일정</a
+      >
     </li>
 
-    <th:block th:if="${loginMember != null and (loginMember.role == 'OWNER' or loginMember.role == 'MANAGER')}">
+    <th:block
+      th:if="${loginMember != null and (loginMember.role == 'OWNER' or loginMember.role == 'MANAGER')}"
+    >
       <li class="nav-item ms-auto">
-        <a class="nav-link text-danger fw-bold"
-           th:href="@{/club/{id}/manage/requests(id=${cid})}">모임관리</a>
+        <a
+          class="nav-link club-tabs-manage"
+          th:href="@{/club/{id}/manage/requests(id=${cid})}"
+          >모임관리</a
+        >
       </li>
     </th:block>
   </ul>

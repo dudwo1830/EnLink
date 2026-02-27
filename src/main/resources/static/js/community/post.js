@@ -188,7 +188,7 @@
     $('#detailCreatedAt').textContent = fmtDate(post.createdAt);
 
     // 공지 뱃지
-    const badgeWrap = $('#detailBadges');
+    const badgeWrap = document.getElementById('detailBadges');
     if (badgeWrap) {
       badgeWrap.innerHTML = post.isNotice
         ? `<span class="badge badge-notice">공지</span>`

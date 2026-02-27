@@ -24,6 +24,7 @@ import net.datasa.EnLink.member.repository.MemberRepository;
 import net.datasa.EnLink.topic.entity.TopicEntity;
 import net.datasa.EnLink.topic.repository.TopicRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -64,7 +65,8 @@ public class ClubService {
 	 */
 	@Transactional
 	public Integer createClub(ClubCreateRequest clubCreateDTO, String loginMemberId) {
-		
+		String locale = LocaleContextHolder.getLocale().getLanguage();
+
 		validateCreateClub(clubCreateDTO, loginMemberId);
 		
 		MemberEntity loginMember = memberRepository.findById(loginMemberId)
@@ -89,6 +91,7 @@ public class ClubService {
 				.joinQuestion(clubCreateDTO.getJoinQuestion())
 				.imageUrl(imageUrl)
 				.status("ACTIVE")
+				.locale(locale)
 				.build();
 		
 		clubRepository.save(club);
@@ -130,7 +133,7 @@ public class ClubService {
 	 * 모임상세정보 변환
 	 * */
 	private ClubDetailResponse convertToDetailResponse(ClubEntity entity) {
-		
+		String locale = LocaleContextHolder.getLocale().getLanguage();
 		String remainingTime = null;
 		if ("DELETED_PENDING".equals(entity.getStatus()) && entity.getDeletedAt() != null) {
 			LocalDateTime expiryDate = entity.getDeletedAt().plusDays(7);
@@ -145,7 +148,7 @@ public class ClubService {
 				.description(entity.getDescription())
 				.maxMember(entity.getMaxMember())
 				.topicId(entity.getTopic().getTopicId())
-				.topicName(entity.getTopic().getName())
+				.topicName(entity.getTopic().getLocalizedName(locale))
 				.cityId(entity.getCity().getCityId())
 				.cityName(entity.getCity().getNameLocal())
 				.imageUrl(entity.getImageUrl())
@@ -354,39 +357,14 @@ public class ClubService {
 	 */
 	public Slice<ClubSummaryResponse> getClubListBySlice(Pageable pageable, Integer cityId, Integer topicId,
 			String search, Integer regionId) {
-		return clubRepository.searchClubs(pageable, cityId, topicId, search, regionId).map(club -> {
-			int currentCount = clubMemberRepository.countByClub_ClubIdAndStatus(club.getClubId(), "ACTIVE");
-			return ClubSummaryResponse.builder()
-					.clubId(club.getClubId())
-					.name(club.getName())
-					.topicName(club.getTopic().getName())
-					.cityName(club.getCity().getRegion().getNameLocal() + " " + club.getCity().getNameLocal())
-					.imageUrl(club.getImageUrl())
-					.description(club.getDescription())
-					.currentMemberCount(currentCount)
-					.maxMemberCount(club.getMaxMember())
-					.build();
-		});
+		String locale = LocaleContextHolder.getLocale().getLanguage();
+		return clubRepository.searchClubs(pageable, cityId, topicId, search, regionId, locale);
 	}
 
 
 	public List<ClubSummaryResponse> getListByTopicId(Integer topicId){
-		List<ClubEntity> entities = (topicId != null) ?
-			clubRepository.findByStatusAndTopic_TopicId("ACTIVE", topicId) :
-			clubRepository.findByStatus("ACTIVE");
-		return entities.stream().map(club -> {
-				int currentCount = clubMemberRepository.countByClub_ClubIdAndStatus(club.getClubId(), "ACTIVE");
-				return ClubSummaryResponse.builder()
-								.clubId(club.getClubId())
-								.name(club.getName())
-								.topicName(club.getTopic().getName())
-								.cityName(club.getCity().getRegion().getNameLocal() + " " + club.getCity().getNameLocal())
-								.imageUrl(club.getImageUrl())
-								.description(club.getDescription())
-								.currentMemberCount(currentCount)
-								.maxMemberCount(club.getMaxMember())
-								.build();
-		}).toList();
+		String locale = LocaleContextHolder.getLocale().getLanguage();
+		return clubRepository.findClubSummary(topicId, locale);
 	}
 	
 	/**

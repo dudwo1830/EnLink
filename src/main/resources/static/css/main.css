@@ -1,5 +1,5 @@
 /* =========================
-   Color Palette - 온연
+   Color Palette
 ========================= */
 :root {
   --color-primary: #8E8CD8;
@@ -31,13 +31,9 @@ body {
 /* =========================
    Layout
 ========================= */
-
-
-.container {
-  display: flex;
-  min-height: calc(100vh - 120px);
+.main {
+  grid-area: main;
 }
-
 
 main {
   flex: 1;
@@ -118,4 +114,11 @@ main {
 
 a {
 	text-decoration-line: none;
+}
+
+.required-label::after {
+  content: " *";
+  color: #e74c3c;
+  font-weight: bold;
+  margin-left: 4px;
 }

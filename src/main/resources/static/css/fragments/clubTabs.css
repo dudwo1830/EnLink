@@ -1,0 +1,73 @@
+/* =========================
+   Fragment - Club Tabs
+========================= */
+
+.club-tabs {
+  margin-bottom: 18px;
+}
+
+/* sticky under the global header (75px) */
+.sticky-club-tabs {
+  position: sticky;
+  top: 75px;
+  z-index: 900;
+}
+
+.club-tabs .nav {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 8px;
+  gap: 6px;
+  box-shadow: 0 8px 24px rgba(142, 140, 216, 0.08);
+}
+
+.club-tabs .nav-link {
+  color: var(--color-subtext);
+  font-weight: 800;
+  padding: 10px 14px;
+  border-radius: 12px;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.club-tabs .nav-link:hover {
+  background: rgba(142, 140, 216, 0.14);
+  color: var(--color-text);
+}
+
+.club-tabs .nav-link.active {
+  background: rgba(142, 140, 216, 0.22);
+  color: var(--color-primary);
+}
+
+.club-tabs .nav-link:active {
+  transform: scale(0.98);
+}
+
+/* Admin/Manager link on the right */
+.club-tabs .nav-item.ms-auto .nav-link {
+  border: 1px solid rgba(142, 140, 216, 0.35);
+  color: var(--color-primary);
+  background: transparent;
+}
+
+.club-tabs .nav-item.ms-auto .nav-link:hover {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+/* 클럽 페이지 공통 폭 */
+.club-shell{
+  max-width: 1200px;          /* 1100~1280 사이 취향 */
+  width: min(1200px, 100%);   /* 안전장치 */
+  margin: 0 auto;
+  padding: 0 24px;            /* 좌우 여백 통일 */
+  box-sizing: border-box;
+}
+
+/* club-shell 안에서는 페이지별 wrapper가 폭을 다시 줄이지 않게 */
+.club-shell .post-container{
+  max-width: 100%;
+  padding: 0;      /* club-shell이 이미 좌우 padding을 담당 */
+  margin: 0;
+}

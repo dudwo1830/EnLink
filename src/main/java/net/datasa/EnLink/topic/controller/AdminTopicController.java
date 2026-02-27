@@ -20,7 +20,7 @@ public class AdminTopicController {
 	@GetMapping("")
 	@PreAuthorize("isAuthenticated() and hasRole('ADMIN')")
 	public String topic(Model model) {
-		model.addAttribute("topics", topicService.getListAll());
+		model.addAttribute("adminTopics", topicService.getUpdateListAll());
 		return TEMPLATE_BASE + "topic/list";
 	}
 

@@ -1,20 +1,38 @@
 package net.datasa.EnLink.common.error;
 
 import java.util.List;
+import java.util.Locale;
 
+import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import lombok.RequiredArgsConstructor;
+
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalRestExceptionHandler {
+
+	private final MessageSource messageSource;
+	
 	@ExceptionHandler(BusinessException.class)
-	public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException e){
-			ErrorCode errorCode = e.getErrorCode();
-			return ResponseEntity
-					.status(errorCode.getStatus())
-					.body(ErrorResponse.from(errorCode));
+	public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException e, Locale locale) {
+		ErrorCode errorCode = e.getErrorCode();
+
+		String message = messageSource.getMessage(
+				errorCode.getMessageCode(),
+				null,
+				errorCode.getDefaultMessage(), // fallback
+				locale);
+
+		ErrorResponse response = new ErrorResponse(
+				errorCode.getCode(),
+				errorCode.getDefaultMessage(),
+				message, null);
+
+		return ResponseEntity.status(errorCode.getStatus()).body(response);
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)

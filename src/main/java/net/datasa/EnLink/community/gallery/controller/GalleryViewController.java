@@ -35,6 +35,7 @@ public class GalleryViewController {
 		
 		// 2. HTML에 모임 정보를 전달 (JS의 clubId 변수에서 사용됨)
 		model.addAttribute("club", club);
+		model.addAttribute("clubId", clubId);
 		
 		// 3. templates/community/gallery/galleryList.html 열기
 		// (폴더 구조에 맞춰 경로를 수정하세요)
