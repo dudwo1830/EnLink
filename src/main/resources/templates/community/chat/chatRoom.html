@@ -127,12 +127,16 @@
 
         box-shadow: 0 14px 36px rgba(142, 140, 216, 0.12);
         overflow: hidden;
+
+        display: flex;
+        flex-direction: column;
+        height: min(72vh, 720px);
       }
 
       /* 메시지 영역 */
       .chat-page #message-area {
         flex: 1;
-        min-height: min(62vh, 620px);
+        min-height: 0;
         overflow-y: auto;
         padding: 16px;
         display: flex;
@@ -144,9 +148,7 @@
       }
 
       .chat-page #input-area {
-        position: sticky;
-        bottom: 0;
-        z-index: 5; /* 메시지 위로 살짝 올라오게 */
+        min-height: 0;
       }
 
       /* 스크롤바 */
