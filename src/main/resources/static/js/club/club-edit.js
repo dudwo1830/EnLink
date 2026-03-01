@@ -1,6 +1,7 @@
-const regionTarget = document.querySelector('.select-search.regions');
-const cityTarget = document.querySelector('.select-search.cities');
-const topicTarget = document.querySelector('.select-search.topics');
+const editClubForm = document.querySelector('#editClubForm');
+const regionTarget = editClubForm.querySelector('.select-search.regions');
+const cityTarget = editClubForm.querySelector('.select-search.cities');
+const topicTarget = editClubForm.querySelector('.select-search.topics');
 
 const regionSelect = new SearchSelect(regionTarget);
 const citySelect = new SearchSelect(cityTarget);
