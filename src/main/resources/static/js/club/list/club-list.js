@@ -14,10 +14,6 @@ const clubListMoreBtn = document.querySelector('#clubListMore');  // 추천 더�
 const newClubMoreBtn = document.querySelector('#newClubMoreBtn'); // 신규 더보기 버튼
 const searchInput = document.querySelector('#searchInput');
 
-const regionTarget = document.querySelector('.select-search.regions');
-const cityTarget = document.querySelector('.select-search.cities');
-const topicTarget = document.querySelector('.select-search.topics');
-
 // 2. 이벤트 바인딩
 if (clubListMoreBtn) clubListMoreBtn.onclick = () => clubListRender();
 if (newClubMoreBtn) newClubMoreBtn.onclick = () => loadHomeNewClubs();
@@ -28,26 +24,36 @@ if (searchInput) {
 }
 
 // 3. 영재 상의 SearchSelect 엔진 초기화
-if (regionTarget && cityTarget && topicTarget) {
-    const regionSelect = new SearchSelect(regionTarget);
-    const citySelect = new SearchSelect(cityTarget);
-    const topicSelect = new SearchSelect(topicTarget);
+(() => {
+    const regionTarget = document.querySelector('.select-search.regions');
+    const cityTarget = document.querySelector('.select-search.cities');
+    const topicTarget = document.querySelector('.select-search.topics');
 
-    // 💡 주소 확인! 404 방지를 위해 /api/location/... 으로 수정
-    regionSelect.load(`/api/location/regions`, {
-        valueKey: 'regionId', labelKey: 'nameLocal', includeAll: true, allLabel: '도/시 전체',
-    });
-    citySelect.load(`/api/location/cities`, {
-        valueKey: 'cityId', labelKey: 'fullNameLocal', includeAll: true, allLabel: '지역 전체',
-    });
-    topicSelect.load(`/api/topics`, {
-        valueKey: 'topicId', labelKey: 'name', includeAll: true, allLabel: '주제 전체',
-    });
+    const regionSelect = (headerRegionSelect) ? headerRegionSelect : new SearchSelect(regionTarget);
+    const citySelect = (headerCitySelect) ? headerCitySelect : new SearchSelect(cityTarget);
+    const topicSelect = (headerTopicSelect) ? headerTopicSelect : new SearchSelect(topicTarget);
 
-    regionTarget.addEventListener('change', (e) => changeRegion(e.detail.value, citySelect));
-    cityTarget.addEventListener('change', (e) => changeCity(e.detail.value));
-    topicTarget.addEventListener('change', (e) => changeTopic(e.detail.value));
-}
+    if(!headerRegionSelect && !headerCitySelect && !headerTopicSelect){
+        // 💡 주소 확인! 404 방지를 위해 /api/location/... 으로 수정
+        regionSelect.load(`/api/location/regions`, {
+            valueKey: 'regionId', labelKey: 'nameLocal', includeAll: true, allLabel: window.i18n.search.region,
+        });
+        citySelect.load(`/api/location/cities`, {
+            valueKey: 'cityId', labelKey: 'fullNameLocal', includeAll: true, allLabel: window.i18n.search.city,
+        });
+        topicSelect.load(`/api/topics`, {
+            valueKey: 'topicId', labelKey: 'name', includeAll: true, allLabel: window.i18n.search.topic,
+        });
+
+        regionTarget.addEventListener('change', (e) => changeRegion(e.detail.value, citySelect));
+        cityTarget.addEventListener('change', (e) => changeCity(e.detail.value));
+        topicTarget.addEventListener('change', (e) => changeTopic(e.detail.value));
+    }else{
+        regionTarget.addEventListener('change', resetAndRender);
+        cityTarget.addEventListener('change', resetAndRender);
+        topicTarget.addEventListener('change', resetAndRender);
+    }
+})();
 
 // 4. 초기 로드
 if (newClubListTarget) loadHomeNewClubs();
@@ -115,7 +121,10 @@ function changeRegion(regionId, citySelect) {
     const params = new URLSearchParams();
     if (regionId != null) params.append('regionId', regionId);
     citySelect.load(`/api/location/cities?${params.toString()}`, {
-        valueKey: 'cityId', labelKey: regionId === '' ? 'fullNameLocal' : 'nameLocal', includeAll: true, allLabel: '지역 전체',
+        valueKey: 'cityId',
+        labelKey: regionId === '' ? 'fullNameLocal' : 'nameLocal',
+        includeAll: true,
+        allLabel: window.i18n.search.region
     });
     setRegion(regionId);
     changeCity(null);

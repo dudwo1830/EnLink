@@ -24,13 +24,14 @@
     <script th:inline="javascript">
       window.i18n = {
           search: {
-            topic: /*[[#{search.select.topic}]]*/'',
-            region: /*[[#{search.select.region}]]*/'',
-            city: /*[[#{search.select.city}]]*/'',
+            topic: /*[[#{search.select.topic}]]*/'주제',
+            region: /*[[#{search.select.region}]]*/'구/군',
+            city: /*[[#{search.select.city}]]*/'도/시',
           },
-          save: /*[[#{button.save}]]*/'',
-          delete: /*[[#{button.delete}]]*/'',
-          confirmDelete: /*[[#{js.confirm.delete}]]*/''
+          alert :{
+            success: /*[[#{common.alert.success}]]*/'처리가 완료되었습니다.',
+            error: /*[[#{common.alert.error}]]*/'서버에러가 발생했습니다. 다시 시도해 주세요.'
+          }
       };
   </script>
 

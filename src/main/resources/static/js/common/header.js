@@ -11,19 +11,19 @@ headerRegionSelect.load(`/api/location/regions`, {
   valueKey: 'regionId',
   labelKey: 'nameLocal',
   includeAll: true,
-  allLabel: window.i18n ? window.i18n.search.region : '도/시',
+  allLabel: window.i18n.search.region
 });
 headerCitySelect.load(`/api/location/cities`, {
   valueKey: 'cityId',
   labelKey: 'fullNameLocal',
   includeAll: true,
-  allLabel: window.i18n ? window.i18n.search.city : '구/군',
+  allLabel: window.i18n.search.city
 });
 headerTopicSelect.load(`/api/topics`, {
   valueKey: 'topicId',
   labelKey: 'name',
   includeAll: true,
-  allLabel: window.i18n ? window.i18n.search.topic : '관심사',
+  allLabel: window.i18n.search.topic
 });
 headerRegionTarget.addEventListener('change', (e) => {
   headerChangeRegion(headerRegionSelect.getValue());
@@ -37,8 +37,11 @@ function headerChangeRegion(regionId) {
   headerCitySelect.load(`/api/location/cities?${params.toString()}`, {
     valueKey: 'cityId',
     labelKey: 'fullNameLocal',
+    includeAll: true,
+    allLabel: window.i18n.search.region
   });
 }
+
 (() => {
   const params = new URLSearchParams(window.location.search);
   const topicId = params.get('topicId');

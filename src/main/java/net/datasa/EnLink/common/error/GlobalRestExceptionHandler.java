@@ -1,5 +1,6 @@
 package net.datasa.EnLink.common.error;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -16,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class GlobalRestExceptionHandler {
 
 	private final MessageSource messageSource;
-	
+
 	@ExceptionHandler(BusinessException.class)
 	public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException e, Locale locale) {
 		ErrorCode errorCode = e.getErrorCode();
@@ -24,13 +25,17 @@ public class GlobalRestExceptionHandler {
 		String message = messageSource.getMessage(
 				errorCode.getMessageCode(),
 				null,
-				errorCode.getDefaultMessage(), // fallback
+				errorCode.getDefaultMessage(),
 				locale);
+
+		List<FieldErrorResponse> fieldErrors = new ArrayList<>();
+		fieldErrors.add(new FieldErrorResponse(e.getFieldName(), message));
 
 		ErrorResponse response = new ErrorResponse(
 				errorCode.getCode(),
 				errorCode.getDefaultMessage(),
-				message, null);
+				message,
+				fieldErrors);
 
 		return ResponseEntity.status(errorCode.getStatus()).body(response);
 	}
