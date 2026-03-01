@@ -2,13 +2,31 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 <script th:inline="javascript">
-    // 디자인이고 뭐고 일단 알림이 뜨는지부터 확인!
-    const msg = [[${message}]];
-    alert(msg); // 💡 SweetAlert 대신 기본 alert 창 사용
-    history.back();
+    /*<![CDATA[*/
+    const messageCode = [[${message}]];
+    // 타임리프가 messages_ko.properties에서 한글 문구를 가져옵니다.
+    const translatedMsg = [[#{${message}}]] || messageCode;
+
+    // 🚀 2. 기본 alert 대신 Swal.fire를 사용합니다.
+    if (translatedMsg) {
+        Swal.fire({
+            title: '알림',
+            text: translatedMsg,
+            icon: 'warning',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: '확인'
+        }).then((result) => {
+            // 확인 버튼을 누르면 이전 페이지로 돌아갑니다.
+            history.back();
+        });
+    } else {
+        history.back();
+    }
+    /*]]>*/
 </script>
 </body>
 </html>

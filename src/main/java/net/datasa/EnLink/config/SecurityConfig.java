@@ -34,7 +34,8 @@ public class SecurityConfig {
 			"/api/members",
 			"/api/location/**",
 			"/api/topics",
-			"/api/clubs"
+			"/api/clubs",
+			"/api/club/recommend"
 	};
 
 	@Bean

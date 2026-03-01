@@ -93,10 +93,28 @@
     margin-top: auto; /* 하단 버튼 고정 */
 }
 
-.member-count {
-    font-size: 0.85rem;
-    color: var(--text-gray);
-    margin-bottom: 8px;
+/* 🚀 홈 화면 멤버 수 디자인 이식 */
+.member-info-home {
+    font-size: 14px;
+    font-weight: 700;
+    color: #444;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.member-info-home i {
+    color: #adb5bd; /* 홈 화면 시그니처 보라색 */
+    font-size: 15px;
+}
+
+.member-info-home .current {
+    color: #6c63ff; /* 현재 인원 강조 */
+}
+
+.member-info-home .total {
+    color: #adb5bd; /* 전체 인원은 연하게 */
 }
 
 .status-text {

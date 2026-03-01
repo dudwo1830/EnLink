@@ -380,4 +380,45 @@ public class ClubService {
 	public boolean isNameAvailableForEdit(String name, Integer clubId) {
 		return !clubRepository.existsByNameAndClubIdNot(name, clubId);
 	}
+	
+	/**
+	 * [비로그인용] 4순위: 랜덤/인기순 모임 리스트
+	 */
+	@Transactional(readOnly = true)
+	public List<ClubListResponse> getRandomClubList() {
+		
+		String locale = LocaleContextHolder.getLocale().getLanguage();
+		return clubRepository.findRandomActiveClubs(20, locale)
+				.stream()
+				.map(ClubListResponse::new) // 👈 이 변환 과정이 꼭 필요합니다!
+				.collect(Collectors.toList());
+	}
+	
+	/**
+	 * [로그인용] 1~3순위: 개인화 맞춤 추천 리스트
+	 */
+	@Transactional(readOnly = true)
+	public List<ClubListResponse> getPersonalizedClubList(String memberId) {
+		String locale = LocaleContextHolder.getLocale().getLanguage();
+		// 1. 회원 정보 조회
+		MemberEntity member = memberRepository.findById(memberId)
+				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+		
+		Long cityId = null;
+		if (member.getCity() != null) {
+			cityId = (long) member.getCity().getCityId(); // 시/도/군 PK
+		}
+		
+		Long topicId = null;
+		if (!member.getMemberTopics().isEmpty()) {
+			topicId = (long) member.getMemberTopics().get(0).getTopic().getTopicId();
+		}
+		
+		System.out.println("🚀 추천 로직 가동 - Member: " + memberId + ", City: " + cityId + ", Topic: " + topicId);
+		// 4. Repository 호출 (추출한 ID들 전달)
+		return clubRepository.findRecommendedClubs(cityId, topicId, locale)
+				.stream()
+				.map(ClubListResponse::new)
+				.collect(Collectors.toList());
+	}
 }
