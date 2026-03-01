@@ -17,76 +17,102 @@
       <aside th:replace="~{fragments/aside :: aside}"></aside>
 
       <main class="main">
-        <div th:replace="fragments/clubTabs :: clubTabs('post')"></div>
-        <div class="post-container">
-          <section class="panel">
-            <div class="toolbar">
-              <div class="toolbar-left">
-                <a id="listLink" class="hint-link" href="#">← 목록으로</a>
-              </div>
-
-              <div class="toolbar-right">
-                <a
-                  id="editBtn"
-                  th:href="@{/community/post/edit/{id}(id=${postId})}"
-                  style="display: none"
-                >
-                  <button type="button" class="btn-ghost">수정</button>
-                </a>
-                <button
-                  id="deleteBtn"
-                  type="button"
-                  class="btn-danger"
-                  style="display: none"
-                >
-                  삭제
-                </button>
-              </div>
-            </div>
-
-            <div id="detailBadges" style="margin-bottom: 8px"></div>
-            <h1 id="detailTitle" class="post-detail-title">로딩 중...</h1>
-
-            <div class="post-detail-meta">
-              <span>작성자: <strong id="detailMemberId"></strong></span>
-              <span>작성일: <strong id="detailCreatedAt"></strong></span>
-            </div>
-
-            <div id="detailImageWrap"></div>
-
-            <div id="detailContent" class="post-content"></div>
-
-            <div class="reply-head">
-              <h3 style="margin: 0">댓글 (<span id="replyCount">0</span>)</h3>
-            </div>
-
-            <div id="replyList" class="reply-list"></div>
-
-            <div style="margin-top: 12px">
-              <form id="replyForm" class="form-grid">
-                <label for="replyContent">댓글 작성</label>
-                <input
-                  id="replyContent"
-                  type="text"
-                  placeholder="댓글을 입력하세요"
-                />
-                <div class="form-actions">
-                  <button type="submit" class="btn-primary">등록</button>
+        <div class="club-shell">
+          <div th:replace="~{fragments/clubTabs :: clubTabs('post')}"></div>
+          <div class="post-container">
+            <section class="panel">
+              <div class="toolbar">
+                <div class="toolbar-left">
+                  <a id="listLink" class="hint-link" href="#">← 목록으로</a>
                 </div>
-              </form>
-            </div>
-            
-            <!-- 이미지 확대 모달 -->
-            <div id="imgModal" class="img-modal" aria-hidden="true">
-              <div class="img-modal-backdrop" data-close="true"></div>
-              <div class="img-modal-body" role="dialog" aria-modal="true">
-                <button type="button" class="img-modal-close" data-close="true">
-                  ×
-                </button>
-                <img id="imgModalTarget" src="" alt="expanded image" />
+
+                <div class="toolbar-right">
+                  <a
+                    id="editBtn"
+                    th:href="@{/community/post/edit/{id}(id=${postId})}"
+                    style="display: none"
+                  >
+                    <button type="button" class="btn-ghost">수정</button>
+                  </a>
+                  <button
+                    id="deleteBtn"
+                    type="button"
+                    class="btn-danger"
+                    style="display: none"
+                  >
+                    삭제
+                  </button>
+                </div>
               </div>
-            </div>
-          </section>
+
+              <div class="section-header">
+                <div class="section-title-wrap">
+                  <span class="section-icon" aria-hidden="true"></span>
+                  <div class="title-line">
+                    <div id="detailBadges" class="badge-wrap"></div>
+                    <h1 id="detailTitle" class="section-title">로딩 중...</h1>
+                  </div>
+                </div>
+              </div>
+
+              <div class="post-detail-meta">
+                <span>작성자: <strong id="detailMemberId"></strong></span>
+                <span>작성일: <strong id="detailCreatedAt"></strong></span>
+              </div>
+
+              <div id="detailImageWrap"></div>
+
+              <div id="detailContent" class="post-content"></div>
+
+              <hr class="section-divider" />
+
+              <!-- 댓글 섹션 헤더 -->
+              <div class="comment-header">
+                <div class="comment-title-wrap">
+                  <h3 class="comment-title">
+                    댓글 <span class="comment-count" id="replyCount">0</span>
+                  </h3>
+                </div>
+                <p class="comment-desc">서로 예의 있게 대화해요 🙂</p>
+              </div>
+
+              <div id="replyList" class="reply-list"></div>
+
+              <!-- 댓글 작성 섹션 헤더 -->
+              <div class="comment-header comment-header--write">
+                <div class="comment-title-wrap">
+                  <h3 class="comment-title">댓글 작성</h3>
+                </div>
+                <p class="comment-desc">짧고 간단하게 남겨주세요.</p>
+              </div>
+
+              <div class="reply-form-wrap">
+                <form id="replyForm" class="reply-form">
+                  <input
+                    id="replyContent"
+                    type="text"
+                    placeholder="댓글을 입력하세요"
+                  />
+                  <button type="submit" class="btn-primary">등록</button>
+                </form>
+              </div>
+
+              <!-- 이미지 확대 모달 -->
+              <div id="imgModal" class="img-modal" aria-hidden="true">
+                <div class="img-modal-backdrop" data-close="true"></div>
+                <div class="img-modal-body" role="dialog" aria-modal="true">
+                  <button
+                    type="button"
+                    class="img-modal-close"
+                    data-close="true"
+                  >
+                    ×
+                  </button>
+                  <img id="imgModalTarget" src="" alt="expanded image" />
+                </div>
+              </div>
+            </section>
+          </div>
         </div>
       </main>
 

@@ -11,9 +11,9 @@
 
       .schedule-page .schedule-wrapper {
         width: 100%;
-        max-width: 1120px;
-        margin: 0 auto;
-        padding: 48px 24px;
+        max-width: 100%;
+        margin: 0;
+        padding: 16px 0; /* 필요하면 12~24로 조절 */
         box-sizing: border-box;
       }
 
@@ -321,6 +321,74 @@
       .schedule-page .modal-footer {
         border-top: 1px solid #eef0f4;
       }
+      /* ✅ 채팅/게시판과 톤 통일: 타이틀 영역 */
+      .schedule-page .section-title-box {
+        display: flex;
+        align-items: center; /* ✅ 아이콘/제목 정렬 */
+        justify-content: space-between;
+        gap: 12px;
+
+        margin-bottom: 14px;
+        padding-bottom: 12px;
+        border-bottom: 0; /* ✅ 기존 2px 밑줄 제거 */
+      }
+
+      .schedule-page .section-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .schedule-page .title-text {
+        display: grid;
+        gap: 6px;
+      }
+
+      .schedule-page .page-title {
+        margin: 0;
+        line-height: 1.2;
+      }
+
+      .schedule-page .page-subtitle {
+        margin: 0; /* ✅ p 기본 margin 제거(정렬 깨짐 방지) */
+        line-height: 1.2;
+      }
+
+      /* ✅ 타이틀 아이콘(채팅과 동일 톤) */
+      .schedule-page .page-title-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: rgba(92, 99, 230, 0.12);
+        border: 1px solid rgba(92, 99, 230, 0.25);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(92, 99, 230, 1);
+        flex: 0 0 auto;
+      }
+
+      .schedule-page .page-title-icon svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      /* ✅ 카드 톤 통일(채팅 카드 계열로) */
+.schedule-page .sched-card {
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  box-shadow: 0 10px 30px rgba(142, 140, 216, 0.08);
+}
+
+.schedule-page .sched-head {
+  border-bottom: 1px solid #eef0f4;
+  background: linear-gradient(
+    180deg,
+    rgba(92, 99, 230, 0.06),
+    rgba(92, 99, 230, 0)
+  );
+}
     </style>
   </head>
 
@@ -330,43 +398,63 @@
       <aside th:replace="~{fragments/aside :: aside}"></aside>
 
       <main class="main">
-        <div th:replace="fragments/clubTabs :: clubTabs('schedule')"></div>
-        <div class="schedule-wrapper">
-          <div class="section-title-box">
-            <div class="title-wrap">
-              <h2 class="page-title">모임 일정</h2>
-              <p class="page-subtitle">
-                참가 신청하고, 일정에 맞춰 모임을 준비해보세요.
-              </p>
-            </div>
+        <div class="club-shell">
+          <div th:replace="fragments/clubTabs :: clubTabs('schedule')"></div>
+          <div class="schedule-wrapper">
+            <div class="section-title-box">
+              <div class="section-title-wrap">
+                <span class="page-title-icon" aria-hidden="true">
+                  <!-- 캘린더 아이콘 -->
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M7 3v3M17 3v3M4 9h16M6.5 5h11A2.5 2.5 0 0 1 20 7.5v11A2.5 2.5 0 0 1 17.5 21h-11A2.5 2.5 0 0 1 4 18.5v-11A2.5 2.5 0 0 1 6.5 5Z"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
 
-            <div id="adminCreateArea" th:if="${loginMember != null and loginMember.role == 'OWNER' or loginMember.role == 'MANAGER'}">
-              <button
-                class="btn btn-primary px-4"
-                data-bs-toggle="modal"
-                data-bs-target="#createScheduleModal"
-              >
-                일정 추가
-              </button>
-            </div>
-          </div>
-
-          <div id="scheduleContainer">
-            <div class="empty">
-              등록된 일정이 없습니다. 일정을 추가해 보세요!
-            </div>
-          </div>
-
-          <!-- 종료 일정 섹션(토글) -->
-          <div class="ended-wrap" id="endedWrap" style="display: none">
-            <div class="ended-toggle" id="endedToggle">
-              <div>
-                종료된 일정 보기
-                <span class="small" id="endedCount"></span>
+                <div class="title-text">
+                  <h2 class="page-title">모임 일정</h2>
+                  <p class="page-subtitle">
+                    참가 신청하고, 일정에 맞춰 모임을 준비해보세요.
+                  </p>
+                </div>
               </div>
-              <div id="endedArrow">▾</div>
+
+              <div
+                id="adminCreateArea"
+                th:if="${loginMember != null and loginMember.role == 'OWNER' or loginMember.role == 'MANAGER'}"
+              >
+                <button
+                  class="btn btn-primary px-4"
+                  data-bs-toggle="modal"
+                  data-bs-target="#createScheduleModal"
+                >
+                  일정 추가
+                </button>
+              </div>
             </div>
-            <div class="ended-list" id="endedList"></div>
+
+            <div id="scheduleContainer">
+              <div class="empty">
+                등록된 일정이 없습니다. 일정을 추가해 보세요!
+              </div>
+            </div>
+
+            <!-- 종료 일정 섹션(토글) -->
+            <div class="ended-wrap" id="endedWrap" style="display: none">
+              <div class="ended-toggle" id="endedToggle">
+                <div>
+                  종료된 일정 보기
+                  <span class="small" id="endedCount"></span>
+                </div>
+                <div id="endedArrow">▾</div>
+              </div>
+              <div class="ended-list" id="endedList"></div>
+            </div>
           </div>
         </div>
       </main>

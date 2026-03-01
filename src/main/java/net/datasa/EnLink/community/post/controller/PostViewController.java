@@ -58,6 +58,7 @@ public class PostViewController {
 		
 		model.addAttribute("memberId", member.getMemberId());
 		model.addAttribute("role", clubMember.getRole());
+		model.addAttribute("loginMember", clubMember);
 		
 		return "community/post/postWrite";
 	}
@@ -90,13 +91,46 @@ public class PostViewController {
 		
 		// 5️⃣ 통과하면 상세페이지 보여주기
 		model.addAttribute("postId", postId);
+		model.addAttribute("clubId", clubId);
+		model.addAttribute("loginMember", clubMember);
+		
 		return "community/post/postDetail";
 	}
 	
 	// 게시글 수정
 	@GetMapping("edit/{postId}")
-	public String editForm(@PathVariable(name = "postId") Integer postId, Model model) {
+	public String editForm(@PathVariable Integer postId,
+						   @AuthenticationPrincipal MemberDetails member,
+						   Model model) {
+		
+		if (member == null) {
+			return "redirect:/";
+		}
+		
+		// 1️⃣ 게시글 조회
+		var post = postRepository.findById(postId)
+				.orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
+		
+		Integer clubId = post.getClub().getClubId();
+		
+		// 2️⃣ 해당 모임 멤버인지 확인
+		ClubMemberResponse clubMember =
+				clubManageService.getMemberInfo(clubId, member.getMemberId());
+		
+		if (clubMember == null) {
+			return "redirect:/community/post/list/" + clubId;
+		}
+		
+		// 3️⃣ 작성자 본인인지 체크 (중요 🔥)
+		if (!post.getMember().getMemberId().equals(member.getMemberId())) {
+			return "redirect:/community/post/detail/" + postId;
+		}
+		
 		model.addAttribute("postId", postId);
+		model.addAttribute("clubId", clubId);
+		model.addAttribute("loginMember", clubMember);
+		model.addAttribute("role", clubMember.getRole());
+		
 		return "community/post/postEdit";
 	}
 }

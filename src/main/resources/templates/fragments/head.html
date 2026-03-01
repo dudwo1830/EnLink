@@ -17,9 +17,9 @@
     <link rel="stylesheet" th:href="@{/css/fragments/header.css}" />
     <link rel="stylesheet" th:href="@{/css/fragments/aside.css}" />
     <link rel="stylesheet" th:href="@{/css/fragments/footer.css}" />
+    <link rel="stylesheet" th:href="@{/css/fragments/clubTabs.css}" />
     <!-- 페이지별 CSS -->
     <th:block th:replace="${links} ?: ~{}"></th:block>
-
     <!-- 로컬라이징 -->
     <script th:inline="javascript">
       window.i18n = {
@@ -33,10 +33,9 @@
             error: /*[[#{common.alert.error}]]*/'서버에러가 발생했습니다. 다시 시도해 주세요.'
           }
       };
-  </script>
+    </script>
 
     <!-- 공통 JS -->
-    <script th:src="@{/js/common.js}"></script>
     <script th:src="@{/js/common/search-select.js}" defer></script>
     <script th:src="@{/js/common/header.js}" defer></script>
 

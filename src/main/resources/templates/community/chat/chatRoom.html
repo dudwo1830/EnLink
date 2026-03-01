@@ -11,28 +11,47 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <style>
-      /* ✅ 전역 레이아웃(.grid-container/.main)은 건드리지 않는다 */
-
       /* 페이지 wrapper */
       .chat-page .chat-wrapper {
         width: 100%;
-        max-width: 1120px;
-        margin: 0 auto;
-        padding: 40px 24px;
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
         box-sizing: border-box;
       }
 
       .chat-page .section-title-box {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        gap: 12px;
-        margin-bottom: 16px;
-        padding-bottom: 12px;
-        border-bottom: 2px solid #eaebed;
+        align-items: flex-start;
+        margin-bottom: 14px;
+        padding-bottom: 0;
+        border-bottom: 0;
       }
 
-      .chat-page .title-wrap {
+      /* ✅ 채팅 제목 영역(아이콘 + 제목/설명) */
+      .chat-page .section-title-box {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+
+        margin-bottom: 14px;
+        padding-bottom: 12px;
+
+        /* 필요하면 다시 살릴 수 있음
+  border-bottom: 1px solid var(--color-border);
+  */
+      }
+
+      .chat-page .section-title-wrap {
+        display: grid;
+        grid-template-columns: 38px 1fr;
+        grid-template-rows: auto auto;
+        column-gap: 12px;
+        row-gap: 6px;
+        align-items: center; /* ✅ 1행(제목)의 세로 가운데로 맞춤 */
+      }
+
+      .chat-page .title-text {
         display: grid;
         gap: 6px;
       }
@@ -41,14 +60,43 @@
         margin: 0;
         font-size: 22px;
         font-weight: 900;
-        letter-spacing: -0.2px;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+        grid-column: 2;
+        grid-row: 1;
       }
 
       .chat-page .page-subtitle {
-        margin: 0;
+        margin: 0; /* ✅ 이거 중요: p 기본 margin 때문에 정렬이 망가짐 */
         font-size: 13px;
-        color: #7b7f87;
         font-weight: 700;
+        color: var(--color-subtext);
+        line-height: 1.2;
+        grid-column: 2;
+        grid-row: 2;
+      }
+
+      /* ✅ 아이콘 */
+      .chat-page .chat-title-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: rgba(92, 99, 230, 0.12);
+        border: 1px solid rgba(92, 99, 230, 0.25);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(92, 99, 230, 1);
+        flex: 0 0 auto;
+        grid-column: 1;
+        grid-row: 1; /* ✅ 아이콘은 “제목 행”에만 둔다 */
+        align-self: center; /* ✅ 제목(h2) 세로 중앙에 고정 */
+        margin-top: 0; /* ✅ 기존에 넣었던 margin-top은 제거 */
+      }
+
+      .chat-page .chat-title-icon svg {
+        width: 20px;
+        height: 20px;
       }
 
       /* ✅ 채팅 + 우측 패널 레이아웃 */
@@ -61,33 +109,44 @@
 
       /* 채팅 카드 */
       .chat-page .chat-card {
-        border: 1px solid #e8eaee;
-        border-radius: 18px;
+        border: 1px solid var(--color-border);
+        border-radius: 14px;
+
+        background:
+          radial-gradient(
+            900px 400px at 0% 0%,
+            rgba(142, 140, 216, 0.08),
+            transparent 55%
+          ),
+          radial-gradient(
+            800px 400px at 100% 0%,
+            rgba(92, 99, 230, 0.06),
+            transparent 60%
+          ),
+          var(--color-surface);
+
+        box-shadow: 0 14px 36px rgba(142, 140, 216, 0.12);
         overflow: hidden;
-        background: #fff;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
       }
 
       /* 메시지 영역 */
       .chat-page #message-area {
-        height: min(62vh, 620px);
+        flex: 1;
+        min-height: min(62vh, 620px);
         overflow-y: auto;
         padding: 16px;
         display: flex;
         flex-direction: column;
         gap: 10px;
-        background:
-          radial-gradient(
-            1200px 500px at 0% 0%,
-            rgba(92, 99, 230, 0.05),
-            transparent 45%
-          ),
-          radial-gradient(
-            1000px 500px at 100% 0%,
-            rgba(34, 197, 94, 0.04),
-            transparent 45%
-          ),
-          #fbfcfe;
+
+        background: #ffffff;
+        border-bottom: 1px solid var(--color-border);
+      }
+
+      .chat-page #input-area {
+        position: sticky;
+        bottom: 0;
+        z-index: 5; /* 메시지 위로 살짝 올라오게 */
       }
 
       /* 스크롤바 */
@@ -150,8 +209,8 @@
 
       .chat-page .other-message {
         align-self: flex-start;
-        background: #fff;
-        border: 1px solid rgba(17, 24, 39, 0.1);
+        background: rgba(142, 140, 216, 0.06);
+        border: 1px solid rgba(142, 140, 216, 0.15);
       }
 
       .chat-page .content {
@@ -206,13 +265,7 @@
       }
 
       .chat-page #file-btn {
-        width: 44px;
-        height: 44px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid rgba(17, 24, 39, 0.12);
-        background: #fff;
+        color: var(--color-primary);
       }
 
       .chat-page #message-input {
@@ -236,13 +289,10 @@
 
       /* ✅ 우측 패널 */
       .chat-page .side-card {
-        border: 1px solid #e8eaee;
-        border-radius: 18px;
-        overflow: hidden;
-        background: #fff;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-        position: sticky;
-        top: 16px;
+        border: 1px solid var(--color-border);
+        border-radius: 14px;
+        background: var(--color-surface);
+        box-shadow: 0 10px 30px rgba(142, 140, 216, 0.08);
       }
 
       .chat-page .side-head {
@@ -444,7 +494,7 @@
         width: 0;
         height: 0;
         border: 7px solid transparent;
-        border-right-color: #fff; /* 버블 배경 */
+        border-right-color: rgba(142, 140, 216, 0.06);
         border-left: 0;
       }
 
@@ -483,122 +533,160 @@
         margin-top: 0;
         opacity: 0.9;
       }
+
+      /* ✅ 다른 탭과 패널 톤 통일(덮어쓰기) */
+      .chat-page .chat-card,
+      .chat-page .side-card {
+        border: 1px solid var(--color-border);
+        border-radius: 14px;
+        background: var(--color-surface);
+        box-shadow: 0 10px 30px rgba(142, 140, 216, 0.08);
+      }
     </style>
   </head>
 
   <body class="bg-light chat-page">
-    <div class="grid-container chat-page">
+    <div class="grid-container">
       <header th:replace="~{fragments/header :: header}"></header>
       <aside th:replace="~{fragments/aside :: aside}"></aside>
 
       <main class="main">
-        <div th:replace="fragments/clubTabs :: clubTabs('chat')"></div>
-        <div class="chat-wrapper">
-          <div class="section-title-box">
-            <div class="title-wrap">
-              <h2
-                class="page-title"
-                th:text="${club != null ? club.name : '모임 채팅'}"
-              >
-                모임 채팅
-              </h2>
-              <p class="page-subtitle" th:text="'모임 ID: ' + ${clubId}">
-                모임 ID: 0
-              </p>
-            </div>
-          </div>
+        <div class="club-shell">
+          <div th:replace="~{fragments/clubTabs :: clubTabs('chat')}"></div>
 
-          <div class="chat-layout">
-            <!-- 채팅 -->
-            <div class="chat-card">
-              <div id="message-area"></div>
+          <div class="chat-wrapper">
+            <div class="section-title-box">
+              <div class="section-title-wrap">
+                <span class="chat-title-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M4 6.5C4 5.12 5.12 4 6.5 4h11C18.88 4 20 5.12 20 6.5v6c0 1.38-1.12 2.5-2.5 2.5H10l-4 3v-3H6.5C5.12 15 4 13.88 4 12.5v-6Z"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
 
-              <div id="input-area">
-                <input
-                  type="file"
-                  id="file-input"
-                  accept="image/*"
-                  style="display: none"
-                />
-                <button
-                  id="file-btn"
-                  class="btn"
-                  type="button"
-                  title="이미지 첨부"
+                <h2
+                  class="page-title"
+                  th:text="${club != null ? club.name : '모임 채팅'}"
                 >
-                  📎
-                </button>
+                  모임 채팅
+                </h2>
 
-                <input
-                  type="text"
-                  id="message-input"
-                  placeholder="메시지를 입력하세요..."
-                  autocomplete="off"
-                />
-
-                <button id="send-btn" class="btn btn-primary" type="button">
-                  전송
-                </button>
+                <p class="page-subtitle">멤버들과 실시간으로 대화해보세요.</p>
               </div>
             </div>
 
-            <!-- 우측 패널 -->
-            <aside class="side-card" aria-label="모임 정보 패널">
-              <div class="side-head">
-                <h3 class="side-title">모임 정보</h3>
-                <p class="side-sub">
-                  <span th:text="${club != null ? club.name : ''}"></span>
-                  <span
-                    th:text="' · 활동 멤버 ' + ${#lists.size(members)} + '명'"
-                  >
-                    · 활동 멤버 0명</span
-                  >
-                </p>
-              </div>
+            <div class="chat-layout">
+              <!-- 채팅 -->
+              <div class="chat-card">
+                <div id="message-area"></div>
 
-              <div class="side-body">
-                <input
-                  id="memberSearch"
-                  class="mini-input"
-                  type="text"
-                  placeholder="멤버 검색 (이름/아이디)"
-                  autocomplete="off"
-                />
-
-                <div class="member-list" id="memberList">
-                  <div
-                    class="member-item"
-                    th:each="m : ${members}"
-                    th:attr="data-name=${m.memberName}, data-id=${m.memberId}"
+                <div id="input-area">
+                  <input
+                    type="file"
+                    id="file-input"
+                    accept="image/*"
+                    style="display: none"
+                  />
+                  <button
+                    id="file-btn"
+                    class="btn"
+                    type="button"
+                    title="이미지 첨부"
                   >
-                    <div class="member-left">
-                      <div class="member-name" th:text="${m.memberName}">
-                        홍길동
-                      </div>
-                      <div class="member-id" th:text="${m.memberId}">@hong</div>
-                    </div>
-
-                    <span
-                      class="role-badge"
-                      th:classappend="${m.role == 'OWNER' ? '' : (m.role == 'MANAGER' ? ' manager' : ' member')}"
-                      th:text="${m.role == 'OWNER' ? '운영자' : (m.role == 'MANAGER' ? '매니저' : '멤버')}"
-                      >멤버</span
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="18"
+                      height="18"
+                      fill="none"
+                      aria-hidden="true"
                     >
-                  </div>
+                      <path
+                        d="M21 12.5 12.5 21a6 6 0 1 1-8.5-8.5L13 3.5a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 1 1-2.8-2.8l8.5-8.5"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </button>
 
-                  <div
-                    th:if="${members == null || #lists.isEmpty(members)}"
-                    class="member-item"
-                  >
-                    <div class="member-left">
-                      <div class="member-name">활동 멤버가 없습니다</div>
-                      <div class="member-id">-</div>
-                    </div>
-                    <span class="role-badge member">-</span>
-                  </div>
+                  <input
+                    type="text"
+                    id="message-input"
+                    placeholder="메시지를 입력하세요..."
+                    autocomplete="off"
+                  />
+
+                  <button id="send-btn" class="btn btn-primary" type="button">
+                    전송
+                  </button>
                 </div>
               </div>
-            </aside>
+
+              <!-- 우측 패널 -->
+              <aside class="side-card" aria-label="모임 정보 패널">
+                <div class="side-head">
+                  <h3 class="side-title">모임 정보</h3>
+                  <p class="side-sub">
+                    <span th:text="${club != null ? club.name : ''}"></span>
+                    <span
+                      th:text="' · 활동 멤버 ' + ${#lists.size(members)} + '명'"
+                    >
+                      · 활동 멤버 0명</span
+                    >
+                  </p>
+                </div>
+
+                <div class="side-body">
+                  <input
+                    id="memberSearch"
+                    class="mini-input"
+                    type="text"
+                    placeholder="멤버 검색 (이름/아이디)"
+                    autocomplete="off"
+                  />
+
+                  <div class="member-list" id="memberList">
+                    <div
+                      class="member-item"
+                      th:each="m : ${members}"
+                      th:attr="data-name=${m.memberName}, data-id=${m.memberId}"
+                    >
+                      <div class="member-left">
+                        <div class="member-name" th:text="${m.memberName}">
+                          홍길동
+                        </div>
+                        <div class="member-id" th:text="${m.memberId}">
+                          @hong
+                        </div>
+                      </div>
+
+                      <span
+                        class="role-badge"
+                        th:classappend="${m.role == 'OWNER' ? '' : (m.role == 'MANAGER' ? ' manager' : ' member')}"
+                        th:text="${m.role == 'OWNER' ? '운영자' : (m.role == 'MANAGER' ? '매니저' : '멤버')}"
+                        >멤버</span
+                      >
+                    </div>
+
+                    <div
+                      th:if="${members == null || #lists.isEmpty(members)}"
+                      class="member-item"
+                    >
+                      <div class="member-left">
+                        <div class="member-name">활동 멤버가 없습니다</div>
+                        <div class="member-id">-</div>
+                      </div>
+                      <span class="role-badge member">-</span>
+                    </div>
+                  </div>
+                </div>
+              </aside>
+            </div>
           </div>
         </div>
       </main>
