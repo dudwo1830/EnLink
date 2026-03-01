@@ -78,7 +78,7 @@ public class ClubApiController {
 		}
 		
 		// 3️⃣ 허용 문자 체크
-		if (!name.matches("^[a-zA-Z0-9가-힣\\s]+$")) {
+		if (!name.matches("^[a-zA-Z0-9가-힣ぁ-んァ-ヶ一-龠\\s]+$")) {
 			result.put("available", false);
 			result.put("message", "사용할 수 없는 이름입니다");
 			return result;
