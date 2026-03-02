@@ -130,7 +130,7 @@ async function updateTopic() {
     `;
     alert(msg);
   } else {
-    alert('saved');
+    alert(window.i18n.alert.success);
   }
 }
 
@@ -154,6 +154,6 @@ async function updateCity() {
     `;
     alert(msg);
   } else {
-    alert('saved');
+    alert(window.i18n.alert.success);
   }
 }
