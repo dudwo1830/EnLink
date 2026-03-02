@@ -361,7 +361,7 @@ public class ClubService {
 		return clubRepository.searchClubs(pageable, cityId, topicId, search, regionId, locale);
 	}
 
-	
+
 	public List<ClubSummaryResponse> getListByTopicId(Integer topicId, Integer regionId, Integer cityId, String search){
 		String locale = LocaleContextHolder.getLocale().getLanguage();
 		return clubRepository.findClubSummary(topicId, regionId, cityId, search, locale);

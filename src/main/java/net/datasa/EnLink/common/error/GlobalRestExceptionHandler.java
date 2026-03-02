@@ -1,5 +1,8 @@
 package net.datasa.EnLink.common.error;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
@@ -8,15 +11,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 @RestControllerAdvice(annotations = RestController.class)
 @RequiredArgsConstructor
 public class GlobalRestExceptionHandler {
 
 	private final MessageSource messageSource;
+
 	@ExceptionHandler(BusinessException.class)
 	public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException e, Locale locale) {
 		ErrorCode errorCode = e.getErrorCode();

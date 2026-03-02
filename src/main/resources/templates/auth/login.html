@@ -1,6 +1,6 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
-  <head th:replace="~{fragments/head :: head(#{login.title}, ~{::link}, ~{::script})}">
+  <head th:replace="~{fragments/head :: head('로그인', ~{::link}, ~{::script})}">
     <link rel="stylesheet" href="#" th:if="${false}" />
       <link rel="stylesheet" th:href="@{/css/login.css}">
     <script src="#" th:if="${false}"></script>

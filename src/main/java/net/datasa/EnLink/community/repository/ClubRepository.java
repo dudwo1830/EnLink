@@ -56,7 +56,8 @@ public interface ClubRepository extends JpaRepository<ClubEntity, Integer> {
 	List<ClubEntity> findRecommendedClubs(@Param("cityId") Long cityId,
 										  @Param("topicId") Long topicId,
 										  @Param("locale") String locale);
-	
+
+
 	/**
 	 * 특정 상태와 주제를 포함한 모임 목록을 조회합니다.
 	 */
@@ -114,7 +115,7 @@ public interface ClubRepository extends JpaRepository<ClubEntity, Integer> {
 			@Param("search") String search,
 			@Param("regionId") Integer regionId,
 			@Param("locale") String locale);
-	
+
 @Query("""
     select new net.datasa.EnLink.community.dto.ClubSummaryResponse(
         c.clubId, c.name,

@@ -1,12 +1,7 @@
 /* header.css */
-<<<<<<< HEAD
-
-html { overflow-y: scroll; }
-=======
 html {
   overflow-y: scroll;
 }
->>>>>>> origin/develop
 
 .header {
   grid-area: header;

@@ -39,7 +39,7 @@ public class CityService {
 				.map(e -> new RegionCityResponse(e.getKey(), e.getValue()))
 				.toList();
 	}
-	
+
 	@Cacheable(value = "cityListByRegionAndLocale", key = "#regionId + '_' + #countryCode")
 	public List<CityDetailResponse> getCityList(Integer regionId, String countryCode) {
 		List<CityEntity> cities = (regionId == null)

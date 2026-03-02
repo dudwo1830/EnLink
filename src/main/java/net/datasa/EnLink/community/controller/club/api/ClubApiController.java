@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
-
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -96,7 +95,6 @@ public class ClubApiController {
 		}
 		
 		return result;
-
 	}
 	
 	@GetMapping("/recommend")

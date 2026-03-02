@@ -4,16 +4,6 @@
     <link rel="stylesheet" href="#" th:if="${false}" />
     <script th:src="@{/js/member/memberCommon.js}" defer></script>
     <script th:src="@{/js/member/signup.js}" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-      window.alert = function(message) {
-        return Swal.fire({
-          text: message,
-          icon: 'info',
-          confirmButtonText: '확인'
-        })
-      }
-    </script>
   </head>
   <body>
     <div class="grid-container">

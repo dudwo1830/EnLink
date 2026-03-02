@@ -1,5 +1,3 @@
-document.querySelectorAll('.header .select-search').forEach(el => el.remove());
-
 document.addEventListener('DOMContentLoaded', function() {
 
     const submitBtn = document.getElementById('submitBtn');
