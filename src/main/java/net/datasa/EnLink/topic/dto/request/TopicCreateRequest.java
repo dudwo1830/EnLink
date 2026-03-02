@@ -13,5 +13,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class TopicCreateRequest {
 	private int topicId;
-	private String name;
+	private String nameKo;
+	private String nameJa;
 }

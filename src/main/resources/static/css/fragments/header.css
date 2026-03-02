@@ -1,8 +1,235 @@
-header {
-	grid-area: header;
-  background: var(--color-primary);
+/* header.css */
+html {
+  overflow-y: scroll;
+}
+
+.header {
+  grid-area: header;
+  background-color: #f8f7ff;
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 2px 10px rgba(142, 140, 216, 0.05);
+  height: 75px;
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  padding: 0 40px;
+}
+
+.header-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.logo-text {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  text-decoration: none;
+  background: linear-gradient(45deg, #8e8cd8, #6c63ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 1. 셀렉트 박스 내부 텍스트 및 디자인 정교화 */
+.header .select-search {
+  width: 110px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.header .select-input {
+  border: none !important;
+  background: transparent !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #555 !important;
+  padding: 0 10px 0 0 !important; /* 오른쪽 아이콘 여백 */
+  cursor: pointer;
+  text-overflow: ellipsis; /* 글자 길면 말줄임 */
+}
+
+/* 드롭다운 화살표 커스텀 (필요 시) */
+.header .select-search::after {
+  content: '\F282'; /* Bootstrap icons chevron-down */
+  font-family: 'bootstrap-icons';
+  font-size: 10px;
+  color: #aaa;
+  position: absolute;
+  right: 5px;
+  pointer-events: none;
+}
+
+/* --- 검색바 --- */
+.header-search-bar {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #e1e1e1;
+  border-radius: 60px;
+  padding: 2px 2px 2px 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  width: 720px;
+  height: 50px;
+  transition: all 0.3s ease;
+}
+.header-filter-group {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.header-filter-group .select-search {
+  width: 110px;
+}
+.header-filter-group .select-input {
+  border: none !important;
+  background: transparent !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #666 !important;
+  padding: 0 !important;
+  cursor: pointer;
+  width: 100%;
+}
+.header-filter-group .select-input::placeholder {
+  color: #666;
+}
+.divider {
+  width: 1px;
+  height: 16px;
+  background-color: #eee;
+  margin: 0 12px;
+}
+/* 텍스트 입력 창 */
+.header-input-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding-left: 15px;
+  border-left: 1px solid #eee;
+  margin-left: 5px;
+}
+.header-input-wrapper input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+  color: #333;
+  background: transparent;
+}
+.search-circle-btn {
+  background-color: var(--color-primary, #8e8cd8);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   color: white;
-  padding: 18px 32px;
-  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.search-circle-btn:hover {
+  background-color: #6c63ff;
+  transform: scale(1.05);
+}
+
+/* --- 우측 유저 메뉴 --- */
+.user-nav {
+  display: flex;
+  align-items: center;
+}
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  list-style: none !important;
+  margin: 0;
+  padding: 0;
+}
+.user-name {
+  font-weight: 700;
+  color: #6c63ff !important;
+  background-color: rgba(142, 140, 216, 0.1);
+  padding: 6px 14px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.btn-login,
+.btn-info,
+.btn-logout {
+  color: #555 !important;
   font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+}
+.btn-signup {
+  background-color: #6c63ff;
+  color: white !important;
+  padding: 9px 20px;
+  border-radius: 50px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* --- 언어 선택 --- */
+.lang-switch-group {
+  background: var(--color-secondary);
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--color-border);
+}
+.lang-btn,
+.lang-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-subtext);
+  text-decoration: none;
+  padding: 2px 4px;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+/* 활성화 상태 (Active) */
+.lang-btn.active,
+.lang-link.active {
+  color: var(--color-primary);
+  position: relative;
+}
+/* 활성화 시 하단 작은 점 표시 (디자인 포인트) */
+.lang-btn.active::after,
+.lang-link.active::after {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 4px;
+  background-color: var(--color-primary);
+  border-radius: 50%;
+  margin: 0 auto;
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+/* 중간 구분선 (점 형태) */
+.lang-divider-dot {
+  width: 3px;
+  height: 3px;
+  background-color: var(--color-border);
+  border-radius: 50%;
+  margin: 0 8px;
+}
+/* 호버 효과 */
+.lang-btn:hover:not(.active),
+.lang-link:hover:not(.active) {
+  color: var(--color-accent);
 }

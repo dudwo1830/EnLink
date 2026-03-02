@@ -1,0 +1,29 @@
+/* 관심 주제 칩 스타일 */
+.topic-chip-item .btn-outline-primary {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background-color: transparent;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+    border-width: 1.5px;
+}
+
+/* 마우스 올렸을 때 */
+.topic-chip-item .btn-outline-primary:hover {
+    background-color: var(--color-secondary);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+/* 체크되었을 때 (활성화 상태) */
+.topic-chip-item .btn-check:checked + .btn-outline-primary {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+    box-shadow: 0 4px 10px rgba(142, 140, 216, 0.3);
+}
+
+/* 체크되었을 때 아이콘 변경 (선택사항) */
+.topic-chip-item .btn-check:checked + .btn-outline-primary i::before {
+    content: "\F26E"; /* Bootstrap 아이콘 bi-check-lg */
+}

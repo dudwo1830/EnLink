@@ -34,6 +34,7 @@
 				Model model) {
 			
 			if (userDetails == null) return "redirect:/auth/login";
+			clubManageService.checkAuthority(clubId, userDetails.getUsername(), "MANAGER_UP");
 			
 			ClubMemberResponse loginMember = clubManageService.getMemberInfo(clubId, userDetails.getUsername());
 			Page<ClubJoinResponse> requestPage = clubManageService.getPendingRequestsPaging(clubId, page);
@@ -55,6 +56,7 @@
 			
 			ClubMemberResponse loginMember = clubManageService.getMemberInfo(clubId, userDetails.getUsername());
 			
+			clubManageService.checkAuthority(clubId, userDetails.getUsername(), "MANAGER_UP");
 			ClubDetailResponse clubDetail = clubService.getClubDetail(clubId);
 			
 			model.addAttribute("loginMember", loginMember);
@@ -72,6 +74,7 @@
 			
 			ClubMemberResponse loginMember = clubManageService.getMemberInfo(clubId, userDetails.getUsername());
 			
+			clubManageService.checkAuthority(clubId, userDetails.getUsername(), "OWNER_ONLY");
 			ClubDetailResponse club = clubService.getClubDetail(clubId);
 			
 			model.addAttribute("loginMember", loginMember);
@@ -87,7 +90,9 @@
 									Model model) {
 			if (userDetails == null) return "redirect:/auth/login";
 			
+			
 			ClubMemberResponse loginMember = clubManageService.getMemberInfo(clubId, userDetails.getUsername());
+			clubManageService.checkAuthority(clubId, userDetails.getUsername(), "MANAGER_UP");
 			
 			model.addAttribute("members", clubManageService.getActiveMembers(clubId));
 			model.addAttribute("loginMember", loginMember);

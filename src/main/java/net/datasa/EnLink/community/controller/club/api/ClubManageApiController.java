@@ -1,14 +1,20 @@
 package net.datasa.EnLink.community.controller.club.api;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.datasa.EnLink.common.security.MemberDetails;
 import net.datasa.EnLink.community.dto.request.ClubUpdateRequest;
 import net.datasa.EnLink.community.service.ClubManageService;
+import net.datasa.EnLink.community.service.ClubService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -17,17 +23,68 @@ import org.springframework.web.bind.annotation.*;
 public class ClubManageApiController {
 	
 	private final ClubManageService clubManageService;
+	private final ClubService clubService;
 	
 	/**
-	 * 모임 정보 수정 (파일 업로드 포함)
+	 * 모임 정보 수정 (Validation 및 상세 에러 메시지 포함)
 	 */
 	@PostMapping("/edit")
-	public ResponseEntity<String> editClub(@PathVariable Integer clubId,
-									  @ModelAttribute ClubUpdateRequest request,
-									  @AuthenticationPrincipal MemberDetails userDetails) {
+	public ResponseEntity<?> editClub(
+			@PathVariable Integer clubId,
+			@Valid @ModelAttribute ClubUpdateRequest request, // @Valid 추가
+			BindingResult bindingResult,                     // 검증 결과 수집
+			@AuthenticationPrincipal MemberDetails userDetails) {
+		
+		// 1. 유효성 검사 실패 시 에러 메시지 반환
+		if (bindingResult.hasErrors()) {
+			// 첫 번째 에러 메시지만 가져와서 반환 (팀장님 스타일대로 깔끔하게)
+			String errorMessage = bindingResult.getFieldErrors().get(0).getDefaultMessage();
+			return ResponseEntity.badRequest().body(errorMessage);
+		}
+		
+		// 2. 비즈니스 로직 수행
 		clubManageService.updateClub(clubId, request, userDetails.getUsername());
+		
 		return ResponseEntity.ok("모임 정보가 수정되었습니다.");
 	}
+	
+	/**
+	 * 모임명 중복검사
+	 * */
+		
+		@GetMapping("/check-name-edit")
+		public ResponseEntity<Map<String, Object>> checkNameForEdit(
+				@RequestParam String name,
+				@PathVariable Integer clubId) {
+			
+			Map<String, Object> result = new HashMap<>();
+			
+			// 1. 유효성 검사 (발리데이션 로직 재사용)
+			if (name == null || name.trim().isEmpty()) {
+				result.put("available", false);
+				result.put("message", "모임명을 입력하세요");
+				return ResponseEntity.ok(result);
+			}
+			
+			if (name.length() < 2 || name.length() > 20) {
+				result.put("available", false);
+				result.put("message", "모임명은 2~20자 사이여야 합니다");
+				return ResponseEntity.ok(result);
+			}
+			
+			if (!name.matches("^[a-zA-Z0-9가-힣ぁ-んァ-ヶ一-龠\\s]+$")) {
+				result.put("available", false);
+				result.put("message", "모임명에 특수문자는 사용할 수 없습니다");
+				return ResponseEntity.ok(result);
+			}
+			
+			// 2. 중복 체크
+			boolean isAvailable = clubService.isNameAvailableForEdit(name, clubId);
+			result.put("available", isAvailable);
+			result.put("message", isAvailable ? "사용 가능한 모임명입니다." : "이미 사용 중인 모임명입니다.");
+			
+			return ResponseEntity.ok(result);
+		}
 	
 	/**
 	 * 기본 모임 삭제 (논리 삭제) 7일 유예기간

@@ -1,5 +1,6 @@
 package net.datasa.EnLink.config;
 
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -23,40 +24,35 @@ public class SecurityConfig {
 	// 인증 없이 접근 가능한 URL
 	private static final String[] PUBLIC_URLS = {
 			// 공통 페이지
-			"/", "/error", "/.well-known/**"
+			"/", "/ko", "/ja", "/error", "/.well-known/**",
 			// 정적 리소스
-			, "/images/**", "/css/**", "/js/**"
-			// 사용자 정의
-			// 회원
-			, "members/signup", "api/members"
-			// 주제, 지역
-			, "api/location/**", "api/topics"
-			// 모임
-			, "api/clubs"
+			"/images/**", "/css/**", "/js/**",
+			// 로그인, 회원가입
+			"/auth/login",
+			"/members/signup",
+			"/club/list",
+			// api
+			"/api/members",
+			"/api/location/**",
+			"/api/topics",
+			"/api/clubs",
+			"/api/club/recommend"
 	};
 
-	/**
-	 * 프로젝트 초기 세팅
-	 * 모두 허용
-	 * 
-	 * @param http
-	 * @return
-	 * @throws Exception
-	 */
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
 		http
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers(PUBLIC_URLS)
-						.permitAll()
-						.anyRequest()
-						.authenticated())
+						.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+						.requestMatchers(PUBLIC_URLS).permitAll()
+						.anyRequest().authenticated())
 				.httpBasic(AbstractHttpConfigurer::disable)
 				.formLogin(form -> form
 						.loginPage("/auth/login")
 						.usernameParameter("memberId")
 						.passwordParameter("password")
-						.loginProcessingUrl("/auth/login")
+						.loginProcessingUrl("/login")
 						.permitAll())
 				.logout(logout -> logout
 						.logoutUrl("/auth/logout")

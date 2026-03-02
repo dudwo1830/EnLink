@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head('멤버 관리', ~{::link}, ~{::script})}">
+<head th:replace="~{fragments/head :: head('EnLink - 멤버 관리', ~{::link}, ~{::script})}">
     <link rel="stylesheet" th:href="@{/css/manage.css}">
+    <link rel="stylesheet" th:href="@{/css/clubMembers.css}">
 </head>
 <body>
 <div class="grid-container">
     <header th:replace="~{fragments/header :: header}" class="header"></header>
 
+    <aside th:replace="~{fragments/aside :: aside}"></aside>
+
     <main class="main">
         <div class="manage-main-container">
-            <aside th:replace="~{fragments/manageSidebar :: sidebar('members')}"></aside>
+            <aside class="manage-sidebar-area">
+                <div th:replace="~{fragments/manageSidebar :: sidebar('members')}"></div>
+            </aside>
 
             <section class="manage-content-area">
                 <h1>멤버 관리</h1>
@@ -26,18 +31,20 @@
                     <tbody>
                     <tr th:each="m : ${members}">
                         <td class="col-name">
-                            <span th:text="${m.memberName}" style="font-weight: bold;">홍길동</span>
-                            <small th:text="|(${m.memberId})|" style="color: #888;"></small>
-                            <span th:if="${m.memberId == loginMember.memberId}" style="font-size: 0.7em; color: #2196f3;">[나]</span>
+                            <span class="member-name-text" th:text="${m.memberName}">홍길동</span>
+                            <small class="member-id-text" th:text="|(${m.memberId})|"> (id123) </small>
+
+                            <span th:if="${m.memberId == loginMember.memberId}"
+                                  style="font-size: 0.75rem; color: #228be6; font-weight: normal;">[나]</span>
                         </td>
                         <td class="col-role">
-                                <span th:switch="${m.role}">
-                                    <span th:case="'OWNER'" style="color: #ff9800; font-weight: bold;">(모임장)</span>
-                                    <span th:case="'MANAGER'" style="color: #2196f3;">(운영진)</span>
-                                    <span th:case="'MEMBER'" style="color: #757575;">(멤버)</span>
-                                </span>
+                            <div th:switch="${m.role}">
+                                <span th:case="'OWNER'" class="role-badge role-owner">모임장</span>
+                                <span th:case="'MANAGER'" class="role-badge role-manager">운영진</span>
+                                <span th:case="'MEMBER'" class="role-badge role-member">멤버</span>
+                            </div>
                         </td>
-                        <td class="col-date">
+                        <td class="col-date text-muted">
                             <span th:text="${#temporals.format(m.joinedAt, 'yyyy.MM.dd')}">2024.01.23</span>
                         </td>
                         <td class="col-update">
@@ -45,18 +52,19 @@
                                 <select class="manage-select"
                                         th:data-club-id="${clubId}"
                                         th:data-member-id="${m.memberId}"
-                                        onchange="updateRole(this)"> <option value="MEMBER" th:selected="${m.role == 'MEMBER'}">멤버</option>
+                                        th:data-old-role="${m.role}"
+                                        onchange="updateRole(this)">
+                                    <option value="MEMBER" th:selected="${m.role == 'MEMBER'}">멤버</option>
                                     <option value="MANAGER" th:selected="${m.role == 'MANAGER'}">운영진</option>
                                     <option value="OWNER" th:selected="${m.role == 'OWNER'}">모임장</option>
                                 </select>
                             </div>
                             <span th:if="${loginMember.role != 'OWNER' or m.memberId == loginMember.memberId}" style="color: #ccc;">-</span>
                         </td>
-
                         <td class="col-kick">
                             <div th:if="${m.memberId != loginMember.memberId and
-                 (loginMember.role == 'OWNER' or (loginMember.role == 'MANAGER' and m.role == 'MEMBER'))}">
-                                <button type="button" class="btn-danger"
+                                 (loginMember.role == 'OWNER' or (loginMember.role == 'MANAGER' and m.role == 'MEMBER'))}">
+                                <button type="button" class="btn-ban"
                                         th:data-member-id="${m.memberId}"
                                         th:data-member-name="${m.memberName}"
                                         th:data-club-id="${clubId}"
@@ -65,7 +73,7 @@
                                 </button>
                             </div>
                             <span th:if="${!(m.memberId != loginMember.memberId and
-                  (loginMember.role == 'OWNER' or (loginMember.role == 'MANAGER' and m.role == 'MEMBER')))}"
+                                  (loginMember.role == 'OWNER' or (loginMember.role == 'MANAGER' and m.role == 'MEMBER')))}"
                                   style="color: #ccc;">-</span>
                         </td>
                     </tr>
@@ -74,31 +82,30 @@
             </section>
         </div>
     </main>
-
     <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
 </div>
 
-<div id="kickModal" class="modal" style="display:none;">
-    <div class="modal-content">
-        <h3>멤버 제명</h3>
-        <p><strong id="kickTargetName"></strong> 멤버를 정말 제명하시겠습니까?</p>
+<div id="kickModal" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
+    <div class="modal-content" style="background:#fff; margin:10% auto; padding:30px; width:450px; border-radius:12px; box-shadow: 0 5px 20px rgba(0,0,0,0.2);">
+        <h3 style="margin-bottom: 15px; color: #d9534f;">멤버 제명</h3>
+        <p style="margin-bottom: 20px;"><strong id="kickTargetName"></strong> 멤버를 정말 제명하시겠습니까?</p>
 
         <div class="modal-form-area">
-            <label for="kickReasonSelect">제명 사유:</label>
-            <select id="kickReasonSelect" class="form-select" onchange="toggleKickEtcInput()">
+            <label for="kickReasonSelect" style="display:block; margin-bottom:8px; font-weight:600;">제명 사유:</label>
+            <select id="kickReasonSelect" class="form-select" onchange="toggleKickEtcInput()" style="width:100%; padding:10px; border-radius:6px; border:1px solid #ddd;">
                 <option value="부적절한 게시물 게시">부적절한 게시물 게시</option>
                 <option value="모임 분위기 저해">모임 분위기 저해</option>
                 <option value="장기간 미접속">장기간 미접속</option>
                 <option value="기타">기타 (직접 입력)</option>
             </select>
 
-            <div id="kickEtcWrapper" style="display: none; margin-top: 10px;">
-                <input type="text" id="kickEtcInput" class="form-control" placeholder="사유를 입력하세요.">
+            <div id="kickEtcWrapper" style="display: none; margin-top: 15px;">
+                <input type="text" id="kickEtcInput" class="form-control" placeholder="사유를 직접 입력하세요." style="width:100%; padding:10px; border-radius:6px; border:1px solid #ddd;">
             </div>
 
-            <div class="modal-buttons" style="margin-top: 20px;">
-                <button type="button" class="btn-submit" style="background-color: #d9534f;" onclick="submitKick()">제명 처리</button>
-                <button type="button" class="btn-close" onclick="closeKickModal()">취소</button>
+            <div class="modal-buttons" style="margin-top: 30px; display:flex; gap:10px; justify-content: flex-end;">
+                <button type="button" class="btn-submit" style="background-color: #d9534f; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:600;" onclick="submitKick()">제명 처리</button>
+                <button type="button" class="btn-close" style="background-color: #eee; color:#333; border:none; padding:10px 20px; border-radius:6px; cursor:pointer;" onclick="closeKickModal()" th:text="#{button.cancel}">취소</button>
             </div>
         </div>
     </div>

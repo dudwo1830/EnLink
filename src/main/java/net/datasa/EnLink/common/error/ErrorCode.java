@@ -15,8 +15,8 @@ public enum ErrorCode {
 
 	// 사용자
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "사용자를 찾을 수 없습니다.", "error.user.not_found"),
-	USER_PASSWORD_NOT_MATCH(HttpStatus.BAD_REQUEST, "USER_PASSWORD_NOT_MATCH", "비밀번호 재입력이 일치하지 않습니다.",
-			"error.user.password_not_match"),
+	USER_PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "USER_PASSWORD_MISMATCH", "비밀번호 재입력이 일치하지 않습니다.",
+			"error.user.password_mismatch"),
 
 	SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE_NOT_FOUND", "message", ""),
 
@@ -65,6 +65,6 @@ public enum ErrorCode {
 	// 개발자가 확인할 수 있을 정도
 	private final String defaultMessage;
 	// 실제 사용자에게 제공될 메세지 코드
-	// 프론트에서 해당 데이터를 통해 메세지 출력
+	// MessageSource와 매칭되는 문자열
 	private final String messageCode;
 }

@@ -5,6 +5,7 @@ import net.datasa.EnLink.community.entity.ClubEntity;
 import net.datasa.EnLink.community.gallery.DTO.GalleryDTO;
 import net.datasa.EnLink.community.gallery.entity.GalleryEntity;
 import net.datasa.EnLink.community.gallery.repository.GalleryRepository;
+import net.datasa.EnLink.community.repository.ClubMemberRepository;
 import net.datasa.EnLink.community.repository.ClubRepository;
 import net.datasa.EnLink.member.entity.MemberEntity;
 import net.datasa.EnLink.member.repository.MemberRepository;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,6 +35,7 @@ public class GalleryService {
 	private final GalleryRepository galleryRepository;
 	private final ClubRepository clubRepository;
 	private final MemberRepository memberRepository;
+	private final ClubMemberRepository clubMemberRepository;
 	
 	// 공통 경로: C:/enlink_storage/
 	@Value("${file.upload.path}")
@@ -60,6 +63,13 @@ public class GalleryService {
 	public void upload(MultipartFile image, Integer clubId, String memberId) {
 		System.out.println("==== upload 메서드 시작 ====");
 		System.out.println("받은 데이터: image=" + image.getOriginalFilename() + ", clubId=" + clubId + ", memberId=" + memberId);
+		
+		boolean isActiveMember = clubMemberRepository
+				.existsByClub_ClubIdAndMember_MemberIdAndStatus(clubId, memberId, "ACTIVE");
+		
+		if (!isActiveMember) {
+			throw new IllegalStateException("모임 멤버만 사진을 업로드할 수 있습니다.");
+		}
 		
 		if (image == null || image.isEmpty()) {
 			System.out.println("에러: 파일이 비어있음");
@@ -119,7 +129,7 @@ public class GalleryService {
 	
 	// 사진 삭제
 	@PreAuthorize("#memberId == principal.memberId")
-	public void delete(Integer photoId, String memberId) {
+	public void delete(Integer photoId, @P("memberId") String memberId) {
 		// 1. DB에서 사진 정보 조회
 		GalleryEntity entity = galleryRepository.findById(photoId)
 				.orElseThrow(() -> new RuntimeException("사진을 찾을 수 없습니다."));

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -52,7 +53,7 @@ public class MemberService {
 	 */
 	public void create(MemberCreateRequest request) {
 		if (!request.getPassword().equals(request.getRePassword())) {
-			throw new BusinessException(ErrorCode.USER_PASSWORD_NOT_MATCH);
+			throw new BusinessException(ErrorCode.USER_PASSWORD_MISMATCH, MemberCreateRequest.FILED_RE_PASSWORD);
 		}
 		MemberEntity entity = MemberEntity.builder()
 				.memberId(request.getMemberId())
@@ -79,14 +80,14 @@ public class MemberService {
 				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 		// 기존 비밀번호 확인
 		if (entity.getPassword().equals(passwordEncoder.encode(request.getPassword()))) {
-			throw new BusinessException(ErrorCode.USER_PASSWORD_NOT_MATCH);
+			throw new BusinessException(ErrorCode.USER_PASSWORD_MISMATCH, MemberUpdateRequest.FILED_RE_PASSWORD);
 		}
 		// 새 비밀번호가 존재할 경우
 		if (!request.getNewPassword().isEmpty()) {
 			if (request.getNewPassword().equals(request.getRePassword())) {
 				entity.updatePassword(passwordEncoder.encode(request.getNewPassword()));
 			} else {
-				throw new BusinessException(ErrorCode.USER_PASSWORD_NOT_MATCH);
+				throw new BusinessException(ErrorCode.USER_PASSWORD_MISMATCH, MemberUpdateRequest.FILED_RE_PASSWORD);
 			}
 		}
 		entity.updateProfile(request.getName(), request.getEmail(), request.getBirth());
@@ -99,11 +100,15 @@ public class MemberService {
 	 * @return
 	 */
 	public MemberDetailResponse read(String memberId) {
+		String locale = LocaleContextHolder.getLocale().getLanguage();
 		MemberEntity entity = memberRepository.findById(memberId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 		String topic = String
-				.join(", ", entity.getMemberTopics().stream().map(memberTopic -> memberTopic.getTopic().getName()).toList());
-		String city = (entity.getCity() != null) ? entity.getCity().getRegion().getNameLocal() + " " + entity.getCity().getNameLocal() : "";
+				.join(", ", entity.getMemberTopics().stream()
+						.map(memberTopic -> memberTopic.getTopic().getLocalizedName(locale)).toList());
+		String city = (entity.getCity() != null)
+				? entity.getCity().getRegion().getNameLocal() + " " + entity.getCity().getNameLocal()
+				: "";
 		return MemberDetailResponse.builder()
 				.memberId(entity.getMemberId())
 				.name(entity.getName())
@@ -149,6 +154,7 @@ public class MemberService {
 	 * @param memberId
 	 * @param newTopicIds
 	 */
+	@PreAuthorize("#memberId == principal.memberId")
 	public void replaceTopics(String memberId, List<Integer> newTopicIds) {
 		// 회원 정보
 		MemberEntity memberEntity = memberRepository.findById(memberId)
@@ -228,10 +234,13 @@ public class MemberService {
 	public CityDetailResponse getMemberCity(String memberId) {
 		MemberEntity memberEntity = memberRepository.findById(memberId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
-		return new CityDetailResponse(
-				memberEntity.getCity().getCityId(),
-				memberEntity.getCity().getNameLocal(),
-				memberEntity.getCity().getRegion().getNameLocal() + " " + memberEntity.getCity().getNameLocal());
+		if (memberEntity.getCity() != null) {
+			return new CityDetailResponse(
+					memberEntity.getCity().getCityId(),
+					memberEntity.getCity().getNameLocal(),
+					memberEntity.getCity().getRegion().getNameLocal() + " " + memberEntity.getCity().getNameLocal());
+		} else {
+			return null;
+		}
 	}
 }

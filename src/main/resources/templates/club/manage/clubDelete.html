@@ -1,47 +1,62 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head('모임 삭제 관리', ~{::link}, ~{::script})}">
+<head th:replace="~{fragments/head :: head('EnLink - 모임 삭제 관리', ~{::link}, ~{::script})}">
     <link rel="stylesheet" th:href="@{/css/manage.css}">
+    <link rel="stylesheet" th:href="@{/css/club/clubDelete.css}">
 </head>
 <body>
 <div class="grid-container">
     <header th:replace="~{fragments/header :: header}" class="header"></header>
 
+    <aside th:replace="~{fragments/aside :: aside}"></aside>
+
     <main class="main">
         <div class="manage-main-container">
-            <aside th:replace="~{fragments/manageSidebar :: sidebar('delete')}"></aside>
+            <aside class="manage-sidebar-area">
+                <div th:replace="~{fragments/manageSidebar :: sidebar('delete')}"></div>
+            </aside>
 
             <section class="manage-content-area">
-                <h3>모임 삭제 관리</h3>
+                <h1>모임 삭제 관리</h1>
 
-                <div th:if="${club.status == 'DELETED_PENDING'}" class="alert-box pending-box">
-                    <p>⚠️ <strong>이 모임은 현재 삭제 대기 상태입니다.</strong></p>
-                    <p>
-                        복구 가능 기간이 지나면 모든 데이터가 영구 삭제됩니다. <br>
-                        <strong>남은 시간: </strong>
-                        <span th:text="${club.remainingTime}" class="time-limit">7일 0시간 남음</span>
-                    </p>
-                    <div class="action-area">
-                        <button type="button" class="btn-hard-delete"
-                                th:onclick="|hardDeleteClub(${club.clubId})|"
-                                style="background-color: #ff4d4f; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">
+                <div th:if="${club.status == 'DELETED_PENDING'}" class="delete-status-container">
+                    <h2>
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        이 모임은 현재 삭제 대기 상태입니다.
+                    </h2>
+                    <div class="delete-info-text">
+                        <p>복구 가능 기간이 지나면 이미지와 모든 데이터가 영구 삭제되어 되돌릴 수 없습니다.</p>
+                        <p>
+                            <strong>남은 시간:</strong>
+                            <span th:text="${club.remainingTime}" class="time-limit-highlight">7일 0시간 남음</span>
+                        </p>
+                    </div>
+
+                    <div class="action-area d-flex gap-3 mt-4">
+                        <button type="button" class="btn-hard-delete" th:onclick="|hardDeleteClub(${club.clubId})|">
                             즉시 삭제하기
                         </button>
-                        <button type="button" class="btn-restore" th:onclick="|restoreClub(${club.clubId})|">삭제 취소 (지금 복구하기)</button>
+                        <button type="button" class="btn-restore" th:onclick="|restoreClub(${club.clubId})|">
+                            삭제 취소 (지금 복구하기)
+                        </button>
                     </div>
                 </div>
 
-                <div th:if="${club.status == 'ACTIVE'}" class="alert-box active-box">
-                    <p class="warning-text">모임을 삭제하면 7일 동안의 유예 기간 후 영구 삭제됩니다.</p>
+                <div th:if="${club.status == 'ACTIVE'}" class="active-status-container">
+                    <div class="warning-description">
+                        <p>모임을 삭제하시면 <strong>7일 동안의 유예 기간</strong>이 부여됩니다.</p>
+                        <p>요청 후에도 7일 이내에는 언제든 '삭제 관리' 탭에서 복구가 가능하지만, 기간이 지나면 모든 정보가 소멸됩니다.</p>
+                    </div>
                     <div class="action-area">
-                        <button type="button" class="btn-danger" th:onclick="|deleteClub(${club.clubId})|">삭제 요청하기</button>
+                        <button type="button" class="btn-request-delete" th:onclick="|deleteClub(${club.clubId})|">
+                            모임 삭제 요청하기
+                        </button>
                     </div>
                 </div>
             </section>
         </div>
     </main>
-
-    <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
+        <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

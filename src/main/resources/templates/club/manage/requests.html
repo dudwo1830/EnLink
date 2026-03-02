@@ -1,16 +1,21 @@
-    <!DOCTYPE html>
-    <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-    <head th:replace="~{fragments/head :: head('가입 신청 관리', ~{::link}, ~{::script})}">
-        <link rel="stylesheet" th:href="@{/css/manage.css}">
-    </head>
-    <body>
-    <div class="grid-container">
-        <header th:replace="~{fragments/header :: header}"></header>
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('EnLink - 가입 신청 관리', ~{::link}, ~{::script})}">
+    <link rel="stylesheet" th:href="@{/css/manage.css}">
+</head>
+<body>
+<div class="grid-container">
+    <header th:replace="~{fragments/header :: header}"></header>
 
+    <aside th:replace="~{fragments/aside :: aside}"></aside>
+
+    <main class="main">
         <div class="manage-main-container">
-            <aside th:replace="~{fragments/manageSidebar :: sidebar('requests')}"></aside>
+            <aside class="manage-sidebar-area">
+                <div th:replace="~{fragments/manageSidebar :: sidebar('requests')}"></div>
+            </aside>
 
-            <main class="manage-content-area">
+            <section class="manage-content-area">
                 <h1>가입 신청 현황</h1>
 
                 <table class="manage-table">
@@ -73,50 +78,49 @@
 
                 <div th:if="${!paging.isEmpty()}" class="pagination-container" style="text-align: center; margin-top: 30px;">
                 </div>
-
-                <div id="manageModal" class="modal" style="display:none; position:fixed; z-index:100; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
-                    <div class="modal-content" style="background:#fff; margin:15% auto; padding:20px; width:400px; border-radius:8px;">
-                        <h2 id="modalTitle">신청자 정보</h2>
-                        <hr>
-                        <p><strong>답변 내용:</strong></p>
-                        <div id="modalAnswer" style="background:#f9f9f9; padding:15px; border:1px solid #ddd; min-height:100px; white-space: pre-wrap;"></div>
-                        <div style="text-align:right; margin-top:15px;">
-                            <button type="button" onclick="closeManageModal()" class="btn-close">닫기</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="historyModal" class="modal" style="display:none; position:fixed; z-index:101; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
-                    <div class="modal-content" style="background:#fff; margin:5% auto; padding:20px; width:600px; border-radius:8px; display:flex; flex-direction:column; max-height:80vh;">
-                        <h2 id="historyTitle">전체 이력</h2>
-                        <hr>
-
-                        <div class="modal-body" style="overflow-y: auto; flex-grow: 1; margin-bottom: 15px;">
-                            <table style="width:100%; border-collapse: collapse; text-align: center;">
-                                <thead style="position: sticky; top: 0; background: #f4f4f4;">
-                                <tr>
-                                    <th style="padding: 10px; border-bottom: 1px solid #ddd;">날짜</th>
-                                    <th style="padding: 10px; border-bottom: 1px solid #ddd;">유형</th>
-                                    <th style="padding: 10px; border-bottom: 1px solid #ddd;">사유</th>
-                                </tr>
-                                </thead>
-                                <tbody id="historyList">
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div style="text-align:right; border-top: 1px solid #eee; padding-top: 15px;">
-                            <button type="button" onclick="closeHistoryModal()" class="btn-close-modal"
-                                    style="padding: 8px 16px; cursor: pointer; border: 1px solid #ccc; background: #fff; border-radius: 4px;">닫기</button>
-                        </div>
-                    </div>
-                </div>
-            </main>
+            </section>
         </div>
-        <footer th:replace="~{fragments/footer :: footer}"></footer>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script th:src="@{/js/club/manage.js}"></script>
-    </body>
-    </html>
+        <div id="manageModal" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
+            <div class="modal-content" style="background:#fff; margin:10% auto; padding:30px; width:500px; border-radius:12px; position:relative;">
+                <h3 id="modalTitle" class="fw-bold mb-3 text-primary">가입 답변</h3>
+                <hr>
+                <div class="bg-light p-4 rounded border mb-4" style="min-height: 150px;">
+                    <p id="modalAnswer" class="mb-0 lh-lg" style="white-space: pre-wrap;"></p>
+                </div>
+                <div class="text-end">
+                    <button type="button" class="btn btn-secondary px-4" onclick="closeManageModal()">닫기</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="historyModal" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
+            <div class="modal-content" style="background:#fff; margin:5% auto; padding:30px; width:700px; border-radius:12px; position:relative;">
+                <h3 id="historyTitle" class="fw-bold mb-3 text-primary">전체 이력</h3>
+                <hr>
+                <div style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                        <tr>
+                            <th>일시</th>
+                            <th>유형</th>
+                            <th>설명</th>
+                        </tr>
+                        </thead>
+                        <tbody id="historyList">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-end mt-4">
+                    <button type="button" class="btn btn-secondary px-4" onclick="closeHistoryModal()">닫기</button>
+                </div>
+            </div>
+        </div>
+    </main>
+        <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script th:src="@{/js/club/manage.js}"></script>
+</body>
+</html>

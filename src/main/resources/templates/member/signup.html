@@ -9,44 +9,95 @@
     <div class="grid-container">
       <header th:replace="~{fragments/header :: header}"></header>
       <aside th:replace="~{fragments/aside :: aside}"></aside>
-      <main class="main">
-        <form id="signupForm">
-          <!-- 회원 아이디 -->
-          <div>
-            <label for="memberId">아이디</label><br />
-            <input type="text" id="memberId" name="memberId" maxlength="20" required />
+      <main class="container py-5">
+        <div class="row justify-content-center">
+          <div class="col-md-8 col-lg-7">
+            <h2 class="section-title text-center mb-4" th:text="#{member.signup.title}">회원 가입</h2>
+            <div class="card shadow-sm">
+              <div class="card-body p-4 p-md-5">
+                <form id="signupForm" method="post">
+                  <div class="mb-4">
+                    <label
+                      for="memberId"
+                      class="form-label fw-bold text-muted required-label"
+                      th:text="#{member.label.id}"></label>
+                    <input
+                      type="text"
+                      id="memberId"
+                      name="memberId"
+                      class="form-control form-control-lg"
+                      maxlength="20"
+                      required />
+                    <div class="invalid-feedback"></div>
+                  </div>
+                  <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                      <label
+                        for="password"
+                        class="form-label fw-bold text-muted required-label"
+                        th:text="#{member.label.password}">
+                        비밀번호
+                      </label>
+                      <input type="password" id="password" name="password" class="form-control" required />
+                      <div class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-md-6">
+                      <label
+                        for="rePassword"
+                        class="form-label fw-bold text-muted required-label"
+                        th:text="#{member.label.rePassword}">
+                        비밀번호 재확인
+                      </label>
+                      <input type="password" id="rePassword" name="rePassword" class="form-control" required />
+                      <div class="invalid-feedback"></div>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label
+                      for="name"
+                      class="form-label fw-bold text-muted required-label"
+                      th:text="#{member.label.name}">
+                      이름
+                    </label>
+                    <input type="text" id="name" name="name" class="form-control" required />
+                    <div class="invalid-feedback"></div>
+                  </div>
+                  <div class="mb-3">
+                    <label
+                      for="email"
+                      class="form-label fw-bold text-muted required-label"
+                      th:text="#{member.label.email}">
+                      이메일
+                    </label>
+                    <input type="email" id="email" name="email" class="form-control" required />
+                    <div class="invalid-feedback"></div>
+                  </div>
+                  <div class="mb-4">
+                    <label
+                      for="birth"
+                      class="form-label fw-bold text-muted required-label"
+                      th:text="#{member.label.birth}">
+                      생년월일
+                    </label>
+                    <input type="date" id="birth" name="birth" class="form-control" required />
+                    <div class="invalid-feedback"></div>
+                  </div>
+                  <div class="d-grid gap-2 mt-5">
+                    <button type="submit" class="btn btn-primary btn-lg" th:text="#{member.signup.submit}">
+                      회원 가입
+                    </button>
+                    <p class="text-center mt-3 text-muted">
+                      <small th:text="#{member.signup.footer}">계정이 있으신가요?</small>
+                      <a th:href="@{/auth/login}" class="ms-2 text-primary fw-bold" th:text="#{common.btn.login}">
+                        로그인
+                      </a>
+                    </p>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
-          <br />
-          <!-- 비밀번호 -->
-          <div>
-            <label for="password">비밀번호</label><br />
-            <input type="password" id="password" name="password" maxlength="100" required />
-          </div>
-          <div>
-            <label for="password">비밀번호 재확인</label><br />
-            <input type="password" id="rePassword" name="rePassword" maxlength="100" required />
-          </div>
-          <br />
-          <!-- 이름 -->
-          <div>
-            <label for="name">이름</label><br />
-            <input type="text" id="name" name="name" maxlength="20" required />
-          </div>
-          <br />
-          <!-- 이메일 -->
-          <div>
-            <label for="email">이메일</label><br />
-            <input type="email" id="email" name="email" maxlength="50" required />
-          </div>
-          <br />
-          <!-- 생년월일 -->
-          <div>
-            <label for="birth">생년월일</label><br />
-            <input type="date" id="birth" name="birth" required />
-          </div>
-          <br />
-          <button type="submit">회원 가입</button>
-        </form>
+        </div>
       </main>
       <footer th:replace="~{fragments/footer :: footer}"></footer>
     </div>

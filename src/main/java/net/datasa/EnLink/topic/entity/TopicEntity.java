@@ -30,13 +30,24 @@ public class TopicEntity {
 	@Column(name = "topic_id")
 	private Integer topicId;
 
-	@Column(nullable = false, length = 20)
-	private String name;
-
 	@OneToMany(mappedBy = "topic", cascade = CascadeType.ALL, orphanRemoval = true)
 	private final List<MemberTopicEntity> memberInterests = new ArrayList<>();
 
-	public void updateName(String name) {
-		this.name = name;
+	@Column(name = "name_ko")
+	private String nameKo;
+
+	@Column(name = "name_ja")
+	private String nameJa;
+
+	public void updateName(String nameKo, String nameJa) {
+		this.nameKo = nameKo;
+		this.nameJa = nameJa;
+	}
+	public String getLocalizedName(String locale){
+		if (locale.equals("ja")) {
+			return nameJa;
+		}else {
+			return nameKo;
+		}
 	}
 }

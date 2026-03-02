@@ -9,11 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.datasa.EnLink.city.dto.response.CityDetailResponse;
 import net.datasa.EnLink.city.dto.response.RegionCityResponse;
 import net.datasa.EnLink.city.service.CityService;
-import net.datasa.EnLink.common.language.LanguageType;
+import net.datasa.EnLink.common.locale.LocaleType;
 
 import java.util.List;
 import java.util.Locale;
-
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Slf4j
@@ -24,15 +23,14 @@ public class CityRestController {
 	private final CityService cityService;
 
 	@GetMapping("all")
-	public List<RegionCityResponse> getListAll(Locale locale) {
-		return cityService.getListAll(LanguageType.from(locale));
+	public List<RegionCityResponse> getListAll() {
+		return cityService.getListAll();
 	}
 
 	@GetMapping("")
 	public List<CityDetailResponse> getCityList(
-			@RequestParam(required = false) Integer regionId,
-			Locale locale) {
-		return cityService.getCityList(regionId, LanguageType.from(locale));
+			@RequestParam(name = "regionId", required = false) Integer regionId, Locale locale) {
+		String countryCode = LocaleType.from(locale).getCode();
+		return cityService.getCityList(regionId, countryCode);
 	}
-
 }

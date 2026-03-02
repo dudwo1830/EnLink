@@ -37,7 +37,10 @@ public interface MemberTopicRepository extends JpaRepository<MemberTopicEntity, 
 	@Query("""
 			select new net.datasa.EnLink.topic.dto.response.TopicWithCheckResponse(
 					t.topicId,
-					t.name,
+					case 
+						when :locale = 'ja' then t.nameJa
+						else t.nameKo
+					end,
 					case
 						when mti.member.memberId is not null then true
 						else false
@@ -48,5 +51,5 @@ public interface MemberTopicRepository extends JpaRepository<MemberTopicEntity, 
 			on mti.topic = t
 			and mti.member.memberId = :memberId
 			""")
-	List<TopicWithCheckResponse> findAllWithCheck(@Param("memberId") String memberId);
+	List<TopicWithCheckResponse> findAllWithCheck(@Param("memberId") String memberId, @Param("locale") String locale);
 }

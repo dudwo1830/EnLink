@@ -19,7 +19,7 @@ async function signup(e) {
     `;
     alert(msg);
   } else {
-    alert('success');
+    alert(window.i18n.alert.success);
     location.replace('/members/me');
   }
 }

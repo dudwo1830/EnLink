@@ -25,7 +25,15 @@ function toggleLeaveEtcInput() {
 async function submitApply(clubId) {
     const answer = document.getElementById('applyAnswer').value;
     if (!answer) {
-        Swal.fire('알림', '가입 질문에 답해주세요.', 'info');
+        // 🚀 didOpen을 추가해서 알림창을 최상단 레이어로 올립니다.
+        Swal.fire({
+            title: '알림',
+            text: '가입 질문에 답해주세요.',
+            icon: 'info',
+            didOpen: () => {
+                Swal.getContainer().style.zIndex = "99999";
+            }
+        });
         return;
     }
 
@@ -35,34 +43,37 @@ async function submitApply(clubId) {
         body: JSON.stringify({ answer: answer })
     });
 
-    // 💡 핵심: 서버 응답을 처리하기 전에(혹은 후에) 기존 모달을 닫아줍니다.
     closeApplyModal();
-
     handleResponse(response, "신청 완료");
 }
 
 /** 4. 가입 취소 함수 */
 async function cancelApply(clubId) {
-    // 💡 confirm 대신 Swal.fire를 쓰면 더 팀장님 스타일이죠!
-    if(!confirm("가입 신청을 취소하시겠습니까?")) return;
+    // confirm 대신 세련된 Swal로 교체
+    const result = await Swal.fire({
+        title: '신청 취소',
+        text: "가입 신청을 취소하시겠습니까?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#6c63ff',
+        cancelButtonColor: '#aaa',
+        confirmButtonText: '네, 취소합니다',
+        cancelButtonText: '아니오'
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
+        // 🚨 중요: 실제 컨트롤러의 API 주소가 /api/club/${clubId}/member/cancel 가 맞는지 꼭 확인!
         const response = await fetch(`/api/club/${clubId}/member/cancel`, {
             method: 'POST'
         });
 
-        if (response.ok) {
-            // ✅ 핵심: 성공 알림 후 location.reload()를 호출하면
-            // 현재 주소(예: /mypage/clubs?type=pending)를 다시 읽습니다.
-            alert("가입 신청이 취소되었습니다.");
-            location.reload();
-        } else {
-            const errorMsg = await response.text();
-            alert("취소 실패: " + errorMsg);
-        }
+        // 이미 만들어두신 공통 응답 처리기(handleResponse)를 활용합니다.
+        handleResponse(response, "취소 완료");
     } catch (error) {
         console.error("Error:", error);
-        alert("서버 통신 중 오류가 발생했습니다.");
+        Swal.fire('오류', '서버 통신 중 오류가 발생했습니다.', 'error');
     }
 }
 
@@ -91,7 +102,7 @@ async function submitLeave(clubId) {
     handleResponse(response, "탈퇴 완료");
 }
 
-/** 6. 공통 응답 처리기 (이게 빠져있거나 괄호가 꼬이면 에러납니다!) */
+/** 6. 공통 응답 처리기 */
 async function handleResponse(response, successTitle) {
     const resText = await response.text();
 
@@ -99,7 +110,10 @@ async function handleResponse(response, successTitle) {
         Swal.fire({
             title: successTitle,
             text: resText,
-            icon: 'success'
+            icon: 'success',
+            didOpen: () => {
+                Swal.getContainer().style.zIndex = "99999";
+            }
         }).then(() => location.reload());
     } else {
         let errorMsg = resText;
@@ -107,6 +121,14 @@ async function handleResponse(response, successTitle) {
             const errorJson = JSON.parse(resText);
             errorMsg = errorJson.defaultMessage || errorJson.message || resText;
         } catch(e) {}
-        Swal.fire('오류 발생', errorMsg, 'warning');
+
+        Swal.fire({
+            title: '오류 발생',
+            text: errorMsg,
+            icon: 'warning',
+            didOpen: () => {
+                Swal.getContainer().style.zIndex = "99999";
+            }
+        });
     }
 }

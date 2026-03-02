@@ -1,23 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('EnLink - 모임 목록', ~{::link}, ~{::script})}">
-    <link rel="stylesheet" href="#" th:if="${false}"/>
-    <style>
-        .club-img-wrapper {
-            width: 200px !important;
-            height: 150px !important;
-            flex-shrink: 0; /* 👈 사이드바 때문에 눌리는 것 방지 */
-            overflow: hidden;
-            background-color: #f8f9fa; /* 이미지 로딩 전 배경색 */
-        }
-        .club-img-wrapper img {
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover !important; /* 👈 비율 유지하며 꽉 채우기 */
-            display: block;
-        }
-    </style>
-    <script src="#" th:if="${false}"></script>
+    <link rel="stylesheet" th:href="@{/css/club/clubList.css}">
 </head>
 <body class="bg-light">
 <div class="grid-container">
@@ -26,55 +10,79 @@
 
     <aside th:replace="~{fragments/aside :: aside}" class="aside"></aside>
 
-    <main class="main py-5">
-        <div class="container">
-            <div class="list-content-container">
-                <div class="d-flex justify-content-between align-items-end mb-4">
-                    <div>
-                        <h1 class="fw-bold text-dark">EnLink 모임 목록</h1>
-                        <p class="text-muted mb-0" th:text="|접속자: ${loginMemberId != null ? loginMemberId : '게스트'}|">접속자 정보</p>
-                    </div>
-                    <a th:href="@{/club/create}" class="btn btn-primary fw-bold">
-                        <i class="bi bi-plus-lg me-1"></i> 새 모임 만들기
-                    </a>
+    <main class="main">
+        <div class="list-container">
+            <section class="list-category-header">
+                <div class="header-content">
+                    <span class="category-badge" th:text="${param.topicId != null ? 'Category Search' : 'All Clubs'}">Category Search</span>
+
+                    <h1>
+                        <th:block th:if="${param.topicId != null}">
+                            <th:block th:text="${!clubs.isEmpty()} ? '#' + ${clubs[0].topicName} : ''"></th:block>
+                        </th:block>
+                        <th:block th:if="${param.topicId == null}">전체 모임</th:block>
+                    </h1>
+
+                    <p class="text-muted">
+                        <th:block th:if="${param.topicId != null}">
+                            <th:block th:if="${!clubs.isEmpty()}">선택하신 주제와 관련된 모임들입니다.</th:block>
+                            <th:block th:if="${clubs.isEmpty()}">아직 이 카테고리에 등록된 모임이 없습니다. 새로운 모임을 만들어보세요!</th:block>
+                        </th:block>
+                        <th:block th:if="${param.topicId == null}">
+                            EnLink의 모든 모임을 한눈에 확인해보세요.
+                        </th:block>
+                    </p>
+                </div>
+            </section>
+
+            <div class="list-content-wrapper">
+                <div class="list-status-bar">
+                    <p>총 <strong class="text-primary" th:text="${clubs.size()}">0</strong>개의 모임이 검색되었습니다.</p>
                 </div>
 
-                <hr class="mb-5">
-
-                <div th:if="${#lists.isEmpty(clubs)}" class="alert alert-light text-center py-5 shadow-sm">
-                    <i class="bi bi-search fs-1 text-muted d-block mb-3"></i>
-                    <span class="text-muted">개설된 모임이 없습니다. 첫 번째 모임을 만들어보세요!</span>
+                <div th:if="${#lists.isEmpty(clubs)}" class="empty-state">
+                    <i class="bi bi-search"></i>
+                    <p>해당 카테고리에 아직 개설된 모임이 없습니다.</p>
+                    <a th:href="@{/club/create}" class="btn-create">첫 모임 만들기</a>
                 </div>
 
-                <div class="club-list d-flex flex-column gap-3">
-                    <a th:each="club : ${clubs}" th:href="@{/club/{id}(id=${club.clubId})}" class="club-item-card text-decoration-none text-dark bg-white rounded shadow-sm d-flex overflow-hidden border">
-
-                        <div class="club-img-wrapper" style="width: 200px !important; height: 150px !important; min-width: 200px !important; overflow: hidden !important; flex-shrink: 0 !important;">
+                <div class="club-vertical-list">
+                    <a th:each="club : ${clubs}" th:href="@{/club/{id}(id=${club.clubId})}" class="club-wide-card">
+                        <div class="card-img-area">
                             <img th:src="${club.imageUrl != null and club.imageUrl != ''} ? ${club.imageUrl} : '/images/default_club.jpg'"
-                                 alt="모임 이미지"
-                                 style="width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important;"
-                                 onerror="this.onerror=null; this.src='/images/default_club.jpg';">
+                                 alt="모임 이미지" onerror="this.src='/images/default_club.jpg';">
                         </div>
 
-                        <div class="club-info p-4 flex-grow-1">
-                            <h3 class="fw-bold mb-2" th:text="${club.name}">모임 이름</h3>
-                            <p th:if="${club.description != null}" th:text="${club.description}" class="club-desc text-muted small mb-3">모임 설명...</p>
+                        <div class="card-info-area">
+                            <div class="info-main">
+                                <h3 class="club-name" th:text="${club.name}">모임 이름</h3>
 
-                            <div class="club-meta small text-secondary">
-                                <span class="badge bg-light text-dark border me-1" th:text="${club.topic?.name}">주제명</span>
-                                <i class="bi bi-geo-alt-fill ms-2 me-1"></i><span th:text="${club.cityName}">지역명</span>
-                                <i class="bi bi-people-fill ms-3 me-1"></i>
-                                <span>멤버 <span class="fw-bold text-primary" th:text="${club.currentMemberCount}">0</span> / <span th:text="${club.maxMember}">10</span></span>
+                                <p class="club-intro" th:text="${club.description}">모임 설명이 들어가는 공간입니다. 가독성을 위해 최대 2줄까지 노출됩니다.</p>
+
+                                <div class="club-meta-tags">
+                    <span class="meta-tag topic">
+                        <i class="bi bi-hash"></i><span th:text="${club.topicName}">관심사</span>
+                    </span>
+                                    <span class="meta-tag location">
+                        <i class="bi bi-geo-alt"></i><span th:text="${club.cityName}">지역명</span>
+                    </span>
+                                </div>
+                            </div>
+
+                            <div class="info-bottom">
+                                <div class="member-info">
+                                    <i class="bi bi-people-fill"></i>
+                                    멤버 <span class="current" th:text="${club.currentMemberCount}">0</span> / <span th:text="${club.maxMemberCount}">10</span>
+                                </div>
+                                <span class="btn-view-detail">상세보기 <i class="bi bi-arrow-right"></i></span>
                             </div>
                         </div>
                     </a>
                 </div>
             </div>
         </div>
-
-        <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
     </main>
-
+    <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
 </div>
 </body>
 </html>

@@ -21,10 +21,10 @@ import net.datasa.EnLink.community.repository.ClubMemberRepository;
 import net.datasa.EnLink.community.repository.ClubRepository;
 import net.datasa.EnLink.member.entity.MemberEntity;
 import net.datasa.EnLink.member.repository.MemberRepository;
-import net.datasa.EnLink.topic.dto.response.TopicDetailResponse;
 import net.datasa.EnLink.topic.entity.TopicEntity;
 import net.datasa.EnLink.topic.repository.TopicRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -40,6 +40,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -52,11 +53,6 @@ public class ClubService {
 	private final ClubMemberRepository clubMemberRepository;
 	private final ClubMemberHistoryRepository clubMemberHistoryRepository;
 	private final ClubAnswerRepository clubAnswerRepository;
-	
-	/**
-	 * 모임생성
-	 * */
-	private final ClubManageService clubManageService;
 	private final MemberRepository memberRepository;
 	private final TopicRepository topicRepository;
 	private final CityRepository cityRepository;
@@ -69,7 +65,8 @@ public class ClubService {
 	 */
 	@Transactional
 	public Integer createClub(ClubCreateRequest clubCreateDTO, String loginMemberId) {
-		
+		String locale = LocaleContextHolder.getLocale().getLanguage();
+
 		validateCreateClub(clubCreateDTO, loginMemberId);
 		
 		MemberEntity loginMember = memberRepository.findById(loginMemberId)
@@ -94,6 +91,7 @@ public class ClubService {
 				.joinQuestion(clubCreateDTO.getJoinQuestion())
 				.imageUrl(imageUrl)
 				.status("ACTIVE")
+				.locale(locale)
 				.build();
 		
 		clubRepository.save(club);
@@ -135,7 +133,7 @@ public class ClubService {
 	 * 모임상세정보 변환
 	 * */
 	private ClubDetailResponse convertToDetailResponse(ClubEntity entity) {
-		
+		String locale = LocaleContextHolder.getLocale().getLanguage();
 		String remainingTime = null;
 		if ("DELETED_PENDING".equals(entity.getStatus()) && entity.getDeletedAt() != null) {
 			LocalDateTime expiryDate = entity.getDeletedAt().plusDays(7);
@@ -150,6 +148,7 @@ public class ClubService {
 				.description(entity.getDescription())
 				.maxMember(entity.getMaxMember())
 				.topicId(entity.getTopic().getTopicId())
+				.topicName(entity.getTopic().getLocalizedName(locale))
 				.cityId(entity.getCity().getCityId())
 				.cityName(entity.getCity().getNameLocal())
 				.imageUrl(entity.getImageUrl())
@@ -258,7 +257,7 @@ public class ClubService {
 }
 	
 	/**
-	 * 파일 저장 로직 (자동 폴더 생성 포함)
+	 * 파일 저장 로직 (UUID 적용으로 한글/특수문자 404 완벽 방어)
 	 */
 	private String storeUploadFile(MultipartFile file) {
 		if (file == null || file.isEmpty()) {
@@ -267,12 +266,27 @@ public class ClubService {
 		
 		try {
 			Path root = Paths.get(uploadPath);
-			if (!Files.exists(root)) Files.createDirectories(root);
+			if (!Files.exists(root)) {
+				Files.createDirectories(root);
+			}
 			
-			String savedFileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+			// 1. 원본 파일명에서 확장자만 안전하게 추출
+			String originalFileName = file.getOriginalFilename();
+			String extension = "";
+			if (originalFileName != null && originalFileName.contains(".")) {
+				extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+			}
+			
+			// 2. UUID + 타임스탬프 조합으로 영문/숫자 파일명 생성 (404 방지 핵심)
+			// 예: 8f2d12..._170812345.jpg
+			String savedFileName = UUID.randomUUID().toString() + "_" + System.currentTimeMillis() + extension;
+			
+			// 3. 파일 저장
 			Files.copy(file.getInputStream(), root.resolve(savedFileName), StandardCopyOption.REPLACE_EXISTING);
 			
+			// 4. DB에 저장될 경로 반환
 			return "/images/" + savedFileName;
+			
 		} catch (IOException e) {
 			log.error("이미지 저장 실패: {}", e.getMessage());
 			throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
@@ -290,7 +304,6 @@ public class ClubService {
 				.club(club).targetMember(owner).actorMember(owner)
 				.actionType("JOIN_APPROVE").description("모임 생성 및 모임장 등록").build());
 	}
-
 
 	
 	private ClubListResponse convertToListResponse(ClubEntity entity) {
@@ -344,15 +357,68 @@ public class ClubService {
 	 */
 	public Slice<ClubSummaryResponse> getClubListBySlice(Pageable pageable, Integer cityId, Integer topicId,
 			String search, Integer regionId) {
-		return clubRepository.searchClubs(pageable, cityId, topicId, search, regionId).map(club -> {
-			return ClubSummaryResponse.builder()
-					.clubId(club.getClubId())
-					.name(club.getName())
-					.topicName(club.getTopic().getName())
-					.cityName(club.getCity().getRegion().getNameLocal() + " " + club.getCity().getNameLocal())
-					.imageUrl(club.getImageUrl())
-					.description(club.getDescription())
-					.build();
-		});
+		String locale = LocaleContextHolder.getLocale().getLanguage();
+		return clubRepository.searchClubs(pageable, cityId, topicId, search, regionId, locale);
+	}
+
+
+	public List<ClubSummaryResponse> getListByTopicId(Integer topicId, Integer regionId, Integer cityId, String search){
+		String locale = LocaleContextHolder.getLocale().getLanguage();
+		return clubRepository.findClubSummary(topicId, regionId, cityId, search, locale);
+	}
+	
+	/**
+	 * 클럽명 중복체크 (생성)
+	 * */
+	public boolean existsByName(String name) {
+		return clubRepository.existsByName(name);
+	}
+	
+	/**
+	 * 클럽명 중복체크 (수정)
+	 * */
+	public boolean isNameAvailableForEdit(String name, Integer clubId) {
+		return !clubRepository.existsByNameAndClubIdNot(name, clubId);
+	}
+	
+	/**
+	 * [비로그인용] 4순위: 랜덤/인기순 모임 리스트
+	 */
+	@Transactional(readOnly = true)
+	public List<ClubListResponse> getRandomClubList() {
+		
+		String locale = LocaleContextHolder.getLocale().getLanguage();
+		return clubRepository.findRandomActiveClubs(20, locale)
+				.stream()
+				.map(ClubListResponse::new) // 👈 이 변환 과정이 꼭 필요합니다!
+				.collect(Collectors.toList());
+	}
+	
+	/**
+	 * [로그인용] 1~3순위: 개인화 맞춤 추천 리스트
+	 */
+	@Transactional(readOnly = true)
+	public List<ClubListResponse> getPersonalizedClubList(String memberId) {
+		String locale = LocaleContextHolder.getLocale().getLanguage();
+		// 1. 회원 정보 조회
+		MemberEntity member = memberRepository.findById(memberId)
+				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+		
+		Long cityId = null;
+		if (member.getCity() != null) {
+			cityId = (long) member.getCity().getCityId(); // 시/도/군 PK
+		}
+		
+		Long topicId = null;
+		if (!member.getMemberTopics().isEmpty()) {
+			topicId = (long) member.getMemberTopics().get(0).getTopic().getTopicId();
+		}
+		
+		System.out.println("🚀 추천 로직 가동 - Member: " + memberId + ", City: " + cityId + ", Topic: " + topicId);
+		// 4. Repository 호출 (추출한 ID들 전달)
+		return clubRepository.findRecommendedClubs(cityId, topicId, locale)
+				.stream()
+				.map(ClubListResponse::new)
+				.collect(Collectors.toList());
 	}
 }
