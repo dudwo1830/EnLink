@@ -86,11 +86,11 @@
                         <th:block th:if="${loginMember != null and loginMember.status == 'PENDING'}">
                             <button type="button" class="btn btn-warning-custom" th:onclick="|cancelApply(${club.clubId})|">가입 신청 취소</button>
                         </th:block>
-                    </th:block>
 
-                    <th:block th:if="${loginMember != null and (loginMember.status == 'EXIT' or loginMember.status == 'BANNED')}">
+                    <th:block th:if="${loginMember == null or loginMember.status == 'EXIT' or loginMember.status == 'BANNED'}">
                         <button th:if="${canJoin}" type="button" class="btn btn-primary px-5 " onclick="openApplyModal()">가입 신청하기</button>
                         <div th:if="${!canJoin}" class="badge bg-secondary p-2 mt-2 rounded-pill small text-white">최대 5개 모임 참여 제한</div>
+                    </th:block>
                     </th:block>
                 </div>
 
