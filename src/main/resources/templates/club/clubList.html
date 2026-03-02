@@ -51,23 +51,30 @@
                         <div class="card-img-area">
                             <img th:src="${club.imageUrl != null and club.imageUrl != ''} ? ${club.imageUrl} : '/images/default_club.jpg'"
                                  alt="모임 이미지" onerror="this.src='/images/default_club.jpg';">
-                            <span class="tag-topic" th:text="${club.topicName}">주제</span>
                         </div>
 
                         <div class="card-info-area">
-                            <div class="info-top">
+                            <div class="info-main">
                                 <h3 class="club-name" th:text="${club.name}">모임 이름</h3>
-                                <span class="location-tag"><i class="bi bi-geo-alt"></i> [[${club.cityName}]]</span>
+
+                                <p class="club-intro" th:text="${club.description}">모임 설명이 들어가는 공간입니다. 가독성을 위해 최대 2줄까지 노출됩니다.</p>
+
+                                <div class="club-meta-tags">
+                    <span class="meta-tag topic">
+                        <i class="bi bi-hash"></i><span th:text="${club.topicName}">관심사</span>
+                    </span>
+                                    <span class="meta-tag location">
+                        <i class="bi bi-geo-alt"></i><span th:text="${club.cityName}">지역명</span>
+                    </span>
+                                </div>
                             </div>
 
-                            <p class="club-intro" th:text="${club.description}">모임 설명이 들어가는 공간입니다.</p>
-
                             <div class="info-bottom">
-                                <div class="member-status">
+                                <div class="member-info">
                                     <i class="bi bi-people-fill"></i>
                                     멤버 <span class="current" th:text="${club.currentMemberCount}">0</span> / <span th:text="${club.maxMemberCount}">10</span>
                                 </div>
-                                <span class="btn-view-detail">상세보기 <i class="bi bi-arrow-right-short"></i></span>
+                                <span class="btn-view-detail">상세보기 <i class="bi bi-arrow-right"></i></span>
                             </div>
                         </div>
                     </a>
@@ -75,7 +82,7 @@
             </div>
         </div>
     </main>
-
+    <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
 </div>
 </body>
 </html>

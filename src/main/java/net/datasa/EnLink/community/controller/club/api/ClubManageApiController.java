@@ -72,7 +72,7 @@ public class ClubManageApiController {
 				return ResponseEntity.ok(result);
 			}
 			
-			if (!name.matches("^[a-zA-Z0-9가-힣\\s]+$")) {
+			if (!name.matches("^[a-zA-Z0-9가-힣ぁ-んァ-ヶ一-龠\\s]+$")) {
 				result.put("available", false);
 				result.put("message", "모임명에 특수문자는 사용할 수 없습니다");
 				return ResponseEntity.ok(result);

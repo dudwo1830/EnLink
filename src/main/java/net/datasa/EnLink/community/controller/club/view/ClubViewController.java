@@ -2,7 +2,6 @@ package net.datasa.EnLink.community.controller.club.view;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.datasa.EnLink.common.error.BusinessException;
 import net.datasa.EnLink.common.error.ErrorCode;
 import net.datasa.EnLink.common.security.MemberDetails;
 import net.datasa.EnLink.community.dto.request.ClubCreateRequest;
@@ -17,6 +16,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 
 @Slf4j
 @RequiredArgsConstructor
@@ -31,21 +32,22 @@ public class ClubViewController {
 	
 	/** 모임 생성 폼 이동 */
 	@GetMapping("/create")
-	public String createForm(Model model, @AuthenticationPrincipal MemberDetails loginUser) {
+	public String createForm(Model model,
+							 @AuthenticationPrincipal MemberDetails loginUser,
+							 RedirectAttributes rttr) {
 		if (loginUser == null) return "redirect:/auth/login";
 		
 		
 		long ownerCount = clubMemberRepository.countOwnerQuota(loginUser.getUsername());
 		
 		if (ownerCount >= 5) {
-			throw new BusinessException(ErrorCode.OWNER_LIMIT_EXCEEDED);
+			rttr.addFlashAttribute("errorMsg",
+					ErrorCode.OWNER_LIMIT_EXCEEDED.getDefaultMessage());
+			return "redirect:/";
 		}
 		
 		model.addAttribute("topics", topicService.getListAll());
-		
-		ClubCreateRequest clubCreateRequest = new ClubCreateRequest();
-		
-		model.addAttribute("clubCreateRequest", clubCreateRequest);
+		model.addAttribute("clubCreateRequest", new ClubCreateRequest());
 		
 		return "club/createClubForm";
 	}
@@ -54,10 +56,13 @@ public class ClubViewController {
 	@GetMapping("/list")
 	public String list(Model model,
 						@AuthenticationPrincipal MemberDetails loginUser,
-						@RequestParam(name="topicId", required = false, defaultValue = "") Integer topicId) {
-						String loginMemberId = (loginUser != null) ? loginUser.getUsername() : null;
+						@RequestParam(name = "topicId", required = false, defaultValue = "") Integer topicId,
+						@RequestParam(name = "cityId", required = false) Integer cityId,
+						@RequestParam(name = "q", required = false) String search,
+						@RequestParam(name = "regionId", required = false) Integer regionId) {
+		String loginMemberId = (loginUser != null) ? loginUser.getUsername() : null;
 		
-		model.addAttribute("clubs", clubService.getListByTopicId(topicId));
+		model.addAttribute("clubs", clubService.getListByTopicId(topicId, regionId, cityId, search));
 		model.addAttribute("loginMemberId", loginMemberId);
 		return "club/clubList";
 	}

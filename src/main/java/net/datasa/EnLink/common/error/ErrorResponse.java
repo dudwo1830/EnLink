@@ -10,7 +10,7 @@ import lombok.Getter;
 public class ErrorResponse {
 	private String code;
 	private String defaultMessage;
-	private String messageCode;
+	private String message;
 
 	// valid
 	private List<FieldErrorResponse> errors;
@@ -19,7 +19,7 @@ public class ErrorResponse {
 		return ErrorResponse.builder()
 				.code(errorCode.getCode())
 				.defaultMessage(errorCode.getDefaultMessage())
-				.messageCode(errorCode.getMessageCode())
+				.message(errorCode.getMessageCode())
 				.build();
 	}
 
@@ -27,12 +27,12 @@ public class ErrorResponse {
 		return ErrorResponse.builder()
 				.code(ErrorCode.INTERNAL_SERVER_ERROR.getCode())
 				.defaultMessage(ErrorCode.INTERNAL_SERVER_ERROR.getDefaultMessage())
-				.messageCode(ErrorCode.INTERNAL_SERVER_ERROR.getMessageCode())
+				.message(ErrorCode.INTERNAL_SERVER_ERROR.getMessageCode())
 				.build();
 	}
 
 	public static ErrorResponse validation(ErrorCode errorCode, List<FieldErrorResponse> errors) {
 		return ErrorResponse.builder().code(errorCode.getCode()).defaultMessage(errorCode.getDefaultMessage())
-				.messageCode(errorCode.getMessageCode()).errors(errors).build();
+				.message(errorCode.getMessageCode()).errors(errors).build();
 	}
 }

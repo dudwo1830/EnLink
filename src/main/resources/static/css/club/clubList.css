@@ -1,151 +1,195 @@
-.club-img-wrapper {
-            width: 200px !important;
-            height: 150px !important;
-            flex-shrink: 0; /* 👈 사이드바 때문에 눌리는 것 방지 */
-            overflow: hidden;
-            background-color: #f8f9fa; /* 이미지 로딩 전 배경색 */
-        }
-        .club-img-wrapper img {
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover !important; /* 👈 비율 유지하며 꽉 채우기 */
-            display: block;
-        }
+/* 전체 레이아웃 */
+.list-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
 
-        /* 전체 컨테이너 정렬 */
-        .list-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
+/* 1. 카테고리 헤더 */
+.list-category-header {
+    margin-bottom: 30px;
+    padding: 40px;
+    background: #fff;
+    border-radius: 24px;
+    border: 1px solid #f1f3f9;
+}
 
-        /* 1. 카테고리 헤더 */
-        .list-category-header {
-            margin-bottom: 40px;
-            padding: 40px;
-            background: #fff;
-            border-radius: 24px;
-            border: 1px solid #f1f3f9;
-        }
+.category-badge {
+    color: #6c63ff;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
 
-        .category-badge {
-            color: #6c63ff;
-            font-weight: 700;
-            font-size: 13px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
+.list-category-header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 10px 0;
+    color: #1a1a1a;
+}
 
-        .list-category-header h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin: 10px 0;
-            color: #1a1a1a;
-        }
+/* 2. 와이드 카드 리스트 */
+.club-vertical-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
 
-        /* 2. 가로형 와이드 카드 (홈 화면 스타일 계승) */
-        .club-vertical-list {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+.club-wide-card {
+    display: flex;
+    background: #fff;
+    border-radius: 28px;
+    height: 200px; /* 높이를 살짝 키워 여유 부여 */
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid #f1f3f9;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
 
-        .club-wide-card {
-            display: flex;
-            background: #fff;
-            border-radius: 20px;
-            height: 180px; /* 높이 고정 */
-            text-decoration: none;
-            color: inherit;
-            border: 1px solid #f1f3f9;
-            transition: 0.3s;
-            overflow: hidden;
-        }
+.club-wide-card:hover {
+    transform: translateY(-5px); /* 옆으로 밀기보다 위로 뜨는 게 가로형에선 더 안정적입니다 */
+    box-shadow: 0 15px 35px rgba(108, 99, 255, 0.1);
+    border-color: #6c63ff;
+}
 
-        .club-wide-card:hover {
-            transform: translateX(10px); /* 옆으로 밀리는 유니크한 효과 */
-            border-color: #6c63ff;
-            box-shadow: 0 10px 30px rgba(108, 99, 255, 0.08);
-        }
+/* 이미지 영역 */
+.card-img-area {
+    width: 240px;           /* 가로 너비 살짝 조정 */
+    height: 100%;
+    flex-shrink: 0;
+    overflow: hidden;       /* 내부 이미지가 삐져나오지 않게 */
+    border-radius: 20px;    /* 👈 네 모서리 모두 동그랗게 처리 */
+}
 
-        .card-img-area {
-            width: 280px;
-            height: 100%;
-            position: relative;
-            flex-shrink: 0;
-        }
+.card-img-area img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
 
-        .card-img-area img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+.club-wide-card:hover .card-img-area img {
+    transform: scale(1.08);
+}
 
-        .tag-topic {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: rgba(108, 99, 255, 0.9);
-            color: #fff;
-            padding: 4px 12px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 700;
-        }
+/* 정보 영역 레이아웃 */
+.card-info-area {
+    padding: 28px 32px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
 
-        .card-info-area {
-            padding: 25px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
+.title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
 
-        .info-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
+/* 박스 안으로 들어온 관심사 태그 */
+.tag-topic-inline {
+    display: inline-block;
+    align-self: flex-start;
+    background: #f0efff;
+    color: #6c63ff;
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 800;
+}
 
-        .club-name {
-            font-size: 1.3rem;
-            font-weight: 800;
-            margin: 0;
-        }
+.club-name {
+    font-size: 1.5rem; /* 더 크게 강조 */
+    font-weight: 850;
+    color: #1a1a1a;
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+}
 
-        .location-tag {
-            font-size: 13px;
-            color: #888;
-        }
+.club-meta-tags {
+    display: flex;
+    gap: 8px;
+}
 
-        /* 설명글 2줄 제한 */
-        .club-intro {
-            font-size: 14px;
-            color: #666;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            line-height: 1.5;
-        }
+.meta-tag {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
 
-        .info-bottom {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid #f8f9fa;
-            padding-top: 15px;
-        }
+.meta-tag.topic {
+    background: #f0efff;
+    color: #6c63ff;
+}
 
-        .member-status {
-            font-size: 13px;
-            font-weight: 600;
-        }
+.meta-tag.location {
+    background: #f8f9fa;
+    color: #888;
+}
 
-        .member-status .current { color: #6c63ff; }
+.location-tag {
+    font-size: 13px;
+    color: #999;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
 
-        .btn-view-detail {
-            font-size: 13px;
-            font-weight: 700;
-            color: #6c63ff;
-        }
+/* 2. 모임 소개 */
+.club-intro {
+    font-size: 15px;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 16px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.info-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #f8f9fa;
+    padding-top: 18px;
+}
+
+.status-badge {
+    background: #f8f9fc;
+    padding: 5px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+}
+
+.status-badge .current {
+    color: #6c63ff;
+}
+
+.member-info {
+    font-size: 14px;
+    font-weight: 600;
+    color: #444;
+}
+
+.member-info .current {
+    color: #6c63ff;
+}
+
+.btn-view-detail {
+    font-size: 13px;
+    font-weight: 800;
+    color: #6c63ff;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}

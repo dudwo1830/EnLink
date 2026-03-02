@@ -1,22 +1,22 @@
 package net.datasa.EnLink.common.error;
 
-import java.util.List;
-import java.util.Locale;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import lombok.RequiredArgsConstructor;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
-@RestControllerAdvice
+@RestControllerAdvice(annotations = RestController.class)
 @RequiredArgsConstructor
 public class GlobalRestExceptionHandler {
 
 	private final MessageSource messageSource;
-	
 	@ExceptionHandler(BusinessException.class)
 	public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException e, Locale locale) {
 		ErrorCode errorCode = e.getErrorCode();
@@ -24,13 +24,17 @@ public class GlobalRestExceptionHandler {
 		String message = messageSource.getMessage(
 				errorCode.getMessageCode(),
 				null,
-				errorCode.getDefaultMessage(), // fallback
+				errorCode.getDefaultMessage(),
 				locale);
+
+		List<FieldErrorResponse> fieldErrors = new ArrayList<>();
+		fieldErrors.add(new FieldErrorResponse(e.getFieldName(), message));
 
 		ErrorResponse response = new ErrorResponse(
 				errorCode.getCode(),
 				errorCode.getDefaultMessage(),
-				message, null);
+				message,
+				fieldErrors);
 
 		return ResponseEntity.status(errorCode.getStatus()).body(response);
 	}

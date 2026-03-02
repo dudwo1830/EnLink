@@ -43,16 +43,37 @@ async function handleResponse(response, successMsg, callback) {
 
 // 가입 승인
 async function approveMember(clubId, memberId) {
-    if (!confirm(`${memberId} 님의 가입을 승인하시겠습니까?`)) return;
-    const response = await fetch(`/api/club/${clubId}/manage/approve?memberId=${memberId}`, { method: 'POST' });
-    handleResponse(response, "가입 승인이 완료되었습니다.");
+    const result = await Swal.fire({
+        title: '가입 승인',
+        text: `${memberId} 님의 가입을 승인하시겠습니까?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: '승인',
+        cancelButtonText: '취소'
+    });
+
+    if (result.isConfirmed) {
+        const response = await fetch(`/api/club/${clubId}/manage/approve?memberId=${memberId}`, { method: 'POST' });
+        handleResponse(response, "가입 승인이 완료되었습니다.");
+    }
 }
 
 // 가입 거절
 async function rejectMember(clubId, memberId) {
-    if (!confirm(`${memberId} 님의 가입 신청을 거절하시겠습니까?`)) return;
-    const response = await fetch(`/api/club/${clubId}/manage/reject?memberId=${memberId}`, { method: 'POST' });
-    handleResponse(response, "가입 거절 처리가 완료되었습니다.");
+    const result = await Swal.fire({
+        title: '가입 거절',
+        text: `${memberId} 님의 가입 신청을 거절하시겠습니까?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        confirmButtonText: '거절',
+        cancelButtonText: '취소'
+    });
+
+    if (result.isConfirmed) {
+        const response = await fetch(`/api/club/${clubId}/manage/reject?memberId=${memberId}`, { method: 'POST' });
+        handleResponse(response, "가입 거절 처리가 완료되었습니다.");
+    }
 }
 
 // 답변 보기 모달
@@ -123,33 +144,58 @@ function closeHistoryModal() {
 
 /**
  * 멤버 권한 변경 (OWNER 전용)
- * @param selectElement
  */
 window.updateRole = async function(selectElement) {
     const clubId = selectElement.getAttribute('data-club-id');
     const memberId = selectElement.getAttribute('data-member-id');
     const newRole = selectElement.value;
+    const oldRole = selectElement.getAttribute('data-old-role') || selectElement.defaultValue;
 
-    // "확인"을 누르는 것이 확정 버튼의 역할을 대신함
-    if (!confirm(`[${memberId}]님의 권한을 [${newRole}](으)로 변경하시겠습니까?`)) {
-        location.reload();
-        return;
-    }
+    // 🚀 모임장 위임 여부에 따른 문구 차별화
+    const isOwnerDelegation = (newRole === 'OWNER');
+    const alertTitle = isOwnerDelegation ? '모임장 위임' : '권한 변경 확인';
+    const alertText = isOwnerDelegation
+        ? `[${memberId}]님에게 모임장 권한을 위임하시겠습니까?\n`
+        : `[${memberId}]님의 권한을 [${newRole}](으)로 변경하시겠습니까?`;
 
-    const params = new URLSearchParams();
-    params.append('memberId', memberId);
-    params.append('newRole', newRole);
+    const result = await Swal.fire({
+        title: alertTitle,
+        text: alertText,
+        icon: isOwnerDelegation ? 'warning' : 'question',
+        showCancelButton: true,
+        confirmButtonColor: isOwnerDelegation ? '#d33' : '#3085d6',
+        cancelButtonColor: '#aaa',
+        confirmButtonText: '확인',
+        cancelButtonText: '취소'
+    });
 
-    try {
-        const response = await fetch(`/api/club/${clubId}/manage/members/update-role`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: params
-        });
-        handleResponse(response, "권한 변경이 완료되었습니다.");
-    } catch (error) {
-        console.error('Error:', error);
-        Swal.fire('오류', '통신 중 에러가 발생했습니다.', 'error');
+    if (result.isConfirmed) {
+        const params = new URLSearchParams();
+        params.append('memberId', memberId);
+        params.append('newRole', newRole);
+
+        try {
+            const response = await fetch(`/api/club/${clubId}/manage/members/update-role`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params
+            });
+
+            if (isOwnerDelegation) {
+                // 💡 모임장을 위임했다면 성공 알림 후 상세 페이지로 쫓아냅니다.
+                handleResponse(response, "모임장 권한 위임이 완료되었습니다.", () => {
+                    location.href = `/club/${clubId}`;
+                });
+            } else {
+                selectElement.setAttribute('data-old-role', newRole);
+                handleResponse(response, "권한 변경이 완료되었습니다.");
+            }
+        } catch (error) {
+            selectElement.value = oldRole;
+            Swal.fire('오류', '통신 중 에러가 발생했습니다.', 'error');
+        }
+    } else {
+        selectElement.value = oldRole;
     }
 }
 

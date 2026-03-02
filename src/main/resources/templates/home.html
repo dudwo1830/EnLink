@@ -3,9 +3,8 @@
   <head th:replace="~{fragments/head :: head('HOME', ~{::link}, ~{::script})}">
     <link rel="stylesheet" th:href="@{/css/search-select.css}" />
     <link rel="stylesheet" th:href="@{/css/card-layout.css}" />
-      <link rel="stylesheet" th:href="@{/css/home.css}" />
+    <link rel="stylesheet" th:href="@{/css/home.css}" />
     <script type="module" th:src="@{/js/club/list/club-list.js}"></script>
-    <script th:src="@{/js/common/search-select.js}"></script>
   </head>
   <body>
     <div class="grid-container">
@@ -16,46 +15,77 @@
                 <div class="hero-content">
                     <div class="hero-text-area">
                         <span class="hero-badge">Connect with People</span>
-                        <h1>당신의 일상을 더 즐겁게 만드는<br> 새로운 연결, <span class="highlight">EnLink</span></h1>
-                        <p>지금 내 주변에서 열리는 모임을 확인해보세요.</p>
+                        <h1 th:utext="#{home.hero.title}">당신의 일상을 더 즐겁게 만드는<br> 새로운 연결, EnLink</h1>
+                        <p th:text="#{home.hero.subtitle}">지금 내 주변에서 열리는 모임을 확인해보세요.</p>
                     </div>
 
                     <div class="hero-action-area">
-                        <p class="tag-title">지금 많이 찾는 주제</p>
-                        <div class="popular-tags">
-                            <a th:href="@{/club/list(topicId=1)}">#러닝</a>
-                            <a th:href="@{/club/list(topicId=2)}">#독서모임</a>
-                            <a th:href="@{/club/list(topicId=3)}">#맛집</a>
-                            <a th:href="@{/club/list(topicId=7)}">#롤</a>
+                        <p class="tag-title" th:text="#{home.hero.tag.title}">지금 많이 찾는 주제</p>
+                        <div class="popular-tags" th:with="targetIds=${ {1, 2, 3, 7} }"><!--/* 여기 작성된 id를 랜더링함 */-->
+                            <th:block th:each="topic : ${topics}" th:if="${#lists.contains(targetIds, topic.topicId)}">
+                                <a th:href="@{/club/list(topicId=${topic.topicId})}"
+                                th:text="${'#' + topic.name}">#주제명</a>
+                            </th:block>
                         </div>
                     </div>
                 </div>
             </section>
 
             <div class="home-container">
-                <section class="club-list-section new-clubs">
+                <section class="club-list-section recommended-clubs">
                     <div class="section-header">
-                        <h2>🆕 새로 생겼어요!</h2>
-                        <a th:href="@{/club/list(sort='createdAt,desc')}" class="view-all-link">전체보기 <i class="bi bi-chevron-right"></i></a>
+                        <h2 th:if="${#authentication.principal != 'anonymousUser'}">
+                            ✨ <span th:text="${#authentication.name} + #{member.label.name.honorific}" style="color: #6c63ff;">배팀장님</span>
+                            <span th:remove="tag" th:text="#{home.section.recommend.member}">을 위한 추천 모임</span>
+                        </h2>
+                        <h2 th:unless="${#authentication.principal != 'anonymousUser'}" th:text="#{home.section.recommend.title}">
+                            ✨ 이런 모임은 어떠세요?
+                        </h2>
                     </div>
-                    <div class="home-grid-layout" id="newClubList">
+
+                    <div class="home-grid-layout" id="clubList"></div>
+
+                    <div class="more-btn-container">
+                        <button type="button" id="clubListMore" class="btn-home-more">
+                            <span th:remove="tag" th:text="#{home.section.more}">모임 더보기 </span>
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
                     </div>
                 </section>
 
-                <section class="club-list-section recommended-clubs">
+                <section class="club-list-section new-clubs">
                     <div class="section-header">
-                        <h2>✨ 이런 모임은 어떠세요?</h2>
+                        <h2 th:text="#{home.section.new.title}">🆕 새로 생겼어요! 신규 모임</h2>
                     </div>
-                    <div class="home-grid-layout" id="clubList">
+
+                    <div class="home-grid-layout" id="newClubList">
                     </div>
 
                     <div class="more-btn-container">
-                        <button type="button" id="clubListMore" class="btn-home-more">모임 더보기 <i class="bi bi-plus-lg"></i></button>
+                        <button type="button" id="newClubMoreBtn" class="btn-home-more">
+                            <span th:remove="tag" th:text="#{home.section.new.more}">신규 모임 더보기 </span>
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
                     </div>
                 </section>
             </div>
-            <footer th:replace="~{fragments/footer :: footer}"></footer>
         </main>
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script th:inline="javascript">
+        (function() {
+            const msg = [[${errorMsg}]]; // 변수명을 겹치지 않게 msg로 변경
+            if (msg) {
+                Swal.fire({
+                    title: '안내',
+                    text: msg,
+                    icon: 'warning',
+                    confirmButtonColor: '#6c63ff'
+                });
+            }
+        })();
+    </script>
   </body>
 </html>

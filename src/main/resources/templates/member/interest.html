@@ -3,9 +3,8 @@
   <head th:replace="~{fragments/head :: head('Interest', ~{::link}, ~{::script})}">
     <!--/* link 태그와 script가 없을 경우 에러가 발생함 */-->
     <!--/* link, script를 별도로 사용하지 않을 경우 이걸 남겨둘 것 */-->
-    <link rel="stylesheet" th:href="@{/css/search-select.css}" />
+    <link rel="stylesheet" th:href="@{/css/member/interest.css}" />
     <script th:src="@{/js/member/memberCommon.js}" defer></script>
-    <script th:src="@{/js/common/search-select.js}" defer></script>
     <script th:src="@{/js/member/interest.js}" defer></script>
   </head>
   <body>
@@ -40,58 +39,66 @@
               </div>
             </div>
 
-            <div class="card shadow-sm">
+            <div class="card shadow-sm border-0 rounded-4 search-select-container">
               <div class="card-body p-4">
-                <h3 class="mb-3 text-primary">
-                  <i class="bi bi-geo-alt me-2"></i><span th:text="#{member.interest.subtitle.city}">관심 지역</span>
-                </h3>
-
-                <div class="alert alert-light border d-flex justify-content-between align-items-center mb-4">
-                  <span class="text-muted" th:text="#{member.interest.label.currentCity}">현재 설정된 지역:</span>
-                  <strong id="currentCity" class="text-primary">-</strong>
-                </div>
-
-                <div class="mb-3">
-                  <label class="form-label fw-bold text-muted" th:text="#{member.interest.label.region}"
-                    >지역 선택 (시/도)</label
-                  >
-                  <div class="select-search regions position-relative" data-name="regionId">
-                    <input
-                      type="text"
-                      class="form-control select-input"
-                      autocomplete="off"
-                      th:placeholder="#{member.interest.placeholder.region}" />
-                    <input type="hidden" class="select-hidden" />
-                    <ul
-                      class="select-options list-group position-absolute w-100 shadow-sm d-none"
-                      style="z-index: 1000; max-height: 200px; overflow-y: auto"></ul>
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                  <h3 class="card-title mb-0 text-primary fs-5 fw-bold">
+                    <i class="bi bi-geo-alt-fill me-2"></i
+                    ><span th:text="#{member.interest.subtitle.city}">관심 지역 설정</span>
+                  </h3>
+                  <div
+                    class="d-flex align-items-center px-3 py-1 bg-primary-subtle rounded-pill border border-primary-subtle">
+                    <span class="text-primary small fw-bold me-2" th:text="#{member.interest.label.currentCity}"
+                      >현재 설정</span
+                    >
+                    <span id="currentCity" class="text-primary fw-bolder">-</span>
                   </div>
                 </div>
 
-                <div class="mb-4">
-                  <label class="form-label fw-bold text-muted" th:text="#{member.interest.label.city}"
-                    >도시 선택 (구/군)</label
-                  >
-                  <div class="select-search cities position-relative" data-name="cityId">
-                    <input
-                      type="text"
-                      class="form-control select-input"
-                      autocomplete="off"
-                      th:placeholder="#{member.interest.placeholder.city}" />
-                    <input type="hidden" class="select-hidden" />
-                    <ul
-                      class="select-options list-group position-absolute w-100 shadow-sm d-none"
-                      style="z-index: 1000; max-height: 200px; overflow-y: auto"></ul>
+                <p class="text-muted small mb-4">새로운 지역으로 변경하려면 아래에서 지역을 선택한 후 저장해 주세요.</p>
+
+                <div class="row g-3 mb-4">
+                  <div class="col-md-6">
+                    <label class="form-label small fw-bold text-secondary" th:text="#{member.interest.label.region}"
+                      >지역(시/도)</label
+                    >
+                    <div class="select-search regions position-relative" data-name="regionId">
+                      <input
+                        type="text"
+                        class="form-control form-control-lg select-input fs-6"
+                        autocomplete="off"
+                        th:placeholder="#{member.interest.placeholder.region}" />
+                      <input type="hidden" class="select-hidden" />
+                      <ul
+                        class="select-options list-group position-absolute w-100 shadow-lg mt-1"
+                        style="z-index: 1050; max-height: 250px; overflow-y: auto"></ul>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small fw-bold text-secondary" th:text="#{member.interest.label.city}"
+                      >도시(구/군)</label
+                    >
+                    <div class="select-search cities position-relative" data-name="cityId">
+                      <input
+                        type="text"
+                        class="form-control form-control-lg select-input fs-6"
+                        autocomplete="off"
+                        th:placeholder="#{member.interest.placeholder.city}" />
+                      <input type="hidden" class="select-hidden" />
+                      <ul
+                        class="select-options list-group position-absolute w-100 shadow-lg mt-1"
+                        style="z-index: 1050; max-height: 250px; overflow-y: auto"></ul>
+                    </div>
                   </div>
                 </div>
 
-                <div class="text-end">
+                <div class="pt-2">
                   <button
                     type="button"
                     id="cityUpdateBtn"
-                    class="btn btn-primary px-4"
+                    class="btn btn-primary w-100 py-2 fw-bold shadow-sm"
                     th:text="#{member.interest.btn.saveCity}">
-                    관심 지역 저장
+                    관심 지역 저장하기
                   </button>
                 </div>
               </div>

@@ -18,6 +18,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MemberCreateRequest {
+	public static final String FILED_RE_PASSWORD = "rePassword";
 
 	@NotBlank
 	@Size(min = 2, max = 20)

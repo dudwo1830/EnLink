@@ -20,18 +20,17 @@
 
 /* 3. 갤러리 스타일의 부드러운 아이콘 박스 */
 .section-icon {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 12px;
-  background: rgba(142, 140, 216, 0.14); /* 연한 보라빛 배경 */
+  background-color: rgb(from var(--color-accent) r g b / 0.5);
   border: 1px solid rgba(142, 140, 216, 0.25);
+  box-shadow: 0 6px 16px rgba(142, 140, 216, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-primary); /* 아이콘 색상은 포인트 컬러로 */
   flex: 0 0 auto;
 }
-
 .section-icon svg {
   width: 24px;
   height: 24px;
@@ -83,16 +82,6 @@
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-/* 아이콘 - 부드러운 보라 그라데이션 원 */
-.post-page .section-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--color-primary), #9f9af5);
-  box-shadow: 0 6px 16px rgba(142, 140, 216, 0.25);
-  flex: 0 0 auto;
 }
 
 /* 아이콘 안의 '게시판' 느낌 라인 */
@@ -147,10 +136,10 @@
   padding: 18px;
 }
 
-.post-page .panel:hover {
+/* .post-page .panel:hover {
   transform: translateY(-2px);
   box-shadow: 0 18px 44px rgba(0, 0, 0, 0.07);
-}
+} */
 
 .post-page .toolbar {
   display: flex;

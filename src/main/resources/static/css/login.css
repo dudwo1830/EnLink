@@ -12,7 +12,8 @@
 /* 로그인 박스 */
 .login-box {
     width: 100%;
-    max-width: 400px;
+    min-width: 420px;
+    max-width: 420px;
     padding: 42px;
 
     background: rgba(255,255,255,0.75);

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.datasa.EnLink.common.security.MemberDetails;
 import net.datasa.EnLink.community.dto.request.ClubCreateRequest;
+import net.datasa.EnLink.community.dto.response.ClubListResponse;
 import net.datasa.EnLink.community.service.ClubService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,6 +12,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
+
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -76,7 +79,7 @@ public class ClubApiController {
 		}
 		
 		// 3️⃣ 허용 문자 체크
-		if (!name.matches("^[a-zA-Z0-9가-힣\\s]+$")) {
+		if (!name.matches("^[a-zA-Z0-9가-힣ぁ-んァ-ヶ一-龠\\s]+$")) {
 			result.put("available", false);
 			result.put("message", "사용할 수 없는 이름입니다");
 			return result;
@@ -93,6 +96,24 @@ public class ClubApiController {
 		}
 		
 		return result;
+
+	}
+	
+	@GetMapping("/recommend")
+	public ResponseEntity<List<ClubListResponse>> getRecommendedClubs(
+			@AuthenticationPrincipal MemberDetails memberDetails) { // 1. 타입을 명시해야 합니다.
+		
+		// 로그인이 안 되어 있으면 4순위(전체 랜덤/인기순)
+		if (memberDetails == null) {
+			// 비로그인 시에도 ClubListResponse 리스트를 반환하도록 메서드명 통일 권장
+			return ResponseEntity.ok(clubService.getRandomClubList());
+		}
+		
+		// 로그인 유저의 PK 추출
+		String memberId = memberDetails.getMemberId();
+		
+		// 개인화된 추천 리스트 반환
+		return ResponseEntity.ok(clubService.getPersonalizedClubList(memberId));
 	}
 }
 

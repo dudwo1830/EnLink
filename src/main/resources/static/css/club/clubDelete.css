@@ -1,0 +1,88 @@
+/* --- [5. 모임 삭제 관리: 감각적인 컬러 믹스] --- */
+
+/* 1. 삭제 대기 알림 박스 (배경을 우유 빛 미색으로 더 중화) */
+.delete-status-container {
+    background-color: #fdfdfd;
+    border: 1px solid #f1f3f5;
+    padding: 40px;
+    border-radius: 20px;
+    margin-top: 10px;
+}
+
+/* ⏳ 남은 시간 배지 (차분한 코랄 핑크) */
+.time-limit-highlight {
+    background-color: #fff0f0;
+    color: #ff6b6b;
+    padding: 5px 14px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 14px;
+    margin-left: 8px;
+}
+
+/* 🚀 버튼 디자인 (센스 있는 컬러 배분) */
+
+/* [복구하기] 버튼: 신뢰와 안정을 주는 소프트 연초록/민트 */
+.btn-restore {
+    background-color: #37b24d; /* 🍏 생동감 있고 차분한 연초록 */
+    color: #ffffff;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: 0 4px 12px rgba(55, 178, 77, 0.15);
+    transition: all 0.2s;
+}
+
+.btn-restore:hover {
+    background-color: #2f9e44;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(55, 178, 77, 0.25);
+}
+
+/* [삭제 요청 & 즉시 삭제] 버튼: 조심스러운 연분홍 느낌 */
+.btn-request-delete, .btn-hard-delete {
+    background-color: #fff5f5; /* 🌸 연분홍 배경 */
+    color: #ff6b6b;            /* 부드러운 레드-핑크 텍스트 */
+    border: 1px solid #ffc9c9;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 15px;
+    transition: all 0.2s;
+}
+
+.btn-request-delete:hover, .btn-hard-delete:hover {
+    background-color: #ffe3e3;
+    border-color: #ffa8a8;
+    color: #fa5252;
+}
+
+/* 삭제 전 활성 상태 컨테이너 (여백 하얗게) */
+.active-status-container {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 20px;
+    border: 1px dashed #e9ecef;
+    text-align: center;
+}
+
+.warning-description p {
+    /* color: #868e96;  <-- 이 부분을 아래처럼 변경 */
+    color: #ff8787;    /* 🚀 조금 더 밝고 경고 느낌이 나는 소프트 레드 */
+    line-height: 1.8;
+    margin-bottom: 16px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;          /* 🚀 이모지와 텍스트 사이 숨 쉴 공간 */
+}
+
+/* 🚀 이모지(아이콘)만 콕 집어서 더 선명하게 */
+.warning-description p i,
+.delete-status-container i {
+    color: #ff6b6b;    /* 🚀 이모지는 텍스트보다 한 톤 더 진하게 해서 확실히 튀게! */
+    font-size: 1.2rem;
+}

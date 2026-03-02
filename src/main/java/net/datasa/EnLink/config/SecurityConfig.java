@@ -30,11 +30,14 @@ public class SecurityConfig {
 			// 로그인, 회원가입
 			"/auth/login",
 			"/members/signup",
+			"/club/list",
+			"/club/{clubId}",
 			// api
 			"/api/members",
 			"/api/location/**",
 			"/api/topics",
-			"/api/clubs"
+			"/api/clubs",
+			"/api/club/recommend"
 	};
 
 	@Bean

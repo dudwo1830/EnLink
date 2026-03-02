@@ -1,15 +1,14 @@
 package net.datasa.EnLink.common.advice;
 
-import java.util.List;
-
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ModelAttribute;
-
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import net.datasa.EnLink.topic.dto.response.TopicDetailResponse;
 import net.datasa.EnLink.topic.service.TopicService;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ModelAttribute;
+
+import java.util.List;
 
 @ControllerAdvice
 @RequiredArgsConstructor
@@ -27,7 +26,7 @@ public class GlobalModelAttribute {
 	}
 
 	@ModelAttribute("locale")
-	public String addLocale(){
-		return "/" + LocaleContextHolder.getLocale().getLanguage();
+	public String locale(){
+		return LocaleContextHolder.getLocale().getLanguage();
 	}
 }

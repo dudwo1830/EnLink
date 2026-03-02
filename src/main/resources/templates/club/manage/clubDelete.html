@@ -2,6 +2,7 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('EnLink - 모임 삭제 관리', ~{::link}, ~{::script})}">
     <link rel="stylesheet" th:href="@{/css/manage.css}">
+    <link rel="stylesheet" th:href="@{/css/club/clubDelete.css}">
 </head>
 <body>
 <div class="grid-container">
@@ -54,9 +55,8 @@
                 </div>
             </section>
         </div>
-
-        <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
     </main>
+        <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
