@@ -30,6 +30,7 @@ public class SecurityConfig {
 			// 로그인, 회원가입
 			"/auth/login",
 			"/members/signup",
+			"/club/list",
 			// api
 			"/api/members",
 			"/api/location/**",
