@@ -61,6 +61,14 @@
           <li>
             <span class="user-name" th:text="${#authentication.name} + #{member.label.name.honorific}">배경호님</span>
           </li>
+
+          <li sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/admin/topics}" class="btn-admin text-warning fw-bold me-2">
+              <i class="bi bi-shield-lock-fill me-1"></i>
+              <span th:text="#{member.menu.adminTopics}">주제 관리</span>
+            </a>
+          </li>
+
           <li><a th:href="@{/members/me}" class="btn-info" th:text="#{member.menu.myPage}">내 정보</a></li>
           <li><a th:href="@{/auth/logout}" class="btn-logout" th:text="#{common.btn.logout}">로그아웃</a></li>
         </th:block>
