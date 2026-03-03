@@ -55,6 +55,10 @@ public class MemberService {
 		if (!request.getPassword().equals(request.getRePassword())) {
 			throw new BusinessException(ErrorCode.USER_PASSWORD_MISMATCH, MemberCreateRequest.FILED_RE_PASSWORD);
 		}
+		Boolean isUsed = memberRepository.existsById(request.getMemberId());
+		if (isUsed) {
+			throw new BusinessException(ErrorCode.ALREADY_USED_ID, MemberCreateRequest.FILED_MEMBER_ID);
+		}
 		MemberEntity entity = MemberEntity.builder()
 				.memberId(request.getMemberId())
 				.password(passwordEncoder.encode(request.getPassword()))

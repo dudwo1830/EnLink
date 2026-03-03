@@ -20,6 +20,8 @@ import lombok.Setter;
 public class MemberCreateRequest {
 	public static final String FILED_RE_PASSWORD = "rePassword";
 
+	public static final String FILED_MEMBER_ID = "memberId";
+
 	@NotBlank
 	@Size(min = 2, max = 20)
 	private String memberId;
