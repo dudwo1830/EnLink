@@ -17,6 +17,7 @@ public enum ErrorCode {
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "사용자를 찾을 수 없습니다.", "error.user.not_found"),
 	USER_PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "USER_PASSWORD_MISMATCH", "비밀번호 재입력이 일치하지 않습니다.",
 			"error.user.password_mismatch"),
+	ALREADY_USED_ID(HttpStatus.BAD_REQUEST, "ALREADY_USED_ID", "이미 사용중인 아이디입니다.", "error.user.alreadyId"),
 
 	SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE_NOT_FOUND", "message", ""),
 

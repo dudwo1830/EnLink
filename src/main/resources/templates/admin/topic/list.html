@@ -1,32 +1,95 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head th:replace="~{fragments/head :: head('TITLE', ~{::link}, ~{::script})}">
-    <link rel="stylesheet" href="#" th:if="${false}" />
+    <link rel="stylesheet" th:href="@{/css/admin/admin.css}" />
     <script th:src="@{/js/admin/topic.js}" defer></script>
   </head>
   <body>
     <div class="grid-container">
       <header th:replace="~{fragments/header :: header}"></header>
       <aside th:replace="~{fragments/aside :: aside}"></aside>
-      <main class="main">
-        <h1>주제 관리</h1>
-        <div>
-          <h3>사용중인 목록</h3>
-          <ul th:each="topic : ${adminTopics}">
-            <li th:data-topic-id="${topic.topicId}">
-              <span><input type="text" id="updateKo" th:value="${topic.nameKo}" /></span>
-              <span><input type="text" id="updateJa" th:value="${topic.nameJa}" /></span>
-              <span><button type="button" class="editBtn">수정</button></span>
-            </li>
-          </ul>
-          <h3>주제 추가</h3>
-          <ul>
-            <li>
-              <span>KO: <input type="text" id="nameKo" name="nameKo" /></span>
-              <span>JA: <input type="text" id="nameJa" name="nameJa" /></span>
-              <span><button type="button" id="addBtn">추가</button></span>
-            </li>
-          </ul>
+      <main class="main container py-5">
+        <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom">
+          <h1 class="h3 fw-bold mb-0 text-dark">
+            <i class="bi bi-gear-fill text-primary me-2"></i>
+            주제 관리 (Admin)
+          </h1>
+          <span class="badge bg-secondary-subtle text-secondary border px-3 py-2">
+            Total: [[${adminTopics.size()}]]
+          </span>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-5 bg-light-subtle">
+          <div class="card-body p-4">
+            <h5 class="card-title fw-bold mb-3">
+              <i class="bi bi-plus-circle me-2"></i>
+              새 주제 추가
+            </h5>
+            <div class="row g-3 align-items-end">
+              <div class="col-md-5">
+                <label class="form-label small fw-bold text-muted">한국어 명칭 (KO)</label>
+                <input type="text" id="nameKo" name="nameKo" class="form-control" placeholder="예: 러닝" />
+              </div>
+              <div class="col-md-5">
+                <label class="form-label small fw-bold text-muted">일본어 명칭 (JA)</label>
+                <input type="text" id="nameJa" name="nameJa" class="form-control" placeholder="예: ランニング" />
+              </div>
+              <div class="col-md-2 text-end">
+                <button type="button" id="addBtn" class="btn btn-primary w-100 fw-bold">
+                  <i class="bi bi-check-lg me-1"></i>
+                  추가
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center mb-4 py-3 rounded-4">
+          <i class="bi bi-exclamation-triangle-fill fs-4 me-3 text-warning"></i>
+          <div>
+            <h6 class="fw-bold mb-1 text-dark text-warning-emphasis">데이터 무결성 안내</h6>
+            <p class="mb-0 small text-muted">
+              주제 삭제 기능은 제공되지 않습니다. 삭제 시 해당 주제를 사용하는 기존 모임 데이터에 문제가 발생할 수
+              있습니다.
+              <br class="d-none d-md-block" />
+              사용하지 않는 주제는 명칭을 변경하거나 그대로 유지해 주시기 바랍니다.
+            </p>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white py-3">
+            <h5 class="card-title fw-bold mb-0">사용 중인 주제 목록</h5>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 100px" class="text-center">ID</th>
+                  <th>한국어 명칭 (KO)</th>
+                  <th>일본어 명칭 (JA)</th>
+                  <th style="width: 150px" class="text-center">관리</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="topic : ${adminTopics}" th:data-topic-id="${topic.topicId}">
+                  <td class="text-center text-muted small fw-bold">#[[${topic.topicId}]]</td>
+                  <td>
+                    <input type="text" class="form-control form-control-sm update-ko" th:value="${topic.nameKo}" />
+                  </td>
+                  <td>
+                    <input type="text" class="form-control form-control-sm update-ja" th:value="${topic.nameJa}" />
+                  </td>
+                  <td class="text-center">
+                    <button type="button" class="btn btn-outline-primary btn-sm editBtn px-3">
+                      <i class="bi bi-pencil-square me-1"></i>
+                      수정
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </main>
       <footer th:replace="~{fragments/footer :: footer}"></footer>

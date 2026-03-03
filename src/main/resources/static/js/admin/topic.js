@@ -10,8 +10,8 @@ addButton.addEventListener('click', addTopic);
 function updateTopic(ev) {
   const target = ev.target.closest('[data-topic-id]');
   const topicId = target.dataset.topicId;
-  const nameKo = target.querySelector('#updateKo').value;
-  const nameJa = target.querySelector('#updateJa').value;
+  const nameKo = target.querySelector('.update-ko').value;
+  const nameJa = target.querySelector('.update-ja').value;
   fetch(`${API_BASE}/${topicId}`, {
     method: 'PATCH',
     headers: {
@@ -22,7 +22,13 @@ function updateTopic(ev) {
       nameKo: nameKo,
       nameJa: nameJa
     }),
-  }).then((res) => {});
+  }).then((res) => {
+    target.classList.add('table-success-highlight');
+    // 2. 2초 뒤에 하이라이트 제거
+    setTimeout(() => {
+        target.classList.remove('table-success-highlight');
+    }, 2000);
+  });
 }
 
 function addTopic() {

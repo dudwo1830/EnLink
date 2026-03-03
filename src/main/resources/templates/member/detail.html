@@ -1,9 +1,7 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head th:replace="~{fragments/head :: head('TITLE', ~{::link}, ~{::script})}">
-    <link rel="stylesheet" href="#" th:if="${false}" />
-    <script th:src="@{/js/member/memberCommon.js}" defer></script>
-    <script th:src="@{/js/member/signup.js}" defer></script>
+    <link rel="stylesheet" th:href="@{/css/member/detail.css}"/>
   </head>
   <body>
     <div class="grid-container">
@@ -16,8 +14,13 @@
             <div class="card shadow-sm" th:object="${member}">
               <div class="card-body p-4">
                 <h3 class="mb-4 text-primary">
+<<<<<<< HEAD
+                  <i class="bi bi-person-circle me-2"></i>
+                  <span th:text="#{member.detail.subtitle.profile}">기본 프로필</span>
+=======
                   <i class="bi bi-person-circle me-2"></i
                   ><span th:text="#{member.detail.subtitle.profile}">기본 프로필</span>
+>>>>>>> origin/develop
                 </h3>
                 <div class="info-group mb-4">
                   <div class="d-flex justify-content-between border-bottom py-2">
@@ -38,14 +41,27 @@
                   </div>
                 </div>
                 <h3 class="mb-3 text-primary">
-                  <i class="bi bi-heart-fill me-2"></i
-                  ><span th:text="#{member.detail.subtitle.interest}">관심 설정</span>
+                  <i class="bi bi-heart-fill me-2"></i>
+                  <span th:text="#{member.detail.subtitle.interest}">관심 설정</span>
                 </h3>
                 <div class="row g-2 mb-4">
                   <div class="col-6">
-                    <div class="p-3 border rounded-3 bg-light text-center">
-                      <small class="d-block text-muted" th:text="#{member.label.topic}">관심 주제</small>
-                      <strong th:text="*{topic}"></strong>
+                    <div class="p-3 border rounded-3 bg-light text-center h-100">
+                      <small class="d-block text-muted mb-2" th:text="#{member.label.topic}">관심 주제</small>
+
+                      <div class="d-flex flex-wrap justify-content-center gap-1">
+                        <th:block th:if="${not #lists.isEmpty(member.topics)}">
+                          <span
+                            th:each="t : ${member.topics}"
+                            class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 rounded-pill fw-normal"
+                            style="font-size: 0.8rem">
+                            <i class="bi bi-hash small"></i>
+                            <span th:text="${t.name}">러닝</span>
+                          </span>
+                        </th:block>
+
+                        <small th:if="${#lists.isEmpty(topics)}" class="text-muted">설정된 주제가 없습니다.</small>
+                      </div>
                     </div>
                   </div>
                   <div class="col-6">
@@ -56,6 +72,17 @@
                   </div>
                 </div>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+<<<<<<< HEAD
+                  <a th:href="@{/members/me/edit}" class="btn btn-primary px-4" th:text="#{member.detail.btn.edit}">
+                    회원 정보 수정
+                  </a>
+                  <a
+                    th:href="@{/members/me/interest}"
+                    class="btn btn-outline px-4"
+                    th:text="#{member.detail.btn.interest}">
+                    관심 설정 관리
+                  </a>
+=======
                   <a th:href="@{/members/me/edit}" class="btn btn-primary px-4" th:text="#{member.detail.btn.edit}"
                     >회원 정보 수정</a
                   >
@@ -65,6 +92,7 @@
                     th:text="#{member.detail.btn.interest}"
                     >관심 설정 관리</a
                   >
+>>>>>>> origin/develop
                 </div>
               </div>
             </div>
