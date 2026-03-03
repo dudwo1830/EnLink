@@ -1,12 +1,14 @@
 package net.datasa.EnLink.member.dto.response;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.datasa.EnLink.topic.dto.response.TopicDetailResponse;
 
 @Getter
 @Setter
@@ -18,6 +20,6 @@ public class MemberDetailResponse {
 	private String name;
 	private String email;
 	private LocalDate birth;
-	private String topic;
+	private List<TopicDetailResponse> topics;
 	private String city;
 }

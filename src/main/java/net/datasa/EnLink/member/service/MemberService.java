@@ -31,6 +31,7 @@ import net.datasa.EnLink.membercity.entity.MemberCityEntity;
 import net.datasa.EnLink.membercity.repository.MemberCityRepository;
 import net.datasa.EnLink.membertopic.entity.MemberTopicEntity;
 import net.datasa.EnLink.membertopic.repository.MemberTopicRepository;
+import net.datasa.EnLink.topic.dto.response.TopicDetailResponse;
 import net.datasa.EnLink.topic.entity.TopicEntity;
 import net.datasa.EnLink.topic.repository.TopicRepository;
 
@@ -107,9 +108,11 @@ public class MemberService {
 		String locale = LocaleContextHolder.getLocale().getLanguage();
 		MemberEntity entity = memberRepository.findById(memberId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-		String topic = String
-				.join(", ", entity.getMemberTopics().stream()
-						.map(memberTopic -> memberTopic.getTopic().getLocalizedName(locale)).toList());
+
+		List<TopicDetailResponse> topics = entity.getMemberTopics().stream()
+				.map(memberTopic -> new TopicDetailResponse(memberTopic.getTopic().getTopicId(),
+						memberTopic.getTopic().getLocalizedName(locale)))
+				.toList();
 		String city = (entity.getCity() != null)
 				? entity.getCity().getRegion().getNameLocal() + " " + entity.getCity().getNameLocal()
 				: "";
@@ -118,7 +121,7 @@ public class MemberService {
 				.name(entity.getName())
 				.email(MaskingUtils.maskEmail(entity.getEmail()))
 				.birth(entity.getBirth())
-				.topic(topic)
+				.topics(topics)
 				.city(city)
 				.build();
 	}
