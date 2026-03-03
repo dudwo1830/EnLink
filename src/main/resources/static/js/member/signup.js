@@ -1,7 +1,7 @@
 const form = document.querySelector('#signupForm');
-form.addEventListener('submit', update);
+form.addEventListener('submit', signup);
 
-async function update(e) {
+async function signup(e) {
   e.preventDefault();
 
   // 1. 이전 에러 메시지 및 클래스 초기화

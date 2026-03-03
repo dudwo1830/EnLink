@@ -31,6 +31,7 @@ public class SecurityConfig {
 			"/auth/login",
 			"/members/signup",
 			"/club/list",
+			"/club/{clubId}",
 			// api
 			"/api/members",
 			"/api/location/**",
