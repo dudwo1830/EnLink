@@ -426,7 +426,7 @@
 
               <div
                 id="adminCreateArea"
-                th:if="${loginMember != null and loginMember.role == 'OWNER' or loginMember.role == 'MANAGER'}"
+                th:if="${loginMember != null and (loginMember.role == 'OWNER' or loginMember.role == 'MANAGER')}"
               >
                 <button
                   class="btn btn-primary px-4"
