@@ -121,17 +121,18 @@
     if (!pagEl) return;
 
     const totalPages = pageData.totalPages ?? 0;
-    const current = pageData.number ?? 0;
+    const current = pageData.number ?? 0; // 0-based
     if (totalPages <= 1) {
       pagEl.innerHTML = '';
       return;
     }
 
-    // 페이지 버튼 개수 제한(최대 7개)
-    const windowSize = 7;
-    let start = Math.max(0, current - Math.floor(windowSize / 2));
-    let end = Math.min(totalPages - 1, start + windowSize - 1);
-    start = Math.max(0, end - windowSize + 1);
+    // ✅ 5개 단위 블록 페이징
+    const blockSize = 5;
+
+    // current가 0~4면 start=0, 5~9면 start=5 ...
+    const start = Math.floor(current / blockSize) * blockSize;
+    const end = Math.min(totalPages - 1, start + blockSize - 1);
 
     const makeBtn = (label, page, opts = {}) => {
       const active = opts.active ? 'active' : '';
@@ -140,33 +141,34 @@
     };
 
     let html = '';
-    html += makeBtn('이전', current - 1, { disabled: current === 0 });
+
+    // ✅ 블록 단위 "이전" (start-1로 이동)
+    html += makeBtn('이전', start - 1, { disabled: start === 0 });
+
+    // ✅ 5개만 렌더링
     for (let i = start; i <= end; i++) {
       html += makeBtn(String(i + 1), i, { active: i === current });
     }
-    html += makeBtn('다음', current + 1, {
-      disabled: current >= totalPages - 1,
-    });
+
+    // ✅ 블록 단위 "다음" (end+1로 이동)
+    html += makeBtn('다음', end + 1, { disabled: end >= totalPages - 1 });
 
     pagEl.innerHTML = html;
 
-    pagEl.addEventListener('click', (e) => {
+    // ⚠️ 중요: 매번 renderPagination 호출될 때마다 이벤트가 중복으로 붙는 문제 방지
+    pagEl.onclick = (e) => {
       const btn = e.target.closest('button[data-page]');
       if (!btn) return;
       if (btn.disabled) return;
 
       const nextPage = Number(btn.dataset.page);
-      // 리스트 페이지는 /community/post/list/{clubId} 유지 + 쿼리만 변경
-      const nextUrl = new URL(
-        `/community/post/list/${clubId}`,
-        location.origin,
-      );
+
+      const nextUrl = new URL(`/community/post/list/${clubId}`, location.origin);
       nextUrl.searchParams.set('searchType', searchType);
-      if (searchKeyword)
-        nextUrl.searchParams.set('searchKeyword', searchKeyword);
+      if (searchKeyword) nextUrl.searchParams.set('searchKeyword', searchKeyword);
       nextUrl.searchParams.set('page', String(nextPage));
       location.href = nextUrl.toString();
-    });
+    };
   }
 
   // =========================

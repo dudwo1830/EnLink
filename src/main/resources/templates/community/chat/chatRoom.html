@@ -839,6 +839,7 @@
               const currentScrollHeight = $area[0].scrollHeight;
 
               $area.prepend(historyHtml);
+              normalizeDateDividers();
               $area.scrollTop($area[0].scrollHeight - currentScrollHeight);
 
               page++;
@@ -927,7 +928,7 @@
             dateObj.getDay()
           ];
           const formattedDate = `${dateObj.getFullYear()}년 ${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일 ${dayOfWeek}요일`;
-          const dividerHtml = `<div class="date-divider">${formattedDate}</div>`;
+          const dividerHtml = `<div class="date-divider" data-date="${messageDate}">${formattedDate}</div>`;
           totalHtml = dividerHtml + messageHtml;
           lastRenderedDate = messageDate;
         }
@@ -950,6 +951,20 @@
         if (isNearBottom) {
           $area.scrollTop($area[0].scrollHeight);
         }
+      }
+
+              function normalizeDateDividers() {
+        const area = document.getElementById('message-area');
+        if (!area) return;
+
+        const seen = new Set();
+
+        // 위에서 아래 순서로 보면서, 같은 날짜 divider는 뒤쪽 것 제거
+        area.querySelectorAll('.date-divider').forEach((div) => {
+          const key = div.dataset.date || div.textContent.trim();
+          if (seen.has(key)) div.remove();
+          else seen.add(key);
+        });
       }
     </script>
   </body>
