@@ -19,6 +19,7 @@
       <main class="main">
         <div class="club-shell">
           <div th:replace="~{fragments/clubTabs :: clubTabs('post')}"></div>
+
           <div class="post-container">
             <section class="panel">
               <div class="toolbar">
@@ -47,13 +48,21 @@
 
               <div class="section-header">
                 <div class="section-title-wrap">
-                  <span class="section-icon" aria-hidden="true"></span>
-                  <div class="title-line">
-                    <div id="detailBadges" class="badge-wrap"></div>
+                  <span class="section-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                                d="M8 2H14.5L19 6.5V20C19 21.1 18.1 22 17 22H7C5.9 22 5 21.1 5 20V4C5 2.9 5.9 2 7 2H8Z"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linejoin="round" />
+                        <path d="M14 2V7H19" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                        <path d="M9 12H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        <path d="M9 16H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                      </svg>
+                    </span>
                     <h1 id="detailTitle" class="section-title">로딩 중...</h1>
                   </div>
                 </div>
-              </div>
 
               <div class="post-detail-meta">
                 <span>작성자: <strong id="detailMemberId"></strong></span>
@@ -76,7 +85,7 @@
                 <p class="comment-desc">서로 예의 있게 대화해요 🙂</p>
               </div>
 
-              <div id="replyList" class="reply-list"></div>
+              <div id="replyList" class="reply-list"></div><br>
 
               <!-- 댓글 작성 섹션 헤더 -->
               <div class="comment-header comment-header--write">
