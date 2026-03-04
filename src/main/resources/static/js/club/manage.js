@@ -306,46 +306,77 @@ async function updateClubInfo(clubId) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    // 전역 변수
-    window.isNameChecked = false;
+document.addEventListener('DOMContentLoaded', function () {
 
-    const clubNameInput = document.getElementById('clubName');
-    const feedback = document.getElementById('nameFeedback');
-    const clubIdInput = document.getElementsByName('clubId')[0];
+    const clubNameInput = document.getElementById("clubName");
+    const feedback = document.getElementById("nameFeedback");
+    const clubIdInput = document.getElementsByName("clubId")[0];
 
     if (!clubNameInput || !clubIdInput) return;
 
-    clubNameInput.addEventListener('blur', async function() {
+    let debounceTimer;
+    window.isNameChecked = false;
+
+    // 🔥 1️⃣ 페이지 진입 시 기존 이름이면 자동 통과
+    if (clubNameInput.value.trim() === currentName) {
+        feedback.innerText = "현재 사용 중인 이름입니다.";
+        feedback.className = "mt-2 small text-secondary";
+        window.isNameChecked = true;
+    }
+
+    // 🔥 2️⃣ 입력 시 debounce 검사 (create 스타일 동일)
+    clubNameInput.addEventListener("keyup", function () {
+
         const name = this.value.trim();
         const clubId = clubIdInput.value;
 
-        // 기존 이름과 같으면 체크하지 않음
-        if (typeof currentName !== 'undefined' && name === currentName) {
-            feedback.innerText = "";
-            window.isNameChecked = true;
-            return;
-        }
+        clearTimeout(debounceTimer);
 
-        try {
-            const response = await fetch(`/api/club/${clubId}/manage/check-name-edit?name=${encodeURIComponent(name)}&clubId=${clubId}`);
-            const result = await response.json(); // { available: true/false, message: "..." }
+        debounceTimer = setTimeout(async () => {
 
-            feedback.innerText = result.message;
-            if (result.available) {
-                feedback.className = "mt-2 small text-success";
+            // 길이 체크
+            if (name.length < 2) {
+                feedback.innerText = "2자 이상 입력하세요";
+                feedback.className = "mt-2 small text-muted";
+                window.isNameChecked = false;
+                return;
+            }
+
+            // 기존 이름이면 자동 통과
+            if (name === currentName) {
+                feedback.innerText = "현재 사용 중인 이름입니다.";
+                feedback.className = "mt-2 small text-secondary";
                 window.isNameChecked = true;
-            } else {
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    `/api/club/${clubId}/manage/check-name-edit?name=${encodeURIComponent(name)}&clubId=${clubId}`
+                );
+
+                const result = await response.json();
+
+                feedback.innerText = result.message;
+
+                if (result.available) {
+                    feedback.className = "mt-2 small text-success";
+                    window.isNameChecked = true;
+                } else {
+                    feedback.className = "mt-2 small text-danger";
+                    window.isNameChecked = false;
+                }
+
+            } catch (e) {
+                console.error("중복 체크 실패:", e);
+                feedback.innerText = "서버와 통신 중 문제가 발생했습니다";
                 feedback.className = "mt-2 small text-danger";
                 window.isNameChecked = false;
             }
-        } catch (e) {
-            console.error("중복/유효성 체크 실패:", e);
-            feedback.innerText = "서버와 통신 중 문제가 발생했습니다.";
-            feedback.className = "mt-2 small text-danger";
-            window.isNameChecked = false;
-        }
+
+        }, 400); // create랑 동일
     });
+
 });
 
 //이미지 변경 (기본이미지 적용)
