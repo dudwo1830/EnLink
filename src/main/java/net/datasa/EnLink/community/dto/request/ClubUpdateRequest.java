@@ -18,8 +18,14 @@ public class ClubUpdateRequest {
 	@NotBlank(message = "모임명을 입력하세요")
 	@Size(min = 2, max = 20, message = "모임명은 2~20자 사이여야 합니다")
 	@Pattern(
-			regexp = "^[a-zA-Z0-9가-힣ぁ-んァ-ヶ一-龠\\s]+$",
-			message = "사용할 수 없는 이름입니다"
+			// [설명]
+			// 가-힣: 한글
+			// \u3040-\u309F: 히라가나
+			// \u30A0-\u30FF: 가타카나 (장음 기호 ー 포함)
+			// \u4E00-\u9FBF: CJK 한자
+			// \s: 공백
+			regexp = "^[a-zA-Z0-9가-힣\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FBF\\s]+$",
+			message = "사용할 수 없는 이름입니다 (한글, 영어, 일본어, 숫자만 가능)"
 	)
 	private String name;
 	
