@@ -1,6 +1,5 @@
 package net.datasa.EnLink.scheduler;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.datasa.EnLink.community.entity.ClubEntity;
@@ -22,7 +21,6 @@ public class ClubScheduler {
 	
 	// 매일 자정 실행
 	@Scheduled(cron = "0 0 0 * * *")
-	@Transactional
 	public void deleteExpiredClubs() {
 		// 1. 7일 전 시간 계산
 		LocalDateTime oneWeekAgo = LocalDateTime.now().minusDays(7);
@@ -31,7 +29,11 @@ public class ClubScheduler {
 		List<ClubEntity> targetClubs = clubRepository.findByStatusAndDeletedAtBefore("DELETED_PENDING", oneWeekAgo);
 		
 		for (ClubEntity club : targetClubs) {
-			clubManageService.hardDeleteClub(club.getClubId(), "SYSTEM_ADMIN");
+			try {
+				clubManageService.hardDeleteClubByScheduler(club.getClubId());
+			} catch (Exception e) {
+				log.error("삭제 실패: {}", e.getMessage());
+			}
 		}
 		
 		log.info("{}개의 만료된 모임이 시스템에 의해 영구 삭제되었습니다.", targetClubs.size());

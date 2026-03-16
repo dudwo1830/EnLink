@@ -156,6 +156,31 @@ public class ClubManageService {
 		log.info("[모임 즉시 삭제 완료] 모임ID: {}", clubId);
 	}
 	
+	@Transactional
+	public void hardDeleteClubByScheduler(Integer clubId) {
+		
+		ClubEntity club = clubRepository.findById(clubId)
+				.orElseThrow(() -> new BusinessException(ErrorCode.CLUB_NOT_FOUND));
+		
+		if (club.getImageUrl() != null) {
+			deleteRealFile(club.getImageUrl());
+		}
+		
+		// 모임 멤버 이력 삭제
+		clubMemberHistoryRepository.deleteByClub_ClubId(clubId);
+		
+		// 가입 질문 답변들 삭제
+		clubAnswerRepository.deleteByClubId(clubId);
+		
+		// 모임 멤버 데이터 삭제
+		clubMemberRepository.deleteByClub_ClubId(clubId);
+		
+		// 모임 엔티티 영구 삭제
+		clubRepository.delete(club);
+		
+		log.info("[스케줄러 모임 삭제 완료] 모임ID: {}", clubId);
+	}
+	
 	/**
 	 * 삭제 대기 중인 모임의 상태를 'ACTIVE'로 되돌리고 삭제 예정 시간을 초기화합니다.
 	 */
