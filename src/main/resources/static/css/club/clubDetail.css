@@ -1,0 +1,312 @@
+/* [1] 마스터 레이아웃 (톤 통일) */
+/* main을 흰색으로 강제로 덮으면 (white !important) 게시판/일정 톤과 달라짐 */
+.club-detail-page .main {
+    background: transparent;      /* 또는 아예 지워도 됨 */
+    min-height: calc(100vh - 155px);
+}
+
+/* 컨테이너 폭은 그대로 유지 */
+.club-detail-page .cd-full-width-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* 게시판/일정처럼 ‘패널(카드)’ 느낌으로 */
+.club-detail-page .detail-content-container {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    padding: 22px;
+}
+
+/* [2] 상단 탭 (불필요한 선 및 패딩 제거) */
+/* .club-tabs {
+    background-color: #fff;
+    border-bottom: none !important;
+}
+
+.club-tabs .nav-link {
+    color: #555;
+    font-weight: 600;
+    padding: 12px 20px;
+}
+
+.club-tabs .nav-link.active {
+    background: none !important;
+    color: #007bff !important;
+    border-bottom: 3px solid #007bff;
+    border-radius: 0;
+} */
+
+/* [3] 슬림 커버 (곡률 및 그림자) */
+.cd-slim-cover {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    background: var(--color-secondary);
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.cd-cover-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+
+/* [5] 프로필 박스 */
+.cd-profile-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 4px solid #fff;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.cd-profile-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* [6] 모임 소개 */
+.club-description-box {
+    border: none !important;
+}
+
+/* 멤버 아이템 레이아웃 */
+.member-item {
+    display: flex;
+    align-items: center;
+    padding: 18px 20px !important;
+    border-bottom: 1px solid #f8f9fa !important;
+}
+
+.member-profile-info {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* 이름 영역과 권한 영역 사이의 간격 */
+}
+
+/* 이름과 아이디 영역 */
+.member-base-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 100px; /* 정렬을 위한 최소 너비 */
+}
+
+.member-name-text {
+    font-size: 16px;
+    font-weight: 800;
+    color: #1a1a1a;
+}
+
+.member-id-text {
+    font-size: 13px;
+    color: #adb5bd;
+}
+
+/* 권한 그룹 (아이콘 + 텍스트배지) */
+.member-role-group {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* 왕관/별과 배지 사이 간격 */
+}
+
+.role-icon-small {
+    font-size: 18px;
+}
+
+.badge-role-inline {
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+/* 권한별 시그니처 컬러 */
+.role-owner { background: #f0efff !important; color: #6c63ff !important; }
+.role-manager { background: #fff9db !important; color: #f08c00 !important; }
+.role-member { background: #f1f3f5 !important; color: #868e96 !important; }
+
+.modal {
+  display: none;
+  position: fixed; /* absolute 대신 fixed를 써야 스크롤과 상관없이 화면에 고정됨 */
+  z-index: 9999;   /* 어떤 요소보다 위에 뜨도록 최상단으로 설정 */
+  left: 0;
+  top: 0;
+  width: 100vw;    /* 화면 꽉 채우기 */
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* 어두운 배경 */
+  backdrop-filter: blur(4px); /* 배경 살짝 흐리게 처리 (고급 기술) */
+}
+
+/* [2] 모달 박스 (정중앙에 예쁘게 배치) */
+.modal-content {
+  position: relative;
+  background-color: #ffffff;
+  margin: 10% auto; /* 위쪽 여백 10% 주고 가운데 정렬 */
+  padding: 30px;
+  width: 90%;
+  max-width: 500px; /* 너무 넓어지지 않게 제한 */
+  border-radius: 20px;
+  border: none;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  /* 애니메이션 추가 (스윽 올라오는 효과) */
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* [3] 모달 내부 버튼 정렬 */
+.modal .btn {
+  border-radius: 12px;
+  padding: 12px;
+  font-weight: 600;
+}
+
+/* [8] 버튼 공통 디자인 (세련된 스타일) */
+.join-section .btn,
+.modal-content .btn {
+    min-width: 180px;      /* 최소 너비 확보로 버튼 크기 통일 */
+    height: 54px;          /* 높이 고정으로 안정감 부여 */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 14px !important; /* 모서리를 부드럽게 */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* 💜 가입하기 / 신청하기 (메인 컬러) */
+.btn-primary-custom {
+    background: linear-gradient(135deg, #6c63ff 0%, #5a52e0 100%) !important;
+    color: #fff !important;
+}
+.btn-primary-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(108, 99, 255, 0.3);
+}
+
+/* 💛 신청 취소 (은은한 경고 컬러) */
+.btn-warning-custom {
+    background: #fff9e6 !important;
+    color: #d99000 !important;
+    border: 1px solid #ffeeba !important;
+}
+.btn-warning-custom:hover {
+    background: #fff3cd !important;
+    transform: translateY(-2px);
+}
+
+/* ❤️ 탈퇴하기 (세련된 레드) */
+.btn-danger-custom {
+    background: #fff5f5 !important;
+    color: #e03131 !important;
+    border: 1px solid #ffc9c9 !important;
+}
+.btn-danger-custom:hover {
+    background: #ffe3e3 !important;
+    transform: translateY(-2px);
+}
+
+/* 🩶 닫기 / 취소 (미니멀 그레이) */
+.btn-light-custom {
+    background: #f1f3f5 !important;
+    color: #495057 !important;
+}
+
+/* 가독성 개선: 설명 박스 강조 */
+.club-description-box {
+    border: 1px solid #f0f0ff !important;
+    line-height: 1.8;
+}
+
+.owner-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: #f0efff;  /* 우리 시그니처 연보라 */
+    color: #6c63ff;       /* 진한 보라 */
+    border-radius: 16px;  /* 버튼과 결을 맞춘 둥근 모서리 */
+    font-size: 16px;
+    font-weight: 800;
+    border: 1px dashed #6c63ff; /* 점선 테두리로 '클릭 안 됨'을 은은하게 암시 */
+    cursor: default;       /* 마우스 올려도 커서 안 변하게 */
+    user-select: none;     /* 텍스트 드래그 방지 */
+}
+
+.owner-status-badge i {
+    font-size: 20px;
+}
+
+/* --- [모임 상세: 삭제 대기 안내 고도화] --- */
+
+.delete-wait-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #fff5f5; /* 아주 연한 레드 배경 */
+    border: 1px solid #ffc9c9;
+    padding: 20px 28px;
+    border-radius: 18px; /* 우리 서비스 특유의 둥근 모서리 */
+    margin-bottom: 30px;
+    box-shadow: 0 8px 20px rgba(224, 49, 49, 0.08); /* 은은한 레드 그림자 */
+    animation: slideDown 0.4s ease-out;
+}
+
+.delete-wait-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.delete-wait-icon {
+    font-size: 24px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.delete-wait-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #c92a2a; /* 진한 레드 */
+    margin: 0 0 4px 0;
+}
+
+.delete-wait-desc {
+    font-size: 14px;
+    color: #fa5252;
+    margin: 0;
+    font-weight: 500;
+}
+
+.delete-wait-timer {
+    background: linear-gradient(135deg, #ff6b6b 0%, #e03131 100%);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 800;
+    box-shadow: 0 4px 12px rgba(224, 49, 49, 0.2);
+    white-space: nowrap;
+}
+
+/* 스윽 내려오는 효과 */
+@keyframes slideDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}

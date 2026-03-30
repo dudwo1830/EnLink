@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('EnLink - 모임 목록', ~{::link}, ~{::script})}">
+    <link rel="stylesheet" th:href="@{/css/club/clubList.css}">
+</head>
+<body class="bg-light">
+<div class="grid-container">
+
+    <header th:replace="~{fragments/header :: header}" class="header shadow-sm"></header>
+
+    <aside th:replace="~{fragments/aside :: aside}" class="aside"></aside>
+
+    <main class="main">
+        <div class="list-container">
+            <section class="list-category-header">
+                <div class="header-content">
+                    <span class="category-badge" th:text="${param.topicId != null ? 'Category Search' : 'All Clubs'}">Category Search</span>
+
+                    <h1>
+                        <th:block th:if="${param.topicId != null}">
+                            <th:block th:text="${!clubs.isEmpty()} ? '#' + ${clubs[0].topicName} : ''"></th:block>
+                        </th:block>
+                        <th:block th:if="${param.topicId == null}">전체 모임</th:block>
+                    </h1>
+
+                    <p class="text-muted">
+                        <th:block th:if="${param.topicId != null}">
+                            <th:block th:if="${!clubs.isEmpty()}">선택하신 주제와 관련된 모임들입니다.</th:block>
+                            <th:block th:if="${clubs.isEmpty()}">아직 이 카테고리에 등록된 모임이 없습니다. 새로운 모임을 만들어보세요!</th:block>
+                        </th:block>
+                        <th:block th:if="${param.topicId == null}">
+                            EnLink의 모든 모임을 한눈에 확인해보세요.
+                        </th:block>
+                    </p>
+                </div>
+            </section>
+
+            <div class="list-content-wrapper">
+                <div class="list-status-bar">
+                    <p>총 <strong class="text-primary" th:text="${clubs.size()}">0</strong>개의 모임이 검색되었습니다.</p>
+                </div>
+
+                <div th:if="${#lists.isEmpty(clubs)}" class="empty-state">
+                    <i class="bi bi-search"></i>
+                    <p>해당 카테고리에 아직 개설된 모임이 없습니다.</p>
+                    <a th:href="@{/club/create}" class="btn-create">첫 모임 만들기</a>
+                </div>
+
+                <div class="club-vertical-list">
+                    <a th:each="club : ${clubs}" th:href="@{/club/{id}(id=${club.clubId})}" class="club-wide-card">
+                        <div class="card-img-area">
+                            <img th:src="${club.imageUrl != null and club.imageUrl != ''} ? ${club.imageUrl} : '/images/default_club.jpg'"
+                                 alt="모임 이미지" onerror="this.src='/images/default_club.jpg';">
+                        </div>
+
+                        <div class="card-info-area">
+                            <div class="info-main">
+                                <h3 class="club-name" th:text="${club.name}">모임 이름</h3>
+
+                                <p class="club-intro" th:text="${club.description}">모임 설명이 들어가는 공간입니다. 가독성을 위해 최대 2줄까지 노출됩니다.</p>
+
+                                <div class="club-meta-tags">
+                    <span class="meta-tag topic">
+                        <i class="bi bi-hash"></i><span th:text="${club.topicName}">관심사</span>
+                    </span>
+                                    <span class="meta-tag location">
+                        <i class="bi bi-geo-alt"></i><span th:text="${club.cityName}">지역명</span>
+                    </span>
+                                </div>
+                            </div>
+
+                            <div class="info-bottom">
+                                <div class="member-info">
+                                    <i class="bi bi-people-fill"></i>
+                                    멤버 <span class="current" th:text="${club.currentMemberCount}">0</span> / <span th:text="${club.maxMemberCount}">10</span>
+                                </div>
+                                <span class="btn-view-detail">상세보기 <i class="bi bi-arrow-right"></i></span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head
+    th:replace="~{fragments/head :: head('EnLink - 게시글 상세', ~{::link}, ~{::script})}"
+  >
+    <link rel="stylesheet" th:href="@{/css/community/post.css}" />
+    <script th:src="@{/js/community/post.js}" defer></script>
+  </head>
+
+  <body>
+    <div
+      class="grid-container post-page"
+      data-page="post-detail"
+      th:attr="data-post-id=${postId}"
+    >
+      <header th:replace="~{fragments/header :: header}"></header>
+      <aside th:replace="~{fragments/aside :: aside}"></aside>
+
+      <main class="main">
+        <div class="club-shell">
+          <div th:replace="~{fragments/clubTabs :: clubTabs('post')}"></div>
+
+          <div class="post-container">
+            <section class="panel">
+              <div class="toolbar">
+                <div class="toolbar-left">
+                  <a id="listLink" class="hint-link" href="#">← 목록으로</a>
+                </div>
+
+                <div class="toolbar-right">
+                  <a
+                    id="editBtn"
+                    th:href="@{/community/post/edit/{id}(id=${postId})}"
+                    style="display: none"
+                  >
+                    <button type="button" class="btn-ghost">수정</button>
+                  </a>
+                  <button
+                    id="deleteBtn"
+                    type="button"
+                    class="btn-danger"
+                    style="display: none"
+                  >
+                    삭제
+                  </button>
+                </div>
+              </div>
+
+              <div class="section-header">
+                <div class="section-title-wrap">
+                  <span class="section-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                                d="M8 2H14.5L19 6.5V20C19 21.1 18.1 22 17 22H7C5.9 22 5 21.1 5 20V4C5 2.9 5.9 2 7 2H8Z"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linejoin="round" />
+                        <path d="M14 2V7H19" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                        <path d="M9 12H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        <path d="M9 16H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                      </svg>
+                    </span>
+                    <h1 id="detailTitle" class="section-title">로딩 중...</h1>
+                  </div>
+                </div>
+
+              <div class="post-detail-meta">
+                <span>작성자: <strong id="detailMemberId"></strong></span>
+                <span>작성일: <strong id="detailCreatedAt"></strong></span>
+              </div>
+
+              <div id="detailImageWrap"></div>
+
+              <div id="detailContent" class="post-content"></div>
+
+              <hr class="section-divider" />
+
+              <!-- 댓글 섹션 헤더 -->
+              <div class="comment-header">
+                <div class="comment-title-wrap">
+                  <h3 class="comment-title">
+                    댓글 <span class="comment-count" id="replyCount">0</span>
+                  </h3>
+                </div>
+                <p class="comment-desc">서로 예의 있게 대화해요 🙂</p>
+              </div>
+
+              <div id="replyList" class="reply-list"></div><br>
+
+              <!-- 댓글 작성 섹션 헤더 -->
+              <div class="comment-header comment-header--write">
+                <div class="comment-title-wrap">
+                  <h3 class="comment-title">댓글 작성</h3>
+                </div>
+                <p class="comment-desc">짧고 간단하게 남겨주세요.</p>
+              </div>
+
+              <div class="reply-form-wrap">
+                <form id="replyForm" class="reply-form">
+                  <input
+                    id="replyContent"
+                    type="text"
+                    placeholder="댓글을 입력하세요"
+                  />
+                  <button type="submit" class="btn-primary">등록</button>
+                </form>
+              </div>
+
+              <!-- 이미지 확대 모달 -->
+              <div id="imgModal" class="img-modal" aria-hidden="true">
+                <div class="img-modal-backdrop" data-close="true"></div>
+                <div class="img-modal-body" role="dialog" aria-modal="true">
+                  <button
+                    type="button"
+                    class="img-modal-close"
+                    data-close="true"
+                  >
+                    ×
+                  </button>
+                  <img id="imgModalTarget" src="" alt="expanded image" />
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
+
+      <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+  </body>
+</html>

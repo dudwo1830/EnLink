@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/head :: head('EnLink - 모임 게시판', ~{::link}, ~{::script})}">
+    <link rel="stylesheet" th:href="@{/css/community/post.css}" />
+    <script th:src="@{/js/community/post.js}" defer></script>
+  </head>
+
+  <body th:classappend="${isClubMember} ? '' : 'not-member'">
+    <div class="grid-container post-page" data-page="post-list" th:attr="data-club-id=${clubId}">
+      <header th:replace="~{fragments/header :: header}"></header>
+      <aside th:replace="~{fragments/aside :: aside}"></aside>
+
+      <main class="main">
+        <div class="club-shell">
+          <div th:replace="fragments/clubTabs :: clubTabs('post')"></div>
+
+          <section class="post-container">
+            <section class="panel">
+              <div class="section-header">
+                <div>
+                  <div class="section-title-wrap">
+                    <span class="section-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          d="M8 2H14.5L19 6.5V20C19 21.1 18.1 22 17 22H7C5.9 22 5 21.1 5 20V4C5 2.9 5.9 2 7 2H8Z"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linejoin="round" />
+                        <path d="M14 2V7H19" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                        <path d="M9 12H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        <path d="M9 16H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                      </svg>
+                    </span>
+                    <h1 class="section-title">모임 게시판</h1>
+                  </div>
+                  <p class="section-desc">모임 소식을 공유하고 자유롭게 글을 작성해보세요.</p>
+                </div>
+              </div>
+
+              <div class="toolbar">
+                <div class="toolbar-left">
+                  <form class="search-form" th:action="@{/community/post/list/{clubId}(clubId=${clubId})}" method="get">
+                    <select name="searchType" id="searchType">
+                      <option value="all">제목+내용</option>
+                      <option value="title">제목</option>
+                      <option value="content">내용</option>
+                    </select>
+
+                    <input type="text" name="searchKeyword" id="searchKeyword" placeholder="검색어를 입력하세요" />
+
+                    <button type="submit" class="btn-ghost">검색</button>
+
+                    <a class="hint-link" th:href="@{/community/post/list/{clubId}(clubId=${clubId})}">초기화</a>
+                  </form>
+                </div>
+
+                <div class="toolbar-right">
+                  <button
+                    type="button"
+                    class="btn-primary"
+                    th:if="${loginMember != null and loginMember.role != null}"
+                    th:onclick="|location.href='@{/community/post/write(clubId=${clubId})}'|">
+                    글쓰기
+                  </button>
+                </div>
+              </div>
+
+              <div id="postList" class="post-list"></div>
+              <nav id="pagination" class="pagination"></nav>
+            </section>
+          </section>
+        </div>
+      </main>
+
+      <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+  </body>
+</html>

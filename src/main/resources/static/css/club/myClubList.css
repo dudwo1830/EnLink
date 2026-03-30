@@ -1,0 +1,187 @@
+/* resources/static/css/club/myclubList.css */
+
+:root {
+    --enlink-purple: #9299e5;
+    --text-dark: #333;
+    --text-gray: #777;
+    --border-color: #f1f3f5;
+    --radius-lg: 16px;
+    --radius-md: 10px;
+    --soft-red: #ff6b6b;
+}
+
+/* 1. 레이아웃 */
+.list-content-container {
+    padding: 50px 60px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.list-content-container h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin-bottom: 10px;
+}
+
+.list-content-container > p {
+    color: var(--text-gray);
+    margin-bottom: 40px;
+}
+
+/* 2. 그리드 시스템 (가로 5개) */
+.club-list {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 정확히 5등분 */
+    gap: 20px;
+}
+
+.club-item-card {
+    display: flex;
+    flex-direction: column; /* 세로 카드 형태 */
+    background: #ffffff;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    height: 100%;
+}
+
+.club-item-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* 3. 이미지 영역 */
+.club-img-wrapper {
+    width: 100%;
+    height: 140px; /* 가로 카드에 맞는 높이 */
+    overflow: hidden;
+}
+
+.club-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 4. 정보 영역 */
+.club-info {
+    padding: 18px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.club-info h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.club-name-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* 이름 길면 말줄임 */
+}
+
+.club-meta {
+    margin-top: auto; /* 하단 버튼 고정 */
+}
+
+/* 🚀 홈 화면 멤버 수 디자인 이식 */
+.member-info-home {
+    font-size: 14px;
+    font-weight: 700;
+    color: #444;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.member-info-home i {
+    color: #adb5bd; /* 홈 화면 시그니처 보라색 */
+    font-size: 15px;
+}
+
+.member-info-home .current {
+    color: #6c63ff; /* 현재 인원 강조 */
+}
+
+.member-info-home .total {
+    color: #adb5bd; /* 전체 인원은 연하게 */
+}
+
+.status-text {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 5px;
+}
+.status-text.active { color: var(--enlink-purple); }
+.status-text.pending { color: var(--text-gray); }
+
+/* 5. 버튼 & 배지 */
+.btn-action {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0;
+    width: 100%;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    margin-bottom: 6px;
+    transition: 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-manage { background-color: var(--enlink-purple); color: white; }
+.btn-edit { background-color: #f1f3f5; color: #495057; }
+.btn-cancel { background-color: #fff5f5; color: var(--soft-red); border: 1px solid #ffc9c9; }
+
+.badge-pending {
+    background-color: #fff4e5;
+    color: #ffa117;
+    border: 1px solid #ffa117;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    width: fit-content;
+}
+
+/* 6. 더보기 영역 */
+.more-btn-container {
+    grid-column: 1 / -1; /* 가로 전체 차지 */
+    text-align: center;
+    padding-top: 20px;
+}
+
+.btn-more {
+    background: white;
+    border: 1px solid #ddd;
+    padding: 10px 40px;
+    border-radius: 30px;
+    color: #666;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-more:hover {
+    border-color: var(--enlink-purple);
+    color: var(--enlink-purple);
+}
+
+.empty-msg {
+    text-align: center;
+    padding: 100px 0;
+    background: #f8f9fa;
+    border-radius: var(--radius-lg);
+    color: #999;
+}

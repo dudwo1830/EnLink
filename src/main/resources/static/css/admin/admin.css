@@ -1,0 +1,50 @@
+/* 관리자 페이지 전용 스타일 */
+.table th {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6c757d;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(142, 140, 216, 0.03); /* 온연 테마의 보라색 톤 투명도 */
+}
+
+/* 입력 필드 슬림화 */
+.table .form-control-sm {
+    border-color: #f0f0f0;
+    font-size: 0.95rem;
+}
+
+.table .form-control-sm:focus {
+    border-color: var(--color-primary);
+    box-shadow: none;
+    background-color: #fff;
+}
+
+/* 추가 카드 스타일 */
+.bg-light-subtle {
+    background-color: #f8f9fa !important;
+    border: 1px solid #eee !important;
+}
+
+.card {
+    border-radius: 12px;
+}
+
+.table-responsive {
+    border-radius: 0 0 12px 12px;
+}
+
+/* 기본 tr 상태에도 transition 추가 (색상이 빠질 때 부드럽게 하기 위함) */
+.table tbody tr {
+    transition: background-color 0.5s ease;
+}
+
+/* 수정 성공 시 반짝이는 효과 */
+/* td까지 선택해줘야 Bootstrap의 기본 배경색 설정을 이길 수 있습니다. */
+.table tbody tr.table-success-highlight td {
+    background-color: rgba(12, 235, 131, 0.4) !important; 
+    /* 색 농도를 조금 올렸습니다 (0.1 -> 0.2) */
+    transition: background-color 0.2s ease; /* 나타날 때는 빠르게 */
+}

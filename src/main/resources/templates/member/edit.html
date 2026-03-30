@@ -1,0 +1,116 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/head :: head('TITLE', ~{::link}, ~{::script})}">
+    <link rel="stylesheet" href="#" th:if="${false}" />
+    <script th:src="@{/js/member/memberCommon.js}" defer></script>
+    <script th:src="@{/js/member/edit.js}" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+    <script th:src="@{/js/common/ui.js}"></script>
+    <script th:inline="javascript">
+      window.i18n.edit = {
+        delete: {
+          title: /*[[#{member.withdraw.confirm.title}]]*/'',
+          text: /*[[#{member.withdraw.confirm.text}]]*/'',
+          btn: /*[[#{member.withdraw.confirm.btn}]]*/'',
+          cancel: /*[[#{common.btn.cancel}]]*/'',
+        }
+      };
+    </script>
+  </head>
+  <body>
+    <div class="grid-container">
+      <header th:replace="~{fragments/header :: header}"></header>
+      <aside th:replace="~{fragments/aside :: aside}"></aside>
+      <main class="main container py-5">
+        <div class="row justify-content-center">
+          <div class="col-md-8 col-lg-7">
+            <h2 class="section-title text-center mb-4" th:text="#{member.edit.title}">회원 정보 수정</h2>
+            <div class="card shadow-sm">
+              <div class="card-body p-4 p-md-5">
+                <form id="editForm" th:object="${member}" method="post">
+                  <div class="mb-4">
+                    <label class="form-label fw-bold text-muted" th:text="#{member.label.id}">아이디</label>
+                    <input type="text" th:field="*{memberId}" class="form-control bg-light" disabled />
+                  </div>
+                  <div class="row g-3 mb-4">
+                    <div class="col-12">
+                      <label
+                        for="password"
+                        class="form-label fw-bold text-muted required-label"
+                        th:text="#{member.label.password.current}">
+                        기존 비밀번호
+                      </label>
+                      <input type="password" id="password" name="password" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                      <label
+                        for="newPassword"
+                        class="form-label fw-bold text-muted"
+                        th:text="#{member.label.password.new}">
+                        변경할 비밀번호
+                      </label>
+                      <input type="password" id="newPassword" name="newPassword" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                      <label
+                        for="rePassword"
+                        class="form-label fw-bold text-muted"
+                        th:text="#{member.label.rePassword}">
+                        비밀번호 재확인
+                      </label>
+                      <input type="password" id="rePassword" name="rePassword" class="form-control" />
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label
+                      for="name"
+                      class="form-label fw-bold text-muted required-label"
+                      th:text="#{member.label.name}">
+                      이름
+                    </label>
+                    <input type="text" th:field="*{name}" class="form-control" required />
+                  </div>
+                  <div class="mb-3">
+                    <label
+                      for="email"
+                      class="form-label fw-bold text-muted required-label"
+                      th:text="#{member.label.email}">
+                      이메일
+                    </label>
+                    <input type="email" th:field="*{email}" class="form-control" required />
+                  </div>
+                  <div class="mb-4">
+                    <label
+                      for="birth"
+                      class="form-label fw-bold text-muted required-label"
+                      th:text="#{member.label.birth}">
+                      생년월일
+                    </label>
+                    <input type="date" th:field="*{birth}" class="form-control" required />
+                  </div>
+                  <div class="d-grid gap-2 mt-5">
+                    <button type="submit" class="btn btn-primary btn-lg" th:text="#{member.edit.submit}">
+                      수정 완료
+                    </button>
+                    <a th:href="@{/members/me}" class="btn btn-outline-secondary" th:text="#{common.btn.cancel}">
+                      취소
+                    </a>
+
+                    <hr class="my-4 op-25" />
+                    <div class="text-center">
+                      <button type="button" id="deleteButton" class="btn btn-link text-danger text-decoration-none small"
+                        th:text="#{member.edit.withdraw}">
+                        회원 탈퇴를 원하시나요?
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+  </body>
+</html>

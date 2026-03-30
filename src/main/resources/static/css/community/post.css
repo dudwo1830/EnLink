@@ -1,0 +1,754 @@
+/* =========================
+   Common Section Header Style (Gallery Style)
+========================= */
+
+/* 1. 헤더 전체 레이아웃 */
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px; /* 여백 확보 */
+}
+
+/* 2. 아이콘 + 타이틀 감싸는 영역 */
+.section-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 3. 갤러리 스타일의 부드러운 아이콘 박스 */
+.section-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background-color: rgb(from var(--color-accent) r g b / 0.5);
+  border: 1px solid rgba(142, 140, 216, 0.25);
+  box-shadow: 0 6px 16px rgba(142, 140, 216, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+.section-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* 4. 타이틀 텍스트 */
+.section-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+/* 5. 하단 설명 (아이콘 너비만큼 들여쓰기) */
+.section-desc {
+  margin: 6px 0 0 52px; /* 아이콘(40px) + gap(12px) = 52px */
+  color: var(--color-subtext);
+  font-size: 14px;
+}
+
+/* 반응형 처리 */
+@media (max-width: 600px) {
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* =========================
+   Section Header (공통 스타일)
+========================= */
+
+.post-page .section-header {
+  margin-bottom: 22px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.post-page .section-header.custom {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.post-page .section-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 아이콘 안의 '게시판' 느낌 라인 */
+.post-page .section-icon::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 9px;
+  width: 18px;
+  height: 2px;
+  background: white;
+  border-radius: 2px;
+  box-shadow:
+    0 6px 0 0 white,
+    0 12px 0 0 white;
+}
+
+/* 타이틀 */
+.post-page .section-title {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+/* 설명 */
+.post-page .section-desc {
+  margin: 6px 0 0 46px; /* 아이콘 폭 + gap 맞춤 */
+  font-size: 13px;
+  color: var(--color-subtext);
+}
+
+/* =========================
+   Community - Post
+========================= */
+
+.post-page .page-title {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+
+.post-page .panel {
+  border: 1px solid var(--color-border, #e8eaee);
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--color-surface, #fff);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+  padding: 18px;
+}
+
+/* .post-page .panel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.07);
+} */
+
+.post-page .toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.post-page .toolbar-left {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.post-page .toolbar-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Buttons */
+.post-page .btn-primary,
+.post-page .btn-ghost,
+.post-page .btn-danger {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.post-page .btn-primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.post-page .btn-ghost {
+  background: var(--color-secondary);
+  color: var(--color-text);
+}
+
+.post-page .btn-danger {
+  background: #e74c3c;
+  color: #fff;
+}
+
+.post-page .btn-primary:disabled,
+.post-page .btn-ghost:disabled,
+.post-page .btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Search */
+.post-page .search-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.post-page select,
+.post-page input[type='text'],
+.post-page input[type='file'],
+.post-page textarea {
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  outline: none;
+  background: #fff;
+}
+
+.post-page input[type='text'] {
+  width: min(360px, 70vw);
+}
+
+.post-page .hint-link {
+  font-size: 13px;
+  color: var(--color-subtext);
+  text-decoration: none;
+}
+.post-page .hint-link:hover {
+  text-decoration: underline;
+}
+
+/* List Cards */
+.post-page .post-list {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 12px;
+}
+
+.post-page .post-card {
+  grid-column: span 12;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 14px;
+  background: #fff;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease;
+}
+
+@media (min-width: 900px) {
+  .post-page .post-card {
+    grid-column: span 6;
+  }
+}
+
+.post-page .post-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.06);
+}
+
+.post-page .post-card a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.post-page .post-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.post-page .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  background: var(--color-secondary);
+  color: var(--color-text);
+}
+
+.post-page .badge-notice {
+  background: #fff1cc;
+  color: #8a5a00;
+  border: 1px solid #ffe3a1;
+}
+
+/* 상세 제목 줄: 뱃지 + 제목을 같은 줄로 */
+.post-page .title-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.post-page .badge-wrap {
+  margin: 0;
+  line-height: 1;
+}
+
+.post-page .meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: var(--color-subtext);
+  font-size: 13px;
+}
+
+/* Pagination */
+.post-page .pagination {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+.post-page .page-btn {
+  border: 1px solid var(--color-border);
+  background: #fff;
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.post-page .page-btn.active {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: transparent;
+}
+
+.post-page .page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Detail */
+.post-page .post-detail-title {
+  font-size: 22px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.post-page .post-detail-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: var(--color-subtext);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.post-page .post-content {
+  border: 1px solid var(--color-border);
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  min-height: 180px;
+  white-space: pre-wrap;
+  margin-top: 14px;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.post-page .post-image {
+  margin: 14px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.post-page .post-image img {
+  width: min(640px, 100%);
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+}
+
+.post-page .section-divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 28px 0 18px 0;
+}
+
+/* Reply */
+.post-page .reply-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.post-page .reply-item {
+  border: 1px solid var(--color-border);
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.post-page .reply-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: var(--color-subtext);
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.post-page .reply-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.post-page .reply-actions button {
+  border: 1px solid var(--color-border);
+  background: #fff;
+  border-radius: 10px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.post-page .reply-form-wrap {
+  margin-top: 16px;
+}
+
+/* =========================
+   Comments (detail)
+========================= */
+
+.post-page .comment-header {
+  margin: 0 0 12px 0;
+}
+
+.post-page .comment-title-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.post-page .comment-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.post-page .comment-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 22px;
+  padding: 0 8px;
+  margin-left: 8px;
+  border-radius: 999px;
+  background: rgba(142, 140, 216, 0.14);
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.post-page .comment-desc {
+  margin: 6px 0 0 0;
+  font-size: 13px;
+  color: var(--color-subtext);
+}
+
+/* 댓글 입력 한 줄 폼 */
+.post-page .reply-form {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.post-page .reply-form input[type='text'] {
+  flex: 1;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: #fff;
+}
+
+.post-page .reply-form .btn-primary {
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 900;
+}
+
+/* Write/Edit Form */
+.post-page .form-grid {
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.post-page label {
+  font-weight: 800;
+  margin-bottom: 6px;
+  display: inline-block;
+}
+
+.post-page textarea {
+  width: 100%;
+  min-height: 260px;
+  resize: vertical;
+}
+
+.post-page .preview-box {
+  display: none;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 12px;
+  background: #fff;
+}
+
+.post-page .preview-box img {
+  width: min(420px, 100%);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+}
+
+.post-page .form-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.post-page .checkbox-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+/* =========================
+   Post layout fix (club-shell 기준)
+========================= */
+
+/* post-container는 club-shell 안에서 100%를 쓰고
+   좌우 여백은 club-shell이 담당한다 */
+.post-page .club-shell .post-container {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* 혹시 post-container가 club-shell 밖에서도 쓰일 경우를 대비해서
+   기본값은 유지하고 싶다면(선택) 아래는 그대로 둬도 됨 */
+/*
+.post-page .post-container{
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+*/
+
+/* ====== 제목이 header에 가리는 문제 해결 ======
+   header가 sticky/fixed인 상태에서 작은 화면에서만 겹치는 경우가 흔함 */
+@media (max-width: 900px) {
+  .post-page .post-container {
+    padding-top: 20px; /* 일단 안전값 */
+  }
+}
+
+/* 혹시 main에 width:100vw 같은 게 걸려서 aside와 겹친다면 이게 필요 */
+.post-page main.main {
+  width: auto;
+}
+
+/* ===== 이미지 확대 모달 ===== */
+.post-page .post-image img {
+  cursor: zoom-in;
+}
+
+.post-page .img-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+}
+
+.post-page .img-modal.open {
+  display: block;
+}
+
+.post-page .img-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.post-page .img-modal-body {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: min(92vw, 1000px);
+  height: min(86vh, 800px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.post-page .img-modal-body img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.post-page .img-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 26px;
+  font-weight: 900;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* hover 효과가 있다면 제거 */
+.not-member .post-card:hover {
+  transform: none !important;
+}
+
+/* =========================
+   Notice checkbox (edit/write)
+========================= */
+
+.post-page .notice-row {
+  padding: 12px 14px;
+  border: 1px dashed var(--color-border);
+  border-radius: 14px;
+  background: rgba(142, 140, 216, 0.06);
+}
+
+.post-page .notice-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+/* 기본 체크박스 숨기고 커스텀 박스 사용 */
+.post-page .notice-check input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 체크박스 UI */
+.post-page .notice-box {
+  width: 22px;
+  height: 22px;
+  border-radius: 8px;
+  border: 1px solid rgba(142, 140, 216, 0.45);
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 0.12s ease,
+    background-color 0.12s ease,
+    border-color 0.12s ease;
+}
+
+/* 체크 표시 */
+.post-page .notice-box::after {
+  content: '';
+  width: 10px;
+  height: 6px;
+  border-left: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+  transform: rotate(-45deg);
+  margin-top: -1px;
+}
+
+/* 체크되었을 때 */
+.post-page .notice-check input:checked + .notice-box {
+  background: var(--color-primary);
+  border-color: transparent;
+  transform: scale(1.02);
+}
+
+.post-page .notice-check input:checked + .notice-box::after {
+  border-left-color: #fff;
+  border-bottom-color: #fff;
+}
+
+.post-page .notice-hint {
+  margin: 8px 0 0 32px; /* 체크박스와 정렬 */
+  font-size: 13px;
+  color: var(--color-subtext);
+  line-height: 1.4;
+}
+
+/* =========================
+   File uploader (write/edit)
+========================= */
+
+.post-page .file-uploader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.post-page .file-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.post-page .file-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(142, 140, 216, 0.35);
+  background: rgba(142, 140, 216, 0.1);
+  color: var(--color-primary);
+  font-weight: 900;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    background-color 0.12s ease;
+}
+
+.post-page .file-btn:hover {
+  background: rgba(142, 140, 216, 0.16);
+}
+
+.post-page .file-btn:active {
+  transform: scale(0.98);
+}
+
+.post-page .file-name {
+  font-size: 13px;
+  color: var(--color-subtext);
+}

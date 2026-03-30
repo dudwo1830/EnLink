@@ -42,6 +42,7 @@ out/
 ####################################
 .vscode/
 !.vscode/extensions.json
+bin/
 
 ####################################
 # Environment / Secrets
@@ -69,3 +70,5 @@ coverage/
 ####################################
 .tmp/
 temp/
+uploads/
+enrink_storage/

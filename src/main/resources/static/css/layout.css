@@ -1,0 +1,12 @@
+.grid-container {
+  display: grid;
+  min-height: 100vh; 
+
+  grid-template-rows: minmax(75px, auto) minmax(calc(100vh - 155px), 1fr) minmax(80px, auto);
+  grid-template-columns: minmax(240px, auto) minmax(calc(100vh - 240px), 1fr);
+
+  grid-template-areas:
+    "header header"
+    "aside  main"
+    "aside  footer";
+}

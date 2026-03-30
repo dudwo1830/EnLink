@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head
+        th:replace="~{fragments/head :: head('EnLink - 게시글 작성', ~{::link}, ~{::script})}"
+>
+    <link rel="stylesheet" th:href="@{/css/community/post.css}"/>
+    <script th:src="@{/js/community/post.js}" defer></script>
+</head>
+
+<body>
+<div
+        class="grid-container post-page"
+        data-page="post-write"
+        th:attr="data-club-id=${clubId}"
+>
+    <header th:replace="~{fragments/header :: header}"></header>
+    <aside th:replace="~{fragments/aside :: aside}"></aside>
+
+    <main class="main">
+        <div class="club-shell">
+            <div th:replace="fragments/clubTabs :: clubTabs('post')"></div>
+
+            <section class="post-container">
+                <section class="panel">
+                    <div>
+                        <div class="section-header">
+                            <div>
+                                <div class="section-title-wrap">
+                    <span class="section-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                                d="M8 2H14.5L19 6.5V20C19 21.1 18.1 22 17 22H7C5.9 22 5 21.1 5 20V4C5 2.9 5.9 2 7 2H8Z"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linejoin="round"/>
+                        <path d="M14 2V7H19" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                        <path d="M9 12H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M9 16H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      </svg>
+                    </span>
+                                    <h1 class="section-title">게시글 작성</h1>
+                                </div>
+                                <p class="section-desc">모임에 공유할 내용을 작성해주세요.</p>
+                            </div>
+                        </div>
+
+                        <form id="writeForm" class="form-grid">
+                            <input type="hidden" id="clubId" th:value="${clubId}"/>
+                            <input type="hidden" id="memberId" th:value="${memberId}"/>
+
+                            <div>
+                                <label for="title">제목</label>
+                                <input
+                                        id="title"
+                                        type="text"
+                                        placeholder="제목을 입력하세요"
+                                />
+                            </div>
+
+                            <div>
+                                <label for="content">내용</label>
+                                <textarea
+                                        id="content"
+                                        placeholder="내용을 입력하세요"
+                                ></textarea>
+                            </div>
+
+                            <div>
+                                <label class="file-label" for="imageFile">이미지 첨부</label>
+
+                                <div class="file-uploader">
+                                    <input
+                                            id="imageFile"
+                                            class="file-input"
+                                            type="file"
+                                            accept="image/*"
+                                    />
+                                    <label for="imageFile" class="file-btn">파일 선택</label>
+                                    <span id="fileName" class="file-name"
+                                    >선택된 파일 없음</span
+                                    >
+                                </div>
+                                <div id="imagePreviewBox" class="preview-box">
+                                    <div style="font-weight: 800; margin-bottom: 10px">
+                                        미리보기
+                                    </div>
+                                    <img id="previewImg" src="" alt="preview"/>
+                                </div>
+                            </div>
+
+                            <th:block th:if="${role == 'OWNER' || role == 'MANAGER'}">
+                                <div class="notice-row">
+                                    <label class="notice-check">
+                                        <input type="checkbox" id="isNotice"/>
+                                        <span class="notice-box" aria-hidden="true"></span>
+                                        <span class="notice-text">공지사항으로 등록</span>
+                                    </label>
+
+                                    <p class="notice-hint">
+                                        공지로 설정하면 게시판 상단에 우선 노출됩니다.
+                                    </p>
+                                </div>
+                            </th:block>
+
+                            <div class="form-actions">
+                                <button
+                                        type="button"
+                                        class="btn-ghost"
+                                        onclick="history.back()"
+                                >
+                                    취소
+                                </button>
+                                <button type="submit" class="btn-primary">등록</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+            </section>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+</div>
+</body>
+</html>

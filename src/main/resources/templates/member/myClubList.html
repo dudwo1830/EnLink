@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: head('EnLink - 내 모임 활동', ~{::link}, ~{::script})}">
+    <link rel="stylesheet" th:href="@{/css/club/myclubList.css}">
+    <script th:src="@{/js/member/myClubList.js}" defer></script>
+</head>
+<body>
+<div class="grid-container">
+    <header th:replace="~{fragments/header :: header}" class="header"></header>
+    <aside th:replace="~{fragments/aside :: aside}"></aside>
+
+    <main class="main">
+        <div class="list-content-container">
+            <h1 th:text="${title}">내 모임 활동</h1>
+            <p><strong th:text="${#authentication.name}">사용자</strong> 님의 활동 정보입니다.</p>
+
+            <div th:if="${#lists.isEmpty(clubs)}" class="empty-msg">
+                <p>표시할 내역이 없습니다. 새로운 모임에 참여해보세요!</p>
+            </div>
+
+            <div class="club-list" th:if="${not #lists.isEmpty(clubs)}">
+                <div th:each="club, stat : ${clubs}"
+                     class="club-item-card"
+                     th:classappend="${currentType == 'pending' and stat.index >= 5} ? 'd-none hidden-club' : ''">
+
+                    <a th:href="@{/club/{id}(id=${club.clubId})}">
+                        <div class="club-img-wrapper">
+                            <img th:src="${#strings.isEmpty(club.imageUrl) ? '/images/default_club.jpg' : club.imageUrl}" alt="모임 이미지">
+                        </div>
+                    </a>
+
+                    <div class="club-info">
+                        <h3>
+                            <span th:text="${club.name}" class="club-name-text">모임 이름</span>
+                            <span th:if="${club.status == 'DELETED_PENDING'}" class="badge-pending">삭제 대기</span>
+                        </h3>
+
+                        <div class="club-meta">
+                            <th:block th:if="${currentType == 'owned'}">
+                                <div class="member-info-home">
+                                    <i class="bi bi-people-fill"></i>
+                                    <span class="current" th:text="${club.currentMemberCount}">0</span>
+                                    <span class="total">/ <span th:text="${club.maxMember}">10</span></span>
+                                </div>
+                                <div class="button-group mt-3">
+                                    <a th:href="@{/club/{id}/manage/requests(id=${club.clubId})}" class="btn-action btn-manage">신청 관리</a>
+                                    <a th:href="@{/club/{id}/manage/edit(id=${club.clubId})}" class="btn-action btn-edit">수정</a>
+                                </div>
+                            </th:block>
+
+                            <th:block th:if="${currentType == 'active'}">
+                                <div class="member-info-home">
+                                    <i class="bi bi-people-fill"></i>
+                                    <span class="current" th:text="${club.currentMemberCount}">0</span>
+                                    <span class="total">/ <span th:text="${club.maxMember}">10</span></span>
+                                </div>
+                                <p class="status-text active">✔️ 현재 활동 중</p>
+                            </th:block>
+
+                            <th:block th:if="${currentType == 'pending'}">
+                                <div class="member-info-home" style="margin-bottom: 12px;">
+                                    <i class="bi bi-people-fill"></i>
+                                    <span class="current" th:text="${club.currentMemberCount}">0</span>
+                                    <span class="total">/ <span th:text="${club.maxMember}">10</span></span>
+                                </div>
+                                <p class="status-text pending">승인 대기 중...</p>
+                                <button type="button" class="btn-action btn-cancel" th:onclick="|cancelApply(${club.clubId})|">
+                                    신청 취소
+                                </button>
+                            </th:block>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${currentType == 'pending' and #lists.size(clubs) > 5}" class="more-btn-container" id="moreBtnArea">
+                    <button type="button" class="btn-more" onclick="showMoreClubs()">
+                        더보기 <i class="bi bi-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer th:replace="~{fragments/footer :: footer}" class="footer"></footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // '더보기' 버튼 클릭 시 숨겨진 카드 노출
+    function showMoreClubs() {
+        const hiddenClubs = document.querySelectorAll('.hidden-club');
+        hiddenClubs.forEach(club => club.classList.remove('d-none'));
+        document.getElementById('moreBtnArea').style.display = 'none';
+    }
+</script>
+</body>
+</html>
